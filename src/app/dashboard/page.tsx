@@ -12,10 +12,10 @@ import EscrowStatus from "@/components/dashboard/EscrowStatus";
 
 export default async function Dashboard() {
   // This will redirect to sign-in if not authenticated
-  const user = await requireAuth();
+  await requireAuth();
 
   // This will redirect to role selection if no profile
-  const profile = await requireProfile();
+  await requireProfile();
 
   return (
     <div className="min-h-screen bg-gray-50">

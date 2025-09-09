@@ -8,9 +8,9 @@ import AuthLayout from "@/components/auth/AuthLayout";
 export default function Review() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [role, setRole] = useState<string>("");
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const router = useRouter();
   const supabase = createClient();
 
@@ -109,7 +109,7 @@ export default function Review() {
           <div>
             <h4 className="font-medium text-gray-900">Skills & Technologies</h4>
             <div className="mt-1 flex flex-wrap gap-2">
-              {profile.skills?.map((skill, index) => (
+              {profile.skills?.map((skill: string, index: number) => (
                 <span
                   key={index}
                   className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
@@ -146,7 +146,7 @@ export default function Review() {
           <div>
             <h4 className="font-medium text-gray-900">Areas of Expertise</h4>
             <div className="mt-1 flex flex-wrap gap-2">
-              {profile.expertise?.map((area, index) => (
+              {profile.expertise?.map((area: string, index: number) => (
                 <span
                   key={index}
                   className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"

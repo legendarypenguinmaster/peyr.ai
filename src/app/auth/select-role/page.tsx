@@ -12,7 +12,7 @@ export default function SelectRole() {
   >(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const router = useRouter();
   const supabase = createClient();
 

@@ -10,7 +10,7 @@ import { Clock } from "lucide-react";
 export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [role, setRole] = useState<string>("");
   const router = useRouter();
   const supabase = createClient();
@@ -331,8 +331,8 @@ export default function Onboarding() {
       </div>
       <h3 className="text-lg font-medium text-gray-900 mb-2">Coming Soon</h3>
       <p className="text-gray-600 mb-6">
-        Investor features are currently under development. We'll notify you when
-        they're ready!
+        Investor features are currently under development. We&apos;ll notify you
+        when they&apos;re ready!
       </p>
       <button
         onClick={() => router.push("/auth/review")}

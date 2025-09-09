@@ -152,7 +152,7 @@ export default function VerifyEmail() {
           <p className="text-sm text-gray-600 mb-6">
             {email ? (
               <>
-                We've sent a 6-digit verification code to{" "}
+                We&apos;ve sent a 6-digit verification code to{" "}
                 <strong>{email}</strong>. Please enter the code below.
               </>
             ) : (
@@ -198,7 +198,7 @@ export default function VerifyEmail() {
 
         <div className="text-center space-y-4">
           <p className="text-sm text-gray-600">
-            Didn't receive the code?{" "}
+            Didn&apos;t receive the code?{" "}
             <button
               type="button"
               onClick={handleResendCode}

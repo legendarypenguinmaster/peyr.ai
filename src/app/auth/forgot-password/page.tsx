@@ -62,8 +62,9 @@ export default function ForgotPassword() {
             Email sent successfully!
           </h3>
           <p className="text-sm text-gray-600 mb-6">
-            We've sent a password reset link to <strong>{email}</strong>. Please
-            check your email and follow the instructions to reset your password.
+            We&apos;ve sent a password reset link to <strong>{email}</strong>.
+            Please check your email and follow the instructions to reset your
+            password.
           </p>
           <div className="space-y-3">
             <button
@@ -104,8 +105,8 @@ export default function ForgotPassword() {
 
         <div className="text-center">
           <p className="text-sm text-gray-600 mb-6">
-            Enter your email address and we'll send you a link to reset your
-            password.
+            Enter your email address and we&apos;ll send you a link to reset
+            your password.
           </p>
         </div>
 
@@ -126,7 +127,7 @@ export default function ForgotPassword() {
 
         <div className="text-center">
           <p className="text-xs text-gray-500">
-            Didn't receive the email? Check your spam folder or{" "}
+            Didn&apos;t receive the email? Check your spam folder or{" "}
             <button
               type="button"
               onClick={() => {
