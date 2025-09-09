@@ -24,14 +24,52 @@ export default function ResetPassword() {
   useEffect(() => {
     // Check if we have a valid session for password reset
     const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        setIsValidSession(true);
-      } else {
-        // If no session, redirect to forgot password
-        router.push("/auth/forgot-password");
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error("Session error:", error);
+          setError("Invalid or expired reset link. Please request a new one.");
+          return;
+        }
+
+        if (session) {
+          setIsValidSession(true);
+        } else {
+          // Check if we're coming from a password reset link
+          const urlParams = new URLSearchParams(window.location.search);
+          const accessToken = urlParams.get("access_token");
+          const refreshToken = urlParams.get("refresh_token");
+
+          if (accessToken && refreshToken) {
+            // We have tokens from the reset link, try to set the session
+            const { data, error: setSessionError } =
+              await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              });
+
+            if (setSessionError) {
+              console.error("Set session error:", setSessionError);
+              setError(
+                "Invalid or expired reset link. Please request a new one."
+              );
+            } else if (data.session) {
+              setIsValidSession(true);
+            }
+          } else {
+            // No session and no tokens, redirect to forgot password
+            setError(
+              "Invalid or expired reset link. Please request a new one."
+            );
+          }
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+        setError("An unexpected error occurred. Please try again.");
       }
     };
 
@@ -104,6 +142,11 @@ export default function ResetPassword() {
         footerLinkText="Request new link"
       >
         <div className="text-center">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-6">
+              {error}
+            </div>
+          )}
           <p className="text-sm text-gray-600 mb-6">
             Please request a new password reset link.
           </p>
