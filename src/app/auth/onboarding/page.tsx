@@ -346,7 +346,7 @@ export default function Onboarding() {
   const getTitle = () => {
     switch (role) {
       case "founder":
-        return "Tell us about yourself";
+        return "Tell us about your project";
       case "mentor":
         return "Share your expertise";
       case "investor":
