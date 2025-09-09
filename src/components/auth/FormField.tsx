@@ -6,16 +6,20 @@ interface FormFieldProps {
   required?: boolean;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  maxLength?: number;
+  className?: string;
 }
 
-export default function FormField({ 
-  label, 
-  type, 
-  name, 
-  placeholder, 
-  required = false, 
-  value, 
-  onChange 
+export default function FormField({
+  label,
+  type,
+  name,
+  placeholder,
+  required = false,
+  value,
+  onChange,
+  maxLength,
+  className,
 }: FormFieldProps) {
   return (
     <div>
@@ -32,7 +36,10 @@ export default function FormField({
           required={required}
           value={value}
           onChange={onChange}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          maxLength={maxLength}
+          className={`appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+            className || ""
+          }`}
         />
       </div>
     </div>

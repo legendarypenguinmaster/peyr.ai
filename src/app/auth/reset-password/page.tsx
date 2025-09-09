@@ -32,40 +32,19 @@ export default function ResetPassword() {
 
         if (error) {
           console.error("Session error:", error);
-          setError("Invalid or expired reset link. Please request a new one.");
+          setError(
+            "Invalid session. Please start the password reset process again."
+          );
           return;
         }
 
         if (session) {
           setIsValidSession(true);
         } else {
-          // Check if we're coming from a password reset link
-          const urlParams = new URLSearchParams(window.location.search);
-          const accessToken = urlParams.get("access_token");
-          const refreshToken = urlParams.get("refresh_token");
-
-          if (accessToken && refreshToken) {
-            // We have tokens from the reset link, try to set the session
-            const { data, error: setSessionError } =
-              await supabase.auth.setSession({
-                access_token: accessToken,
-                refresh_token: refreshToken,
-              });
-
-            if (setSessionError) {
-              console.error("Set session error:", setSessionError);
-              setError(
-                "Invalid or expired reset link. Please request a new one."
-              );
-            } else if (data.session) {
-              setIsValidSession(true);
-            }
-          } else {
-            // No session and no tokens, redirect to forgot password
-            setError(
-              "Invalid or expired reset link. Please request a new one."
-            );
-          }
+          // No valid session, redirect to forgot password
+          setError(
+            "No valid session found. Please start the password reset process again."
+          );
         }
       } catch (err) {
         console.error("Unexpected error:", err);
@@ -136,10 +115,10 @@ export default function ResetPassword() {
     return (
       <AuthLayout
         title="Invalid Session"
-        subtitle="This password reset link is invalid or has expired."
-        footerText="Need a new reset link?"
+        subtitle="Your password reset session has expired or is invalid."
+        footerText="Need to start over?"
         footerLink="/auth/forgot-password"
-        footerLinkText="Request new link"
+        footerLinkText="Request new code"
       >
         <div className="text-center">
           {error && (
@@ -148,13 +127,14 @@ export default function ResetPassword() {
             </div>
           )}
           <p className="text-sm text-gray-600 mb-6">
-            Please request a new password reset link.
+            Please start the password reset process again by requesting a new
+            verification code.
           </p>
           <Link
             href="/auth/forgot-password"
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            Request New Reset Link
+            Request New Verification Code
           </Link>
         </div>
       </AuthLayout>
