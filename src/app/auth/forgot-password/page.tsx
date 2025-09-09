@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import AuthLayout from "@/components/auth/AuthLayout";
 import FormField from "@/components/auth/FormField";

@@ -82,10 +82,14 @@ export default function VerifyResetCode() {
     setError(null);
 
     try {
-      const { error: resendError } = await supabase.auth.resend({
-        type: "recovery",
+      const { error: resendError } = await supabase.auth.resetPasswordForEmail(
         email,
-      });
+        {
+          redirectTo: `${
+            process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+          }/auth/verify-reset-code`,
+        }
+      );
 
       if (resendError) {
         setError(resendError.message);
