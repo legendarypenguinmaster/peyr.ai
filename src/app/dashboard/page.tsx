@@ -1,8 +1,4 @@
-"use client";
-
-import { useAppSelector } from "@/store/hooks";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { requireAuth, requireProfile } from "@/lib/auth";
 import DashboardHeader from "@/components/layout/DashboardHeader";
 import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
 import RecommendedCoFounders from "@/components/dashboard/RecommendedCoFounders";
@@ -14,32 +10,12 @@ import TrustScore from "@/components/dashboard/TrustScore";
 import QuickActions from "@/components/dashboard/QuickActions";
 import EscrowStatus from "@/components/dashboard/EscrowStatus";
 
-export default function Dashboard() {
-  const { isSignedIn, signupCompleted } = useAppSelector((state) => state.auth);
-  const router = useRouter();
+export default async function Dashboard() {
+  // This will redirect to sign-in if not authenticated
+  await requireAuth();
 
-  useEffect(() => {
-    if (!isSignedIn) {
-      router.push("/auth/sign-in");
-      return;
-    }
-
-    if (!signupCompleted) {
-      router.push("/auth/select-role");
-      return;
-    }
-  }, [isSignedIn, signupCompleted, router]);
-
-  if (!isSignedIn || !signupCompleted) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // This will redirect to role selection if no profile
+  await requireProfile();
 
   return (
     <div className="min-h-screen bg-gray-50">
