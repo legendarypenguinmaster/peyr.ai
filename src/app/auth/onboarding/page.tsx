@@ -1,79 +1,152 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setProfile } from '@/store/authSlice';
-import AuthLayout from '@/components/auth/AuthLayout';
-import FormField from '@/components/auth/FormField';
-import { Clock } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import AuthLayout from "@/components/auth/AuthLayout";
+import FormField from "@/components/auth/FormField";
+import { Clock } from "lucide-react";
 
 export default function Onboarding() {
   const [loading, setLoading] = useState(false);
-  const dispatch = useAppDispatch();
+  const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [role, setRole] = useState<string>("");
   const router = useRouter();
-  const { user, role } = useAppSelector((state) => state.auth);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUserData = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/auth/sign-in");
+        return;
+      }
+      setUser(user);
+
+      // Get user's role from profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.role) {
+        setRole(profile.role);
+      } else {
+        router.push("/auth/select-role");
+      }
+    };
+
+    getUserData();
+  }, [router, supabase.auth, supabase]);
 
   // Founder form state
   const [founderForm, setFounderForm] = useState({
-    skills: '',
-    goals: '',
-    experience: '',
-    location: ''
+    skills: "",
+    goals: "",
+    experience: "",
+    location: "",
   });
 
   // Mentor form state
   const [mentorForm, setMentorForm] = useState({
-    expertise: '',
-    yearsOfExperience: '',
-    availability: ''
+    expertise: "",
+    yearsOfExperience: "",
+    availability: "",
   });
 
-  const handleFounderChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleFounderChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     setFounderForm({
       ...founderForm,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleMentorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleMentorChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     setMentorForm({
       ...mentorForm,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    let profileData;
-    if (role === 'founder') {
-      profileData = {
-        skills: founderForm.skills.split(',').map(s => s.trim()).filter(s => s),
-        goals: founderForm.goals,
-        experience: founderForm.experience,
-        location: founderForm.location
-      };
-    } else if (role === 'mentor') {
-      profileData = {
-        expertise: mentorForm.expertise.split(',').map(s => s.trim()).filter(s => s),
-        yearsOfExperience: parseInt(mentorForm.yearsOfExperience),
-        availability: mentorForm.availability
-      };
+    setError(null);
+
+    if (!user) return;
+
+    try {
+      let profileData;
+      if (role === "founder") {
+        profileData = {
+          skills: founderForm.skills
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s),
+          goals: founderForm.goals,
+          experience: founderForm.experience,
+          location: founderForm.location,
+        };
+      } else if (role === "mentor") {
+        profileData = {
+          expertise: mentorForm.expertise
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s),
+          yearsOfExperience: parseInt(mentorForm.yearsOfExperience),
+          availability: mentorForm.availability,
+        };
+      }
+
+      // Save profile data to Supabase
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          onboarding_data: profileData,
+          onboarding_completed: true,
+        })
+        .eq("id", user.id);
+
+      if (updateError) {
+        setError(updateError.message);
+        setLoading(false);
+        return;
+      }
+
+      router.push("/auth/review");
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
+      console.error("Onboarding error:", err);
+    } finally {
+      setLoading(false);
     }
-    
-    dispatch(setProfile(profileData));
-    router.push('/auth/review');
   };
 
   const renderFounderForm = () => (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+          {error}
+        </div>
+      )}
+
       <div>
-        <label htmlFor="skills" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="skills"
+          className="block text-sm font-medium text-gray-700"
+        >
           Skills & Technologies <span className="text-red-500">*</span>
         </label>
         <div className="mt-1">
@@ -87,12 +160,17 @@ export default function Onboarding() {
             onChange={handleFounderChange}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           />
-          <p className="mt-1 text-xs text-gray-500">Separate multiple skills with commas</p>
+          <p className="mt-1 text-xs text-gray-500">
+            Separate multiple skills with commas
+          </p>
         </div>
       </div>
 
       <div>
-        <label htmlFor="goals" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="goals"
+          className="block text-sm font-medium text-gray-700"
+        >
           What are your goals? <span className="text-red-500">*</span>
         </label>
         <div className="mt-1">
@@ -110,7 +188,10 @@ export default function Onboarding() {
       </div>
 
       <div>
-        <label htmlFor="experience" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="experience"
+          className="block text-sm font-medium text-gray-700"
+        >
           Experience Level <span className="text-red-500">*</span>
         </label>
         <div className="mt-1">
@@ -146,15 +227,24 @@ export default function Onboarding() {
         disabled={loading}
         className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
       >
-        {loading ? 'Loading...' : 'Continue'}
+        {loading ? "Loading..." : "Continue"}
       </button>
     </form>
   );
 
   const renderMentorForm = () => (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+          {error}
+        </div>
+      )}
+
       <div>
-        <label htmlFor="expertise" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="expertise"
+          className="block text-sm font-medium text-gray-700"
+        >
           Areas of Expertise <span className="text-red-500">*</span>
         </label>
         <div className="mt-1">
@@ -168,12 +258,17 @@ export default function Onboarding() {
             onChange={handleMentorChange}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           />
-          <p className="mt-1 text-xs text-gray-500">Separate multiple areas with commas</p>
+          <p className="mt-1 text-xs text-gray-500">
+            Separate multiple areas with commas
+          </p>
         </div>
       </div>
 
       <div>
-        <label htmlFor="yearsOfExperience" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="yearsOfExperience"
+          className="block text-sm font-medium text-gray-700"
+        >
           Years of Experience <span className="text-red-500">*</span>
         </label>
         <div className="mt-1">
@@ -195,7 +290,10 @@ export default function Onboarding() {
       </div>
 
       <div>
-        <label htmlFor="availability" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="availability"
+          className="block text-sm font-medium text-gray-700"
+        >
           Availability <span className="text-red-500">*</span>
         </label>
         <div className="mt-1">
@@ -221,7 +319,7 @@ export default function Onboarding() {
         disabled={loading}
         className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
       >
-        {loading ? 'Loading...' : 'Continue'}
+        {loading ? "Loading..." : "Continue"}
       </button>
     </form>
   );
@@ -233,10 +331,11 @@ export default function Onboarding() {
       </div>
       <h3 className="text-lg font-medium text-gray-900 mb-2">Coming Soon</h3>
       <p className="text-gray-600 mb-6">
-        Investor features are currently under development. We'll notify you when they're ready!
+        Investor features are currently under development. We'll notify you when
+        they're ready!
       </p>
       <button
-        onClick={() => router.push('/auth/review')}
+        onClick={() => router.push("/auth/review")}
         className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       >
         Continue
@@ -246,27 +345,27 @@ export default function Onboarding() {
 
   const getTitle = () => {
     switch (role) {
-      case 'founder':
-        return 'Tell us about yourself';
-      case 'mentor':
-        return 'Share your expertise';
-      case 'investor':
-        return 'Investor Setup';
+      case "founder":
+        return "Tell us about yourself";
+      case "mentor":
+        return "Share your expertise";
+      case "investor":
+        return "Investor Setup";
       default:
-        return 'Complete your profile';
+        return "Complete your profile";
     }
   };
 
   const getSubtitle = () => {
     switch (role) {
-      case 'founder':
-        return 'Help us match you with the perfect co-founder';
-      case 'mentor':
-        return 'Let founders know how you can help them';
-      case 'investor':
-        return 'Investor features coming soon';
+      case "founder":
+        return "Help us match you with the perfect co-founder";
+      case "mentor":
+        return "Let founders know how you can help them";
+      case "investor":
+        return "Investor features coming soon";
       default:
-        return 'Complete your profile setup';
+        return "Complete your profile setup";
     }
   };
 
@@ -278,9 +377,9 @@ export default function Onboarding() {
       footerLink=""
       footerLinkText=""
     >
-      {role === 'founder' && renderFounderForm()}
-      {role === 'mentor' && renderMentorForm()}
-      {role === 'investor' && renderInvestorForm()}
+      {role === "founder" && renderFounderForm()}
+      {role === "mentor" && renderMentorForm()}
+      {role === "investor" && renderInvestorForm()}
     </AuthLayout>
   );
 }

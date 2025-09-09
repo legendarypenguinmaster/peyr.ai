@@ -1,16 +1,32 @@
-'use client';
+"use client";
 
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { signOut } from '@/store/authSlice';
-import Link from 'next/link';
-import { Shield, Search, Grid3X3, Layout, Brain, Award, MessageCircle, Bell, User, Plus } from 'lucide-react';
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import {
+  Shield,
+  Search,
+  Grid3X3,
+  Layout,
+  Brain,
+  Award,
+  MessageCircle,
+  Bell,
+  User,
+  Plus,
+} from "lucide-react";
 
 export default function DashboardHeader() {
-  const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const router = useRouter();
+  const supabase = createClient();
 
-  const handleSignOut = () => {
-    dispatch(signOut());
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      router.push("/auth/sign-in");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
@@ -32,33 +48,53 @@ export default function DashboardHeader() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/dashboard" className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap">
+            <Link
+              href="/dashboard"
+              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+            >
               <Search className="w-5 h-5" />
               <span>Find Co-Founders</span>
             </Link>
-            <Link href="/projects" className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap">
+            <Link
+              href="/projects"
+              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+            >
               <Grid3X3 className="w-5 h-5" />
               <span>Browse Projects</span>
             </Link>
-            <Link href="/workspace" className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap">
+            <Link
+              href="/workspace"
+              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+            >
               <Layout className="w-5 h-5" />
               <span>Workspace</span>
             </Link>
-            <Link href="/ai-tools" className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap">
+            <Link
+              href="/ai-tools"
+              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+            >
               <Brain className="w-5 h-5" />
               <span>AI Tools</span>
-              <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">NEW</span>
+              <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">
+                NEW
+              </span>
             </Link>
           </nav>
 
           {/* User Actions */}
           <div className="flex items-center space-x-6">
-            <Link href="/reputation" className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap">
+            <Link
+              href="/reputation"
+              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+            >
               <Award className="w-5 h-5" />
               <span>Reputation</span>
             </Link>
-            
-            <Link href="/messages" className="flex items-center text-gray-700 hover:text-blue-600">
+
+            <Link
+              href="/messages"
+              className="flex items-center text-gray-700 hover:text-blue-600"
+            >
               <MessageCircle className="w-5 h-5" />
             </Link>
 
@@ -66,7 +102,9 @@ export default function DashboardHeader() {
             <div className="relative">
               <button className="p-2 text-gray-700 hover:text-blue-600 relative">
                 <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  3
+                </span>
               </button>
             </div>
 
@@ -84,7 +122,7 @@ export default function DashboardHeader() {
             </button>
 
             {/* Logout Button */}
-            <button 
+            <button
               onClick={handleSignOut}
               className="bg-white text-gray-700 px-4 py-2 rounded-lg font-medium border border-gray-300 hover:bg-gray-50 transition-colors whitespace-nowrap"
             >
