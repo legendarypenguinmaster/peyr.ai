@@ -60,10 +60,10 @@ export default function VerifyEmail() {
       if (data.user) {
         setSuccess(true);
 
-        // Wait a moment to show success message, then redirect
+        // Wait a moment to show success message, then redirect to select role
         setTimeout(() => {
           router.push("/auth/select-role");
-        }, 2000);
+        }, 1500);
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
