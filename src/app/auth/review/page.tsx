@@ -190,6 +190,9 @@ export default function Review() {
       footerText=""
       footerLink=""
       footerLinkText=""
+      imageSrc="/images/collaborate-safely.jpg"
+      imageAlt="Review your profile information"
+      layout="form-right"
     >
       <div className="space-y-6">
         {error && (

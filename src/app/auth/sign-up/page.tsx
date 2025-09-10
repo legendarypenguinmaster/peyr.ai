@@ -118,6 +118,9 @@ export default function SignUp() {
       footerText="Already have an account?"
       footerLink="/auth/sign-in"
       footerLinkText="Sign in"
+      imageSrc="/images/create-profile.jpg"
+      imageAlt="Create your entrepreneur profile"
+      layout="form-right"
     >
       <form className="space-y-6" onSubmit={handleSubmit}>
         {error && (

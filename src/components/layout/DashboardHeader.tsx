@@ -32,7 +32,7 @@ export default function DashboardHeader() {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-full mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex justify-between items-center py-2">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/dashboard" className="flex items-center">

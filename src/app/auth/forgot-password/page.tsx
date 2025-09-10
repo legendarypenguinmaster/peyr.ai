@@ -135,6 +135,9 @@ export default function ForgotPassword() {
         footerText=""
         footerLink=""
         footerLinkText=""
+        imageSrc="/images/search.jpg"
+        imageAlt="Password reset verification"
+        layout="form-left"
       >
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
@@ -160,6 +163,9 @@ export default function ForgotPassword() {
         footerText="Remember your password?"
         footerLink="/auth/sign-in"
         footerLinkText="Sign in"
+        imageSrc="/images/search.jpg"
+        imageAlt="Email verification code"
+        layout="form-left"
       >
         <form className="space-y-6" onSubmit={handleVerifyCode}>
           {error && (
@@ -233,6 +239,9 @@ export default function ForgotPassword() {
       footerText="Remember your password?"
       footerLink="/auth/sign-in"
       footerLinkText="Sign in"
+      imageSrc="/images/search.jpg"
+      imageAlt="Password reset assistance"
+      layout="form-left"
     >
       <form className="space-y-6" onSubmit={handleSubmit}>
         {error && (
