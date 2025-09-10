@@ -74,6 +74,8 @@ export default function SelectRole() {
     setError(null);
 
     try {
+      console.log("Attempting to check existing profile for user:", user.id);
+
       // First, try to update existing profile
       const { data: existingProfile, error: selectError } = await supabase
         .from("profiles")
@@ -81,38 +83,59 @@ export default function SelectRole() {
         .eq("id", user.id)
         .single();
 
+      console.log("Profile query result:", { existingProfile, selectError });
+
       if (selectError && selectError.code !== "PGRST116") {
         // PGRST116 is "not found" error, which is expected if profile doesn't exist
-        setError(selectError.message);
+        console.error("Profile select error:", selectError);
+        setError(
+          `Database error: ${selectError.message} (Code: ${selectError.code})`
+        );
         setLoading(false);
         return;
       }
 
       if (existingProfile) {
         // Update existing profile
+        console.log("Updating existing profile with role:", selectedRole);
         const { error: updateError } = await supabase
           .from("profiles")
           .update({ role: selectedRole })
           .eq("id", user.id);
 
         if (updateError) {
-          setError(updateError.message);
+          console.error("Profile update error:", updateError);
+          setError(
+            `Update error: ${updateError.message} (Code: ${updateError.code})`
+          );
           setLoading(false);
           return;
         }
+        console.log("Profile updated successfully");
       } else {
         // Create new profile if it doesn't exist
-        const { error: insertError } = await supabase.from("profiles").insert({
+        console.log("Creating new profile with role:", selectedRole);
+        const profileData = {
           id: user.id,
           role: selectedRole,
           name: user.user_metadata?.name || user.email?.split("@")[0] || "User",
-        });
+          email: user.email,
+        };
+        console.log("Profile data to insert:", profileData);
+
+        const { error: insertError } = await supabase
+          .from("profiles")
+          .insert(profileData);
 
         if (insertError) {
-          setError(insertError.message);
+          console.error("Profile insert error:", insertError);
+          setError(
+            `Insert error: ${insertError.message} (Code: ${insertError.code})`
+          );
           setLoading(false);
           return;
         }
+        console.log("Profile created successfully");
       }
 
       // Redirect to onboarding

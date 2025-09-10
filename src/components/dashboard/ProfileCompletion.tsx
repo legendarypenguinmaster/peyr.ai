@@ -1,14 +1,68 @@
 "use client";
 
-import { Circle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { CheckCircle, Circle } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function ProfileCompletion() {
-  const router = useRouter();
+  const supabase = createClient();
 
-  const handleCompleteProfile = () => {
-    router.push("/profile-setup");
-  };
+  const [progress, setProgress] = useState(0);
+  const [checks, setChecks] = useState({
+    basic: false,
+    skills: false,
+    portfolio: false,
+    identity: false,
+    references: false,
+  });
+
+  useEffect(() => {
+    const load = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select(
+          "name, role, professional_title, location, bio, interests, skills, experience, portfolio_url, linkedin_url, github_url"
+        )
+        .eq("id", user.id)
+        .single();
+
+      if (profile) {
+        const basic = Boolean(profile.name && profile.role);
+        const skills = Boolean(
+          profile.professional_title &&
+            profile.location &&
+            profile.bio &&
+            Array.isArray(profile.interests) &&
+            profile.interests.length > 0 &&
+            Array.isArray(profile.skills) &&
+            profile.skills.length > 0
+        );
+        const portfolio = Boolean(
+          profile.experience &&
+            profile.portfolio_url &&
+            profile.linkedin_url &&
+            profile.github_url
+        );
+
+        const newChecks = {
+          basic,
+          skills,
+          portfolio,
+          identity: false,
+          references: false,
+        };
+        setChecks(newChecks);
+        const pct = (basic ? 20 : 0) + (skills ? 20 : 0) + (portfolio ? 20 : 0);
+        setProgress(pct);
+      }
+    };
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -44,12 +98,12 @@ export default function ProfileCompletion() {
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-2">
             <span className="text-gray-600 font-medium">Completion Rate</span>
-            <span className="font-bold text-gray-900">0%</span>
+            <span className="font-bold text-gray-900">{progress}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className="bg-gradient-to-r from-emerald-500 to-teal-600 h-2 rounded-full transition-all duration-500"
-              style={{ width: "0%" }}
+              style={{ width: `${progress}%` }}
             ></div>
           </div>
         </div>
@@ -57,14 +111,14 @@ export default function ProfileCompletion() {
         {/* Profile Items - Compact */}
         <div className="space-y-2 mb-4">
           {[
-            { label: "Basic Information", icon: "👤" },
-            { label: "Skills & expertise", icon: "🛠️" },
-            { label: "Portfolio & experience", icon: "💼" },
-            { label: "Identity verification", icon: "✅" },
-            { label: "References", icon: "👥" },
-          ].map((item, index) => (
+            { key: "basic", label: "Basic Information", icon: "👤" },
+            { key: "skills", label: "Skills & expertise", icon: "🛠️" },
+            { key: "portfolio", label: "Portfolio & experience", icon: "💼" },
+            { key: "identity", label: "Identity verification", icon: "✅" },
+            { key: "references", label: "References", icon: "👥" },
+          ].map((item) => (
             <div
-              key={index}
+              key={item.key}
               className="flex items-center space-x-2 p-2 rounded-lg bg-gray-50"
             >
               <div className="text-sm">{item.icon}</div>
@@ -73,17 +127,14 @@ export default function ProfileCompletion() {
                   {item.label}
                 </span>
               </div>
-              <Circle className="w-3 h-3 text-gray-300" />
+              {checks[item.key as keyof typeof checks] ? (
+                <CheckCircle className="w-4 h-4 text-emerald-500" />
+              ) : (
+                <Circle className="w-3 h-3 text-gray-300" />
+              )}
             </div>
           ))}
         </div>
-
-        <button
-          onClick={handleCompleteProfile}
-          className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-2 px-4 rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 font-semibold cursor-pointer text-sm"
-        >
-          Complete Profile
-        </button>
       </div>
     </div>
   );
