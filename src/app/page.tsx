@@ -17,7 +17,7 @@ export default function Home() {
       <StatsSection />
       <TestimonialsSection />
       <CallToActionSection />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
