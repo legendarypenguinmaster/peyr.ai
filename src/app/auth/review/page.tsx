@@ -190,6 +190,9 @@ export default function Review() {
       footerText=""
       footerLink=""
       footerLinkText=""
+      imageSrc="/images/collaborate-safely.jpg"
+      imageAlt="Review your profile information"
+      layout="form-right"
     >
       <div className="space-y-6">
         {error && (
@@ -234,6 +237,7 @@ export default function Review() {
                 {role === "investor" &&
                   "Invest in promising startups and founders"}
               </div>
+              st
             </div>
           </div>
         </div>
@@ -242,7 +246,7 @@ export default function Review() {
         {profile && (
           <div className="bg-gray-50 rounded-lg p-4">
             <h3 className="text-lg font-medium text-gray-900 mb-3">
-              Profile Details
+              Job Details
             </h3>
             {renderProfileSummary()}
           </div>

@@ -134,6 +134,9 @@ export default function SelectRole() {
       footerText=""
       footerLink=""
       footerLinkText=""
+      imageSrc="/images/ai-matched-co-founder.jpg"
+      imageAlt="Choose your role in the startup ecosystem"
+      layout="form-right"
     >
       <div className="space-y-6">
         {error && (

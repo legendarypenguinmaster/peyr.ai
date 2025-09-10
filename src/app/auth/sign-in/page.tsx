@@ -99,6 +99,9 @@ export default function SignIn() {
       footerText="Don't have an account?"
       footerLink="/auth/sign-up"
       footerLinkText="Sign up"
+      imageSrc="/images/search.jpg"
+      imageAlt="AI-powered co-founder matching"
+      layout="form-left"
     >
       <form className="space-y-6" onSubmit={handleSubmit}>
         {error && (

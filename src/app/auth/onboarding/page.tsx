@@ -376,6 +376,9 @@ export default function Onboarding() {
       footerText=""
       footerLink=""
       footerLinkText=""
+      imageSrc="/images/collaborate-safely.jpg"
+      imageAlt="Complete your profile setup"
+      layout="form-right"
     >
       {role === "founder" && renderFounderForm()}
       {role === "mentor" && renderMentorForm()}
