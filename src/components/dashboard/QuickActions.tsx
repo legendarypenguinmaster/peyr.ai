@@ -1,21 +1,55 @@
-import { Plus, Search, Heart } from 'lucide-react';
+import { Plus, Search, Heart } from "lucide-react";
 
 export default function QuickActions() {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-      <div className="space-y-3">
-        <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 flex items-center justify-center space-x-2">
-          <Plus className="w-4 h-4" />
-          <span>+ Post New Project</span>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-green-50 to-blue-50 px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg flex items-center justify-center">
+            <svg
+              className="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Quick Actions
+            </h3>
+            <p className="text-sm text-gray-600">Get started quickly</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 space-y-3">
+        <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
+          <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">
+            <Plus className="w-4 h-4" />
+          </div>
+          <span className="font-semibold text-sm">Post New Project</span>
         </button>
-        <button className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2">
-          <Search className="w-4 h-4" />
-          <span>Find Co-Founders</span>
+
+        <button className="w-full border-2 border-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
+          <div className="w-6 h-6 bg-gray-100 rounded-lg flex items-center justify-center">
+            <Search className="w-4 h-4" />
+          </div>
+          <span className="font-semibold text-sm">Find Co-Founders</span>
         </button>
-        <button className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2">
-          <Heart className="w-4 h-4" />
-          <span>Browse Projects</span>
+
+        <button className="w-full border-2 border-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:border-pink-300 hover:bg-pink-50 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
+          <div className="w-6 h-6 bg-gray-100 rounded-lg flex items-center justify-center">
+            <Heart className="w-4 h-4" />
+          </div>
+          <span className="font-semibold text-sm">Browse Projects</span>
         </button>
       </div>
     </div>
