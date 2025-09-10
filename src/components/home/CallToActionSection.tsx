@@ -11,7 +11,7 @@ export default function CallToActionSection() {
         </p>
         <a
           href="/auth/sign-up"
-          className="bg-white text-gray-900 px-10 py-5 rounded-lg font-bold text-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl inline-block"
+          className="bg-white text-gray-900 px-10 py-5 rounded-lg font-bold text-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl inline-block cursor-pointer"
         >
           Join Peyr.ai Today
         </a>

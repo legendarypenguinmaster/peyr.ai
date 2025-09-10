@@ -30,7 +30,7 @@ export default function DashboardHeader() {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-full mx-auto px-6 sm:px-8 lg:px-12">
         <div className="flex justify-between items-center py-2">
           {/* Logo */}
@@ -116,7 +116,7 @@ export default function DashboardHeader() {
             </div>
 
             {/* Post Project Button */}
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2 whitespace-nowrap">
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2 whitespace-nowrap cursor-pointer">
               <Plus className="w-4 h-4" />
               <span>Post Project</span>
             </button>
@@ -124,7 +124,7 @@ export default function DashboardHeader() {
             {/* Logout Button */}
             <button
               onClick={handleSignOut}
-              className="bg-white text-gray-700 px-4 py-2 rounded-lg font-medium border border-gray-300 hover:bg-gray-50 transition-colors whitespace-nowrap"
+              className="bg-white text-gray-700 px-4 py-2 rounded-lg font-medium border border-gray-300 hover:bg-gray-50 transition-colors whitespace-nowrap cursor-pointer"
             >
               Logout
             </button>

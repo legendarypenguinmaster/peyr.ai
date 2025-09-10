@@ -1,4 +1,4 @@
-import { User, Star } from 'lucide-react';
+import { User, Star } from "lucide-react";
 
 interface CoFounderCardProps {
   name: string;
@@ -23,15 +23,15 @@ export default function CoFounderCard({
   rating,
   isOnline = false,
   lastSeen,
-  avatar
+  avatar,
 }: CoFounderCardProps) {
   return (
     <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start space-x-4">
         <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
           {avatar ? (
-            <img 
-              src={avatar} 
+            <img
+              src={avatar}
               alt={name}
               className="w-12 h-12 rounded-full object-cover"
             />
@@ -48,11 +48,15 @@ export default function CoFounderCard({
                 <span className="text-xs text-gray-500">Online now</span>
               </>
             ) : (
-              lastSeen && <span className="text-xs text-gray-500">{lastSeen}</span>
+              lastSeen && (
+                <span className="text-xs text-gray-500">{lastSeen}</span>
+              )
             )}
           </div>
           <p className="text-sm text-gray-600 mb-2">{role}</p>
-          <p className="text-sm text-gray-500 mb-2">Looking for: {lookingFor}</p>
+          <p className="text-sm text-gray-500 mb-2">
+            Looking for: {lookingFor}
+          </p>
           <div className="flex items-center space-x-2 mb-2">
             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
               ✓ Verified
@@ -65,7 +69,10 @@ export default function CoFounderCard({
           <p className="text-sm text-gray-600 mb-3">{description}</p>
           <div className="flex flex-wrap gap-2 mb-3">
             {skills.map((skill, index) => (
-              <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span
+                key={index}
+                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+              >
                 {skill}
               </span>
             ))}

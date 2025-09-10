@@ -17,13 +17,13 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             <a
               href="/auth/sign-in"
-              className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
+              className="text-gray-700 hover:text-gray-900 font-medium transition-colors cursor-pointer"
             >
               Sign In
             </a>
             <a
               href="/auth/sign-up"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg cursor-pointer"
             >
               Get Started
             </a>
