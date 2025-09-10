@@ -9,10 +9,8 @@ import FormField from "@/components/auth/FormField";
 import {
   saveDraftProfile,
   saveDraftFounder,
-  setCurrentStep,
   nextStep,
   previousStep,
-  completeOnboarding,
 } from "@/store/authSlice";
 import { RootState } from "@/store/store";
 import { Check, ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
@@ -87,7 +85,7 @@ export default function FounderOnboarding() {
   const dispatch = useDispatch();
   const supabase = createClient();
 
-  const { user, role, profile, founder, currentStep, totalSteps } = useSelector(
+  const { profile, founder, currentStep, totalSteps } = useSelector(
     (state: RootState) => state.auth
   );
 
@@ -183,13 +181,6 @@ export default function FounderOnboarding() {
   ) => {
     setStep1Data({
       ...step1Data,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleStep2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStep2Data({
-      ...step2Data,
       [e.target.name]: e.target.value,
     });
   };

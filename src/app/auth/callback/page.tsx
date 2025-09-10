@@ -43,7 +43,7 @@ export default function AuthCallback() {
     };
 
     handleAuthCallback();
-  }, [router, supabase.auth]);
+  }, [router, supabase]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

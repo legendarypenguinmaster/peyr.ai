@@ -153,7 +153,6 @@ export default function DashboardHeader() {
                 className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}

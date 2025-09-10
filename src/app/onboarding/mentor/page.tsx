@@ -9,10 +9,8 @@ import FormField from "@/components/auth/FormField";
 import {
   saveDraftProfile,
   saveDraftMentor,
-  setCurrentStep,
   nextStep,
   previousStep,
-  completeOnboarding,
 } from "@/store/authSlice";
 import { RootState } from "@/store/store";
 import { Check, ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
@@ -105,7 +103,7 @@ export default function MentorOnboarding() {
   const dispatch = useDispatch();
   const supabase = createClient();
 
-  const { user, role, profile, mentor, currentStep, totalSteps } = useSelector(
+  const { profile, mentor, currentStep, totalSteps } = useSelector(
     (state: RootState) => state.auth
   );
 
@@ -202,13 +200,6 @@ export default function MentorOnboarding() {
     });
   };
 
-  const handleStep2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStep2Data({
-      ...step2Data,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   const handleStep3Change = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -239,7 +230,9 @@ export default function MentorOnboarding() {
     setStep5Data({
       ...step5Data,
       [e.target.name]:
-        e.target.name === "is_paid" ? e.target.checked : e.target.value,
+        e.target.name === "is_paid"
+          ? (e.target as HTMLInputElement).checked
+          : e.target.value,
     });
   };
 
@@ -348,8 +341,8 @@ export default function MentorOnboarding() {
         saveDraftProfile({
           name: step1Data.name,
           email: null, // Will be set from Supabase user in review page
-          role: "mentor",
-          avatar_url: step1Data.avatar_url,
+          role: "mentor" as const,
+          avatar_url: null, // Will be set in upload-avatar page
         })
       );
 

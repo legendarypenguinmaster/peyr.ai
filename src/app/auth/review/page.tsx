@@ -65,7 +65,7 @@ export default function Review() {
     };
 
     getUserData();
-  }, [router, supabase.auth, supabase, profile, role]);
+  }, [router, supabase.auth, supabase, profile, role, founder, mentor]);
 
   const handleConfirm = async () => {
     setLoading(true);
@@ -489,7 +489,6 @@ export default function Review() {
               </div>
             </div>
             <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 ml-4 flex-shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               {profile?.avatar_url ? (
                 <img
                   src={profile.avatar_url}

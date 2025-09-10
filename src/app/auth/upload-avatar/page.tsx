@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import AuthLayout from "@/components/auth/AuthLayout";
 import SubmitButton from "@/components/auth/SubmitButton";
@@ -83,8 +82,8 @@ export default function UploadAvatar() {
 
       console.log("Avatar uploaded and saved to Redux, proceeding to review");
       router.push("/auth/review");
-    } catch (err: any) {
-      setError(err.message || "Failed to upload avatar");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to upload avatar");
     } finally {
       setLoading(false);
     }

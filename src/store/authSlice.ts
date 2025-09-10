@@ -3,8 +3,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Database } from "@/lib/database.types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-type Founder = Database["public"]["Tables"]["founders"]["Row"];
-type Mentor = Database["public"]["Tables"]["mentors"]["Row"];
 
 export interface User {
   id: string;
@@ -239,10 +237,10 @@ const authSlice = createSlice({
       .addCase(persistProfileToSupabase.fulfilled, (state, action) => {
         state.profile = action.payload;
       })
-      .addCase(persistFounderToSupabase.fulfilled, (state) => {
+      .addCase(persistFounderToSupabase.fulfilled, () => {
         // Founder data is already in state, no need to update
       })
-      .addCase(persistMentorToSupabase.fulfilled, (state) => {
+      .addCase(persistMentorToSupabase.fulfilled, () => {
         // Mentor data is already in state, no need to update
       })
       .addCase(completeOnboarding.fulfilled, (state) => {
