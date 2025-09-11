@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Shield,
   Search,
@@ -23,15 +24,19 @@ export default function DashboardHeader() {
   const router = useRouter();
   const supabase = createClient();
   const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loadAvatar = async () => {
+    const loadUserData = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) return;
+
+      setUserId(user.id);
+
       const { data: profile } = await supabase
         .from("profiles")
         .select("avatar_url")
@@ -39,7 +44,7 @@ export default function DashboardHeader() {
         .single();
       if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
     };
-    loadAvatar();
+    loadUserData();
   }, [supabase]);
 
   useEffect(() => {
@@ -154,9 +159,11 @@ export default function DashboardHeader() {
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
                   {avatarUrl ? (
-                    <img
+                    <Image
                       src={avatarUrl}
                       alt="Avatar"
+                      width={32}
+                      height={32}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -169,7 +176,7 @@ export default function DashboardHeader() {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                   <Link
-                    href="/profile"
+                    href={userId ? `/profile/${userId}` : "/profile"}
                     className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
                     onClick={() => setIsDropdownOpen(false)}
                   >
@@ -181,16 +188,8 @@ export default function DashboardHeader() {
                     className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
                     onClick={() => setIsDropdownOpen(false)}
                   >
-                    <User className="w-4 h-4" />
-                    <span>Account</span>
-                  </Link>
-                  <Link
-                    href="/settings"
-                    className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
                     <Settings className="w-4 h-4" />
-                    <span>Settings</span>
+                    <span>Account Settings</span>
                   </Link>
                   <hr className="my-1" />
                   <button

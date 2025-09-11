@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function HowItWorksSection() {
   const steps = [
     {
@@ -50,10 +52,11 @@ export default function HowItWorksSection() {
                 <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden flex flex-col w-full h-full">
                   {/* Step image */}
                   <div className="relative h-48 overflow-hidden flex-shrink-0">
-                    <img
+                    <Image
                       src={step.image}
                       alt={step.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                     <div className="absolute top-4 left-4">
                       <div

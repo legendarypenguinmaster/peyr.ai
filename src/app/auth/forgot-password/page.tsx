@@ -6,8 +6,11 @@ import AuthLayout from "@/components/auth/AuthLayout";
 import FormField from "@/components/auth/FormField";
 import SubmitButton from "@/components/auth/SubmitButton";
 import { CheckCircle, ArrowLeft } from "lucide-react";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export default function ForgotPassword() {
+  // Redirect if already authenticated
+  useAuthRedirect();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);

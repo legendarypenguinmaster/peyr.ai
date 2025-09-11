@@ -7,8 +7,11 @@ import { createClient } from "@/lib/supabase/client";
 import AuthLayout from "@/components/auth/AuthLayout";
 import FormField from "@/components/auth/FormField";
 import SubmitButton from "@/components/auth/SubmitButton";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export default function SignUp() {
+  // Redirect if already authenticated
+  useAuthRedirect();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",

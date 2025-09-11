@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
     // your project has type errors.
     ignoreBuildErrors: false,
   },
+  images: {
+    unoptimized: true,
+  },
   experimental: {
     // Enable Turbopack for faster builds
     turbo: {

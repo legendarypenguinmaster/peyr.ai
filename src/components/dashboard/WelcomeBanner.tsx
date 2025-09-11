@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function WelcomeBanner() {
   const router = useRouter();
@@ -125,9 +126,11 @@ export default function WelcomeBanner() {
           {/* Decorative Illustration - bottom right */}
           <div className="hidden lg:block absolute right-1 pointer-events-none select-none">
             <div className="relative">
-              <img
+              <Image
                 src="/images/welcome-bot.png"
                 alt="Welcome Bot"
+                width={280}
+                height={280}
                 className="w-70 h-70 object-contain drop-shadow-xl"
               />
             </div>
