@@ -20,19 +20,9 @@ export default function AuthCallback() {
         }
 
         if (data.session?.user) {
-          // Check if user has a profile
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", data.session.user.id)
-            .single();
-
-          // Redirect based on profile existence
-          if (profile) {
-            router.push("/dashboard");
-          } else {
-            router.push("/auth/select-role");
-          }
+          // Always redirect to role selection after Google sign up
+          // This allows users to choose/change their role even if they have an existing profile
+          router.push("/auth/select-role");
         } else {
           router.push("/auth/sign-in");
         }
