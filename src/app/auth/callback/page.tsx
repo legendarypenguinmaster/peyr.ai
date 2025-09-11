@@ -27,10 +27,17 @@ export default function AuthCallback() {
             .eq("id", data.session.user.id)
             .single();
 
-          // Redirect based on profile existence
           if (profile) {
-            router.push("/dashboard");
+            // User exists in profiles table - check signup_completed status
+            if (profile.signup_completed === true) {
+              // User has completed signup - redirect to dashboard
+              router.push("/dashboard");
+            } else {
+              // User hasn't completed signup (signup_completed is FALSE or null) - redirect to role selection
+              router.push("/auth/select-role");
+            }
           } else {
+            // New user (no profile exists) - redirect to role selection
             router.push("/auth/select-role");
           }
         } else {
