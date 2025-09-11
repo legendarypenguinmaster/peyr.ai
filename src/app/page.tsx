@@ -5,9 +5,11 @@ import HowItWorksSection from "@/components/home/HowItWorksSection";
 import StatsSection from "@/components/home/StatsSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CallToActionSection from "@/components/home/CallToActionSection";
-import Footer from "@/components/layout/Footer";
+import { redirectIfAuthenticated } from "@/lib/auth";
 
-export default function Home() {
+export default async function Home() {
+  // Redirect authenticated users to dashboard
+  await redirectIfAuthenticated();
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -17,7 +19,6 @@ export default function Home() {
       <StatsSection />
       <TestimonialsSection />
       <CallToActionSection />
-      {/* <Footer /> */}
     </div>
   );
 }

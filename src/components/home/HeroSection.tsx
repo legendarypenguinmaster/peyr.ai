@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function HeroSection() {
   return (
     <section className="bg-white py-20 lg:py-32">
@@ -45,11 +47,12 @@ export default function HeroSection() {
 
           {/* Right side - Search illustration */}
           <div className="flex justify-center lg:justify-end">
-            <div className="w-full max-w-lg h-96 rounded-2xl shadow-2xl overflow-hidden">
-              <img
+            <div className="w-full max-w-lg h-96 rounded-2xl shadow-2xl overflow-hidden relative">
+              <Image
                 src="/images/search.jpg"
                 alt="AI-powered co-founder matching - finding the perfect match from a diverse group of entrepreneurs"
-                className="w-full h-full object-cover rounded-2xl"
+                fill
+                className="object-cover rounded-2xl"
               />
             </div>
           </div>

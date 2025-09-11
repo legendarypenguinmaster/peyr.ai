@@ -455,17 +455,14 @@ export default function MentorOnboarding() {
           Areas of Expertise <span className="text-red-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2 mb-3">
-          {EXPERTISE_DOMAINS.map((expertise) => (
+          {EXPERTISE_DOMAINS.filter(
+            (expertise) => !step2Data.expertise_domains.includes(expertise)
+          ).map((expertise) => (
             <button
               key={expertise}
               type="button"
               onClick={() => addExpertise(expertise)}
-              disabled={step2Data.expertise_domains.includes(expertise)}
-              className={`px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer ${
-                step2Data.expertise_domains.includes(expertise)
-                  ? "bg-purple-100 text-purple-800 border-purple-200"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
+              className="px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
             >
               {expertise}
             </button>
@@ -516,17 +513,14 @@ export default function MentorOnboarding() {
           Industries <span className="text-red-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2 mb-3">
-          {INDUSTRIES_OPTIONS.map((industry) => (
+          {INDUSTRIES_OPTIONS.filter(
+            (industry) => !step2Data.industries.includes(industry)
+          ).map((industry) => (
             <button
               key={industry}
               type="button"
               onClick={() => addIndustry(industry)}
-              disabled={step2Data.industries.includes(industry)}
-              className={`px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer ${
-                step2Data.industries.includes(industry)
-                  ? "bg-pink-100 text-pink-800 border-pink-200"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
+              className="px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
             >
               {industry}
             </button>
@@ -605,17 +599,14 @@ export default function MentorOnboarding() {
           Past Roles <span className="text-red-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2 mb-3">
-          {PAST_ROLES.map((role) => (
+          {PAST_ROLES.filter(
+            (role) => !step3Data.past_roles.includes(role)
+          ).map((role) => (
             <button
               key={role}
               type="button"
               onClick={() => addRole(role)}
-              disabled={step3Data.past_roles.includes(role)}
-              className={`px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer ${
-                step3Data.past_roles.includes(role)
-                  ? "bg-indigo-100 text-indigo-800 border-indigo-200"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
+              className="px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
             >
               {role}
             </button>

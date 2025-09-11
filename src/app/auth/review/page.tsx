@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { createClient } from "@/lib/supabase/client";
 import AuthLayout from "@/components/auth/AuthLayout";
 import { RootState } from "@/store/store";
+import Image from "next/image";
 
 export default function Review() {
   const [loading, setLoading] = useState(false);
@@ -455,9 +456,6 @@ export default function Review() {
       footerText=""
       footerLink=""
       footerLinkText=""
-      imageSrc="/images/collaborate-safely.jpg"
-      imageAlt="Review your profile information"
-      layout="form-right"
     >
       <div className="space-y-6">
         {error && (
@@ -490,9 +488,11 @@ export default function Review() {
             </div>
             <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 ml-4 flex-shrink-0">
               {profile?.avatar_url ? (
-                <img
+                <Image
                   src={profile.avatar_url}
                   alt="Avatar"
+                  width={64}
+                  height={64}
                   className="w-full h-full object-cover"
                 />
               ) : (

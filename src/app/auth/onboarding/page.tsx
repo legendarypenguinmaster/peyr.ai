@@ -61,7 +61,7 @@ export default function Onboarding() {
               console.log("Redirecting to dashboard for investor");
               router.push("/dashboard");
               break;
-            default:
+      default:
               console.log("Unknown role, redirecting to select-role");
               router.push("/auth/select-role");
           }

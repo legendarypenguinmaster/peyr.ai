@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -29,14 +30,24 @@ export default function AuthLayout({
         {/* Form Section */}
         <div
           className={`flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 ${
-            layout === "form-left"
-              ? "lg:flex-none lg:w-1/2"
-              : "lg:flex-none lg:w-1/2 lg:order-2"
+            imageSrc
+              ? layout === "form-left"
+                ? "lg:flex-none lg:w-1/2"
+                : "lg:flex-none lg:w-1/2 lg:order-2"
+              : "w-full"
           }`}
         >
-          <div className="mx-auto w-full max-w-md lg:w-full lg:max-w-lg">
+          <div
+            className={`mx-auto w-full ${
+              imageSrc ? "max-w-md lg:w-full lg:max-w-lg" : "max-w-4xl"
+            }`}
+          >
             {/* Logo */}
-            <div className="flex justify-center lg:justify-start">
+            <div
+              className={`flex ${
+                imageSrc ? "justify-center lg:justify-start" : "justify-center"
+              }`}
+            >
               <Link href="/" className="flex items-center">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
                   <span className="text-white font-bold text-lg">P</span>
@@ -49,7 +60,11 @@ export default function AuthLayout({
             </div>
 
             {/* Title and Subtitle */}
-            <div className="mt-8 text-center lg:text-left">
+            <div
+              className={`mt-8 ${
+                imageSrc ? "text-center lg:text-left" : "text-center"
+              }`}
+            >
               <h2 className="text-3xl font-bold text-gray-900">{title}</h2>
               <p className="mt-2 text-sm text-gray-600">{subtitle}</p>
             </div>
@@ -60,7 +75,11 @@ export default function AuthLayout({
             </div>
 
             {/* Footer */}
-            <div className="mt-8 text-center lg:text-left">
+            <div
+              className={`mt-8 ${
+                imageSrc ? "text-center lg:text-left" : "text-center"
+              }`}
+            >
               <p className="text-sm text-gray-600">
                 {footerText}{" "}
                 <Link
@@ -82,10 +101,11 @@ export default function AuthLayout({
             }`}
           >
             <div className="w-full h-full relative">
-              <img
+              <Image
                 src={imageSrc}
                 alt={imageAlt || title}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20"></div>
             </div>

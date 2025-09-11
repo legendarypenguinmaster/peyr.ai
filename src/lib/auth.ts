@@ -69,3 +69,33 @@ export async function requireProfile() {
 
   return profile;
 }
+
+export async function redirectIfAuthenticated() {
+  const user = await getUser();
+  if (!user) return null;
+
+  // If user is authenticated but email not confirmed, stay on auth pages
+  if (!user.email_confirmed_at) return null;
+
+  const profile = await getUserProfile();
+
+  // If user has completed everything, redirect to dashboard
+  if (profile && profile.onboarding_completed && profile.signup_completed) {
+    redirect("/dashboard");
+  }
+
+  // If user has profile but hasn't completed onboarding, redirect to appropriate step
+  if (profile) {
+    if (!profile.signup_completed) {
+      redirect("/auth/review");
+    }
+    if (!profile.onboarding_completed) {
+      redirect("/auth/onboarding");
+    }
+  } else {
+    // User is authenticated but no profile, redirect to role selection
+    redirect("/auth/select-role");
+  }
+
+  return user;
+}

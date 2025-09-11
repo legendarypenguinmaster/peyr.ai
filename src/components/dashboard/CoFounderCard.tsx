@@ -1,4 +1,5 @@
 import { User, Star } from "lucide-react";
+import Image from "next/image";
 
 interface CoFounderCardProps {
   name: string;
@@ -30,9 +31,11 @@ export default function CoFounderCard({
       <div className="flex items-start space-x-4">
         <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
           {avatar ? (
-            <img
+            <Image
               src={avatar}
               alt={name}
+              width={48}
+              height={48}
               className="w-12 h-12 rounded-full object-cover"
             />
           ) : (
