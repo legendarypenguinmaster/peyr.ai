@@ -20,9 +20,26 @@ export default function AuthCallback() {
         }
 
         if (data.session?.user) {
-          // Always redirect to role selection after Google sign up
-          // This allows users to choose/change their role even if they have an existing profile
-          router.push("/auth/select-role");
+          // Check if user has a profile
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", data.session.user.id)
+            .single();
+
+          if (profile) {
+            // User exists in profiles table - check signup_completed status
+            if (profile.signup_completed === true) {
+              // User has completed signup - redirect to dashboard
+              router.push("/dashboard");
+            } else {
+              // User hasn't completed signup (signup_completed is FALSE or null) - redirect to role selection
+              router.push("/auth/select-role");
+            }
+          } else {
+            // New user (no profile exists) - redirect to role selection
+            router.push("/auth/select-role");
+          }
         } else {
           router.push("/auth/sign-in");
         }

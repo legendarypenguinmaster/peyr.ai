@@ -432,17 +432,14 @@ export default function FounderOnboarding() {
           Skills & Technologies <span className="text-red-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2 mb-3">
-          {SKILLS_OPTIONS.map((skill) => (
+          {SKILLS_OPTIONS.filter(
+            (skill) => !step2Data.skills.includes(skill)
+          ).map((skill) => (
             <button
               key={skill}
               type="button"
               onClick={() => addSkill(skill)}
-              disabled={step2Data.skills.includes(skill)}
-              className={`px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer ${
-                step2Data.skills.includes(skill)
-                  ? "bg-blue-100 text-blue-800 border-blue-200"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
+              className="px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
             >
               {skill}
             </button>
@@ -493,17 +490,14 @@ export default function FounderOnboarding() {
           Industries of Interest <span className="text-red-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2 mb-3">
-          {INDUSTRIES_OPTIONS.map((industry) => (
+          {INDUSTRIES_OPTIONS.filter(
+            (industry) => !step2Data.industries.includes(industry)
+          ).map((industry) => (
             <button
               key={industry}
               type="button"
               onClick={() => addIndustry(industry)}
-              disabled={step2Data.industries.includes(industry)}
-              className={`px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer ${
-                step2Data.industries.includes(industry)
-                  ? "bg-green-100 text-green-800 border-green-200"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
+              className="px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
             >
               {industry}
             </button>

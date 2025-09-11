@@ -26,9 +26,27 @@ export default function SelectRole() {
         return;
       }
       setUser(user);
+
+      // Check if user already has a role assigned
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.role) {
+        // User already has a role - redirect to appropriate onboarding
+        if (profile.role === "founder") {
+          router.push("/onboarding/founder");
+        } else if (profile.role === "mentor") {
+          router.push("/onboarding/mentor");
+        } else if (profile.role === "investor") {
+          router.push("/dashboard");
+        }
+      }
     };
     getUser();
-  }, [router, supabase.auth]);
+  }, [router, supabase.auth, supabase]);
 
   const roles = [
     {
