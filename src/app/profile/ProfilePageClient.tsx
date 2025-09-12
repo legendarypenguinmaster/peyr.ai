@@ -34,6 +34,8 @@ export default function ProfilePageClient({
   currentUserId,
 }: ProfilePageClientProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const [connectionMessage, setConnectionMessage] = useState("");
   const [currentProfile, setCurrentProfile] = useState(profile);
   const [currentRoleData, setCurrentRoleData] = useState(roleData);
   const [showCopiedNotification, setShowCopiedNotification] = useState(false);
@@ -43,6 +45,23 @@ export default function ProfilePageClient({
 
   const handleEditProfile = () => {
     setIsEditModalOpen(true);
+  };
+
+  const handleConnect = () => {
+    setIsConnectModalOpen(true);
+  };
+
+  const handleSendConnection = () => {
+    // TODO: Implement connection request functionality
+    console.log("Sending connection request to:", currentProfile.id);
+    console.log("Message:", connectionMessage);
+
+    // Close modal and reset message
+    setIsConnectModalOpen(false);
+    setConnectionMessage("");
+
+    // TODO: Show success notification
+    alert("Connection request sent!");
   };
 
   const handleShare = async () => {
@@ -142,25 +161,35 @@ export default function ProfilePageClient({
                     </p>
                   </div>
 
-                  {/* Action Buttons - Only show for own profile */}
-                  {isOwnProfile && (
-                    <div className="flex items-center space-x-3 mt-4 lg:mt-0">
+                  {/* Action Buttons */}
+                  <div className="flex items-center space-x-3 mt-4 lg:mt-0">
+                    {isOwnProfile ? (
+                      <>
+                        <button
+                          onClick={handleEditProfile}
+                          className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                        >
+                          <Edit3 className="w-4 h-4 mr-2" />
+                          Edit Profile
+                        </button>
+                        <button
+                          onClick={handleShare}
+                          className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                        >
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share
+                        </button>
+                      </>
+                    ) : (
                       <button
-                        onClick={handleEditProfile}
-                        className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={handleConnect}
+                        className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer font-medium"
                       >
-                        <Edit3 className="w-4 h-4 mr-2" />
-                        Edit Profile
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Connect
                       </button>
-                      <button
-                        onClick={handleShare}
-                        className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                      >
-                        <Share2 className="w-4 h-4 mr-2" />
-                        Share
-                      </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -241,6 +270,89 @@ export default function ProfilePageClient({
           onSave={handleSaveProfile}
         />
       ) : null}
+
+      {/* Connect Modal */}
+      {isConnectModalOpen && (
+        <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Send Connection Request
+              </h2>
+              <button
+                onClick={() => setIsConnectModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="mb-4">
+                <p className="text-gray-600 mb-4">
+                  You&apos;re about to send a connection request to{" "}
+                  <span className="font-semibold text-gray-900">
+                    {currentProfile.name}
+                  </span>
+                  .
+                </p>
+
+                <label
+                  htmlFor="connection-message"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Message (Optional)
+                </label>
+                <textarea
+                  id="connection-message"
+                  value={connectionMessage}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 500) {
+                      setConnectionMessage(e.target.value);
+                    }
+                  }}
+                  placeholder="Add a personal message to your connection request..."
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {connectionMessage.length}/500 characters
+                </p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
+              <button
+                onClick={() => setIsConnectModalOpen(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendConnection}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Send Request
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Copied Notification */}
       {showCopiedNotification && (

@@ -113,6 +113,7 @@ export default function MentorOnboarding() {
   // Form state for each step
   const [step1Data, setStep1Data] = useState({
     name: profile?.name || "",
+    title: mentor?.title || "",
     bio: mentor?.bio || "",
   });
 
@@ -348,6 +349,7 @@ export default function MentorOnboarding() {
 
       dispatch(
         saveDraftMentor({
+          title: step1Data.title,
           bio: step1Data.bio,
           expertise_domains: step2Data.expertise_domains,
           industries: step2Data.industries,
@@ -375,7 +377,7 @@ export default function MentorOnboarding() {
   const isStepValid = () => {
     switch (currentStep) {
       case 1:
-        return step1Data.name && step1Data.bio;
+        return step1Data.name && step1Data.title && step1Data.bio;
       case 2:
         return (
           step2Data.expertise_domains.length > 0 &&
@@ -424,6 +426,16 @@ export default function MentorOnboarding() {
         placeholder="Enter your full name"
         required
         value={step1Data.name}
+        onChange={handleStep1Change}
+      />
+
+      <FormField
+        label="Professional Title"
+        type="text"
+        name="title"
+        placeholder="e.g., Full Stack Developer, Product Manager, CEO"
+        required
+        value={step1Data.title}
         onChange={handleStep1Change}
       />
 
