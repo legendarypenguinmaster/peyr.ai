@@ -1,22 +1,30 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import DashboardHeader from "@/components/layout/DashboardHeader";
 import Image from "next/image";
 import {
   MessageCircle,
   Send,
-  CheckCircle,
-  Users,
-  MoreVertical,
   Check,
   Clock,
+  User,
+  Shield,
+  Mic,
+  Square,
+  Play,
+  Pause,
+  Image as ImageIcon,
+  Paperclip,
+  File,
+  Download,
 } from "lucide-react";
 
 interface Profile {
   id: string;
-  name: string | null;
+  name: string;
   avatar_url: string | null;
   id_verification: boolean;
 }
@@ -26,11 +34,10 @@ interface Connection {
   requester_id: string;
   addressee_id: string;
   status: string;
-  message: string | null;
   created_at: string;
   updated_at: string;
-  requester: Profile;
-  addressee: Profile;
+  requester?: Profile;
+  addressee?: Profile;
 }
 
 interface Message {
@@ -45,16 +52,87 @@ interface Message {
   updated_at: string;
 }
 
+interface User {
+  id: string;
+  email?: string;
+}
+
 interface MessagesPageClientProps {
   initialConnections: Connection[];
-  unreadCounts: Record<string, number>;
-  currentUserId: string;
+  currentUser: User;
 }
+
+// Voice Message Player Component
+const VoiceMessagePlayer = ({
+  audioData,
+  isOwn,
+}: {
+  audioData: string;
+  isOwn: boolean;
+}) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(
+    null
+  );
+
+  useEffect(() => {
+    const audio = new Audio(audioData);
+    setAudioElement(audio);
+
+    const handleEnded = () => setIsPlaying(false);
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("play", handlePlay);
+    audio.addEventListener("pause", handlePause);
+
+    return () => {
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("play", handlePlay);
+      audio.removeEventListener("pause", handlePause);
+      audio.pause();
+    };
+  }, [audioData]);
+
+  const togglePlay = () => {
+    if (audioElement) {
+      if (isPlaying) {
+        audioElement.pause();
+      } else {
+        audioElement.play();
+      }
+    }
+  };
+
+  return (
+    <div className="flex items-center space-x-2">
+      <button
+        onClick={togglePlay}
+        className={`p-2 rounded-full ${
+          isOwn
+            ? "bg-blue-400 hover:bg-blue-300"
+            : "bg-gray-300 hover:bg-gray-400"
+        } transition-colors`}
+      >
+        {isPlaying ? (
+          <Pause className="w-4 h-4" />
+        ) : (
+          <Play className="w-4 h-4" />
+        )}
+      </button>
+      <div className="flex-1">
+        <div className="text-xs opacity-70">
+          {isPlaying ? "Playing..." : "Voice message"}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function MessagesPageClient({
   initialConnections,
-  unreadCounts: initialUnreadCounts,
-  currentUserId,
+  currentUser,
 }: MessagesPageClientProps) {
   const [connections, setConnections] =
     useState<Connection[]>(initialConnections);
@@ -62,31 +140,38 @@ export default function MessagesPageClient({
     useState<Connection | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [unreadCounts, setUnreadCounts] =
-    useState<Record<string, number>>(initialUnreadCounts);
   const [isLoading, setIsLoading] = useState(false);
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+  const [isSending, setIsSending] = useState(false);
   const [isProcessingRequest, setIsProcessingRequest] = useState(false);
 
-  // Deduplicate and sort messages to prevent duplicate keys
-  const deduplicatedMessages = useMemo(() => {
-    const messageMap = new Map<string, Message>();
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+    null
+  );
+  const [recordingTimer, setRecordingTimer] = useState<NodeJS.Timeout | null>(
+    null
+  );
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
 
-    // Add all messages to map (later messages with same ID will overwrite earlier ones)
-    messages.forEach((message) => {
-      messageMap.set(message.id, message);
-    });
+  // Image upload state
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-    // Convert back to array and sort by created_at
-    return Array.from(messageMap.values()).sort(
-      (a, b) =>
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    );
-  }, [messages]);
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const supabase = createClient();
-  const previousMessagesLength = useRef(0);
+  const currentUserId = currentUser.id;
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Scroll to bottom when messages change
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     const chatContainer = document.querySelector(
       ".flex-1.overflow-y-auto.p-4.space-y-4"
     );
@@ -96,11 +181,11 @@ export default function MessagesPageClient({
         behavior: "smooth",
       });
     }
-  };
+  }, []);
 
+  // Get the other user in a connection
   const getOtherUser = useCallback(
-    (connection: Connection) => {
-      // Handle case where profile objects might be undefined (e.g., from real-time updates)
+    (connection: Connection): Profile => {
       if (connection.requester_id === currentUserId) {
         return (
           connection.addressee || {
@@ -124,6 +209,7 @@ export default function MessagesPageClient({
     [currentUserId]
   );
 
+  // Load messages for a connection
   const loadMessages = useCallback(
     async (connectionId: string) => {
       setIsLoading(true);
@@ -138,8 +224,6 @@ export default function MessagesPageClient({
           console.error("Error loading messages:", error);
         } else {
           setMessages(data || []);
-          // Reset the previous messages length when loading new conversation
-          previousMessagesLength.current = (data || []).length;
           // Scroll to bottom when messages are loaded
           setTimeout(() => {
             scrollToBottom();
@@ -151,12 +235,25 @@ export default function MessagesPageClient({
         setIsLoading(false);
       }
     },
-    [supabase]
+    [supabase, scrollToBottom]
   );
 
+  // Mark messages as read
   const markMessagesAsRead = useCallback(
     async (connectionId: string) => {
       try {
+        // Update local message state immediately for better UX
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.connection_id === connectionId &&
+            msg.receiver_id === currentUserId &&
+            !msg.is_read
+              ? { ...msg, is_read: true }
+              : msg
+          )
+        );
+
+        // Update database
         await supabase
           .from("messages")
           .update({ is_read: true })
@@ -176,102 +273,509 @@ export default function MessagesPageClient({
     [supabase, currentUserId]
   );
 
-  // Test Supabase connection and real-time
-  useEffect(() => {
-    const testConnection = async () => {
-      try {
-        const { error } = await supabase
-          .from("messages")
-          .select("count")
-          .limit(1);
-        if (error) {
-          console.error("Supabase connection error:", error);
-        } else {
-          console.log("Supabase connection successful");
-        }
-      } catch (err) {
-        console.error("Supabase connection test failed:", err);
+  // Send a message
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !selectedConnection || isSending) return;
+
+    const messageContent = newMessage.trim();
+    setNewMessage("");
+    setIsSending(true);
+
+    // Create optimistic message
+    const optimisticMessage: Message = {
+      id: `temp-${Date.now()}-${Math.random()}`,
+      connection_id: selectedConnection.id,
+      sender_id: currentUserId,
+      receiver_id: getOtherUser(selectedConnection).id,
+      content: messageContent,
+      message_type: "text",
+      is_read: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Add optimistic message immediately
+    setMessages((prev) => [...prev, optimisticMessage]);
+
+    // Scroll to bottom
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+
+    try {
+      const { data, error } = await supabase
+        .from("messages")
+        .insert({
+          connection_id: selectedConnection.id,
+          sender_id: currentUserId,
+          receiver_id: getOtherUser(selectedConnection).id,
+          content: messageContent,
+          message_type: "text",
+          is_read: false,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error sending message:", error);
+        alert("Failed to send message. Please try again.");
+        setNewMessage(messageContent); // Restore message on error
+
+        // Remove optimistic message on error
+        setMessages((prev) =>
+          prev.filter((msg) => msg.id !== optimisticMessage.id)
+        );
+      } else {
+        console.log("Message sent successfully:", data);
+
+        // Replace optimistic message with real message
+        setMessages((prev) =>
+          prev.map((msg) => (msg.id === optimisticMessage.id ? data : msg))
+        );
       }
-    };
+    } catch (error) {
+      console.error("Error sending message:", error);
+      alert("Failed to send message. Please try again.");
+      setNewMessage(messageContent); // Restore message on error
 
-    // Test real-time subscription
-    const testRealtime = () => {
-      const testChannel = supabase
-        .channel("test-channel")
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "messages",
-          },
-          (payload) => {
-            console.log("Test real-time event received:", payload);
-          }
+      // Remove optimistic message on error
+      setMessages((prev) =>
+        prev.filter((msg) => msg.id !== optimisticMessage.id)
+      );
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  // Handle connection selection
+  const handleConnectionSelect = (connection: Connection) => {
+    setSelectedConnection(connection);
+    setMessages([]);
+
+    // Update URL with user parameter
+    const params = new URLSearchParams();
+    params.set("user", getOtherUser(connection).id);
+    router.push(`/messages?${params.toString()}`);
+
+    if (connection.status === "accepted") {
+      loadMessages(connection.id);
+      markMessagesAsRead(connection.id);
+    }
+    // For pending connections, we don't load messages but still allow selection
+    // to show the connection request UI
+  };
+
+  // Handle accepting a connection request
+  const handleAcceptConnection = async (connectionId: string) => {
+    setIsProcessingRequest(true);
+    try {
+      // Update connection status to accepted
+      const { error: updateError } = await supabase
+        .from("connections")
+        .update({ status: "accepted" })
+        .eq("id", connectionId);
+
+      if (updateError) {
+        console.error("Error accepting connection:", updateError);
+        alert("Failed to accept connection request. Please try again.");
+        return;
+      }
+
+      // Update local state immediately while preserving profile data
+      setConnections((prev) =>
+        prev.map((conn) =>
+          conn.id === connectionId ? { ...conn, status: "accepted" } : conn
         )
-        .subscribe((status) => {
-          console.log("Test real-time subscription status:", status);
-          if (status === "SUBSCRIBED") {
-            console.log("Real-time is working!");
-            // Clean up test channel
-            setTimeout(() => {
-              supabase.removeChannel(testChannel);
-            }, 1000);
-          }
+      );
+
+      // Create initial message from the requester
+      const connection = connections.find((c) => c.id === connectionId);
+      if (connection) {
+        const { error: messageError } = await supabase.from("messages").insert({
+          connection_id: connectionId,
+          sender_id: connection.requester_id,
+          receiver_id: connection.addressee_id,
+          content: "Connection request accepted! Let's start chatting.",
+          message_type: "system",
+          is_read: false,
         });
-    };
 
-    testConnection();
-    testRealtime();
-  }, [supabase]);
-
-  useEffect(() => {
-    // Only scroll if new messages were added (not when switching conversations)
-    if (deduplicatedMessages.length > previousMessagesLength.current) {
-      // Get the last message
-      const lastMessage = deduplicatedMessages[deduplicatedMessages.length - 1];
-
-      if (lastMessage) {
-        // Always scroll when current user sends a message
-        if (lastMessage.sender_id === currentUserId) {
-          scrollToBottom();
+        if (messageError) {
+          console.error("Error creating initial message:", messageError);
         }
-        // Always scroll when receiving messages from others
-        else {
-          scrollToBottom();
+      }
+
+      // If this is the currently selected connection, load messages and mark as read
+      if (selectedConnection?.id === connectionId) {
+        loadMessages(connectionId);
+        markMessagesAsRead(connectionId);
+      }
+
+      alert("Connection request accepted!");
+    } catch (error) {
+      console.error("Error accepting connection:", error);
+      alert("Failed to accept connection request. Please try again.");
+    } finally {
+      setIsProcessingRequest(false);
+    }
+  };
+
+  // Handle declining a connection request
+  const handleDeclineConnection = async (connectionId: string) => {
+    setIsProcessingRequest(true);
+    try {
+      const { error } = await supabase
+        .from("connections")
+        .delete()
+        .eq("id", connectionId);
+
+      if (error) {
+        console.error("Error declining connection:", error);
+        alert("Failed to decline connection request. Please try again.");
+      } else {
+        alert("Connection request declined.");
+        // Remove from connections list
+        setConnections((prev) => prev.filter((c) => c.id !== connectionId));
+      }
+    } catch (error) {
+      console.error("Error declining connection:", error);
+      alert("Failed to decline connection request. Please try again.");
+    } finally {
+      setIsProcessingRequest(false);
+    }
+  };
+
+  // Voice recording functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: BlobPart[] = [];
+
+      recorder.ondataavailable = (event) => {
+        chunks.push(event.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        setAudioBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
+
+        // Stop all tracks to release microphone
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      // Start timer
+      const timer = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
+      setRecordingTimer(timer);
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      alert("Could not access microphone. Please check permissions.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+
+      if (recordingTimer) {
+        clearInterval(recordingTimer);
+        setRecordingTimer(null);
+      }
+    }
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+
+      if (recordingTimer) {
+        clearInterval(recordingTimer);
+        setRecordingTimer(null);
+      }
+    }
+
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setRecordingTime(0);
+  };
+
+  const playPreview = () => {
+    if (audioUrl) {
+      const audio = new Audio(audioUrl);
+      audio.onended = () => setIsPlayingPreview(false);
+      audio.onplay = () => setIsPlayingPreview(true);
+      audio.onpause = () => setIsPlayingPreview(false);
+      audio.play();
+    }
+  };
+
+  const sendVoiceMessage = async () => {
+    if (!audioBlob || !selectedConnection) return;
+
+    setIsSending(true);
+    try {
+      // Convert blob to base64 for storage
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Audio = reader.result as string;
+
+        const { data, error } = await supabase
+          .from("messages")
+          .insert({
+            connection_id: selectedConnection.id,
+            sender_id: currentUserId,
+            receiver_id: getOtherUser(selectedConnection).id,
+            content: base64Audio,
+            message_type: "voice",
+            is_read: false,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Error sending voice message:", error);
+          alert("Failed to send voice message. Please try again.");
+        } else {
+          console.log("Voice message sent successfully:", data);
+          // Clear recording state
+          setAudioBlob(null);
+          setAudioUrl(null);
+          setRecordingTime(0);
+        }
+      };
+
+      reader.readAsDataURL(audioBlob);
+    } catch (error) {
+      console.error("Error sending voice message:", error);
+      alert("Failed to send voice message. Please try again.");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const formatRecordingTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // Image upload functions
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        alert("Please select an image file");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size should be less than 5MB");
+        return;
+      }
+
+      setSelectedImage(file);
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const cancelImageUpload = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
+  const sendImageMessage = async () => {
+    if (!selectedImage || !selectedConnection) return;
+
+    setIsSending(true);
+    try {
+      // Convert image to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result as string;
+
+        const { data, error } = await supabase
+          .from("messages")
+          .insert({
+            connection_id: selectedConnection.id,
+            sender_id: currentUserId,
+            receiver_id: getOtherUser(selectedConnection).id,
+            content: base64Image,
+            message_type: "image",
+            is_read: false,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Error sending image message:", error);
+          alert("Failed to send image. Please try again.");
+        } else {
+          console.log("Image message sent successfully:", data);
+          // Clear image state
+          setSelectedImage(null);
+          setImagePreview(null);
+        }
+      };
+
+      reader.readAsDataURL(selectedImage);
+    } catch (error) {
+      console.error("Error sending image message:", error);
+      alert("Failed to send image. Please try again.");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  // File upload functions
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File size should be less than 10MB");
+        return;
+      }
+
+      setSelectedFile(file);
+    }
+  };
+
+  const cancelFileUpload = () => {
+    setSelectedFile(null);
+  };
+
+  const sendFileMessage = async () => {
+    if (!selectedFile || !selectedConnection) return;
+
+    setIsSending(true);
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64File = reader.result as string;
+
+        // Store filename and base64 data as JSON
+        const fileData = {
+          filename: selectedFile.name,
+          size: selectedFile.size,
+          type: selectedFile.type,
+          data: base64File,
+        };
+
+        const { data, error } = await supabase
+          .from("messages")
+          .insert({
+            connection_id: selectedConnection.id,
+            sender_id: currentUserId,
+            receiver_id: getOtherUser(selectedConnection).id,
+            content: JSON.stringify(fileData),
+            message_type: "file",
+            is_read: false,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Error sending file message:", error);
+          alert("Failed to send file. Please try again.");
+        } else {
+          console.log("File message sent successfully:", data);
+          // Clear file state
+          setSelectedFile(null);
+        }
+      };
+
+      reader.readAsDataURL(selectedFile);
+    } catch (error) {
+      console.error("Error sending file message:", error);
+      alert("Failed to send file. Please try again.");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
+
+  const getFileIcon = (fileName: string) => {
+    const extension = fileName.split(".").pop()?.toLowerCase();
+    switch (extension) {
+      case "pdf":
+        return "📄";
+      case "doc":
+      case "docx":
+        return "📝";
+      case "xls":
+      case "xlsx":
+        return "📊";
+      case "ppt":
+      case "pptx":
+        return "📋";
+      case "txt":
+        return "📄";
+      case "zip":
+      case "rar":
+        return "📦";
+      default:
+        return "📎";
+    }
+  };
+
+  // Restore selected user from URL on page load
+  useEffect(() => {
+    const userIdFromUrl = searchParams.get("user");
+    if (userIdFromUrl && connections.length > 0) {
+      const connection = connections.find(
+        (conn) => getOtherUser(conn).id === userIdFromUrl
+      );
+      if (connection && connection.id !== selectedConnection?.id) {
+        setSelectedConnection(connection);
+        setMessages([]);
+        if (connection.status === "accepted") {
+          loadMessages(connection.id);
+          markMessagesAsRead(connection.id);
         }
       }
     }
-    previousMessagesLength.current = deduplicatedMessages.length;
-  }, [deduplicatedMessages, currentUserId]);
-
-  // Handle URL hash changes
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.slice(1); // Remove the # symbol
-      if (hash) {
-        const connection = connections.find((conn) => {
-          const otherUser = getOtherUser(conn);
-          return otherUser.id === hash;
-        });
-        if (connection) {
-          setSelectedConnection(connection);
-        }
-      } else {
-        setSelectedConnection(null);
-      }
-    };
-
-    // Check initial hash
-    handleHashChange();
-
-    // Listen for hash changes
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, [connections, getOtherUser]);
+  }, [
+    searchParams,
+    connections,
+    selectedConnection,
+    getOtherUser,
+    loadMessages,
+    markMessagesAsRead,
+  ]);
 
   // Set up real-time subscriptions
   useEffect(() => {
+    if (!currentUserId) return;
+
+    console.log("Setting up Supabase real-time subscriptions...");
+
     // Subscribe to new messages
     const messagesSubscription = supabase
       .channel("messages")
@@ -284,13 +788,44 @@ export default function MessagesPageClient({
         },
         (payload) => {
           const newMessage = payload.new as Message;
+          console.log("New message received:", newMessage);
 
           // Add message to current conversation if it belongs to the selected connection
           if (
             selectedConnection &&
             newMessage.connection_id === selectedConnection.id
           ) {
-            setMessages((prev) => [...prev, newMessage]);
+            setMessages((prev) => {
+              // Check if message already exists to avoid duplicates
+              const exists = prev.some((msg) => msg.id === newMessage.id);
+              if (exists) return prev;
+
+              // If this is a message from the current user, it might be replacing an optimistic message
+              if (newMessage.sender_id === currentUserId) {
+                // Find and replace optimistic message with real message
+                const optimisticIndex = prev.findIndex(
+                  (msg) =>
+                    msg.sender_id === currentUserId &&
+                    msg.content === newMessage.content &&
+                    msg.id.startsWith("temp-")
+                );
+
+                if (optimisticIndex !== -1) {
+                  // Replace optimistic message
+                  const updatedMessages = [...prev];
+                  updatedMessages[optimisticIndex] = newMessage;
+                  return updatedMessages;
+                }
+              }
+
+              // For messages from other users or if no optimistic message found, add normally
+              return [...prev, newMessage];
+            });
+
+            // Scroll to bottom when new message is added
+            setTimeout(() => {
+              scrollToBottom();
+            }, 100);
           }
 
           // Update unread counts
@@ -303,7 +838,67 @@ export default function MessagesPageClient({
           }
         }
       )
-      .subscribe();
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+        },
+        (payload) => {
+          const updatedMessage = payload.new as Message;
+          console.log("Message updated:", updatedMessage);
+
+          // Update message in current conversation
+          if (
+            selectedConnection &&
+            updatedMessage.connection_id === selectedConnection.id
+          ) {
+            setMessages((prev) =>
+              prev.map((msg) => {
+                if (msg.id === updatedMessage.id) {
+                  // Preserve existing content if the updated message doesn't have it
+                  // This prevents losing image/voice content when is_read status changes
+                  const preservedMessage = {
+                    ...updatedMessage,
+                    content: updatedMessage.content || msg.content,
+                  };
+
+                  console.log("Preserving message content:", {
+                    originalContent: msg.content
+                      ? `${msg.content.substring(0, 50)}...`
+                      : "empty",
+                    updatedContent: updatedMessage.content
+                      ? `${updatedMessage.content.substring(0, 50)}...`
+                      : "empty",
+                    finalContent: preservedMessage.content
+                      ? `${preservedMessage.content.substring(0, 50)}...`
+                      : "empty",
+                    messageType: msg.message_type,
+                  });
+
+                  return preservedMessage;
+                }
+                return msg;
+              })
+            );
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log("Messages subscription status:", status);
+        if (status === "SUBSCRIBED") {
+          console.log(
+            "✅ Successfully subscribed to messages real-time updates"
+          );
+        } else if (status === "CHANNEL_ERROR") {
+          console.error("❌ Error subscribing to messages real-time updates");
+        } else if (status === "TIMED_OUT") {
+          console.error("⏰ Timeout subscribing to messages real-time updates");
+        } else if (status === "CLOSED") {
+          console.warn("🔒 Messages real-time subscription closed");
+        }
+      });
 
     // Subscribe to connection updates
     const connectionsSubscription = supabase
@@ -311,167 +906,55 @@ export default function MessagesPageClient({
       .on(
         "postgres_changes",
         {
-          event: "*",
-          schema: "public",
-          table: "connections",
-        },
-        (payload) => {
-          const updatedConnection = payload.new as Connection;
-
-          // Update connections list
-          setConnections((prev) =>
-            prev.map((conn) =>
-              conn.id === updatedConnection.id ? updatedConnection : conn
-            )
-          );
-        }
-      )
-      .subscribe();
-
-    return () => {
-      messagesSubscription.unsubscribe();
-      connectionsSubscription.unsubscribe();
-    };
-  }, [selectedConnection, currentUserId, supabase]);
-
-  // Load messages when connection is selected
-  useEffect(() => {
-    if (selectedConnection) {
-      loadMessages(selectedConnection.id);
-      markMessagesAsRead(selectedConnection.id);
-      // Scroll to bottom when switching conversations
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-    }
-  }, [selectedConnection, loadMessages, markMessagesAsRead]);
-
-  // Real-time subscription for messages
-  useEffect(() => {
-    if (!selectedConnection || !currentUserId) return;
-
-    console.log(
-      "Setting up real-time subscription for connection:",
-      selectedConnection.id
-    );
-
-    const channel = supabase
-      .channel(`messages:${selectedConnection.id}`)
-      .on(
-        "postgres_changes",
-        {
           event: "INSERT",
           schema: "public",
-          table: "messages",
-          filter: `connection_id=eq.${selectedConnection.id}`,
-        },
-        (payload) => {
-          console.log("Real-time message received:", payload);
-          const newMessage = payload.new as Message;
-
-          // Skip processing if this is from the current user (to prevent duplicates)
-          if (newMessage.sender_id === currentUserId) {
-            console.log(
-              "Skipping real-time message from current user to prevent duplicates"
-            );
-            return;
-          }
-
-          setMessages((prev) => {
-            // Check if message already exists to avoid duplicates
-            const exists = prev.some((msg) => msg.id === newMessage.id);
-            if (exists) return prev;
-
-            // Add message from other users
-            return [...prev, newMessage];
-          });
-
-          // Mark as read if it's the current conversation and from another user
-          if (
-            selectedConnection &&
-            selectedConnection.id === newMessage.connection_id &&
-            newMessage.sender_id !== currentUserId
-          ) {
-            markMessagesAsRead(selectedConnection.id);
-          }
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "messages",
-          filter: `connection_id=eq.${selectedConnection.id}`,
-        },
-        (payload) => {
-          const updatedMessage = payload.new as Message;
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === updatedMessage.id ? updatedMessage : msg
-            )
-          );
-        }
-      )
-      .subscribe((status) => {
-        console.log("Real-time subscription status:", status);
-      });
-
-    return () => {
-      console.log(
-        "Cleaning up real-time subscription for connection:",
-        selectedConnection.id
-      );
-      supabase.removeChannel(channel);
-    };
-  }, [selectedConnection, currentUserId, supabase, markMessagesAsRead]);
-
-  // Real-time subscription for connection status updates
-  useEffect(() => {
-    if (!currentUserId) return;
-
-    console.log(
-      "Setting up real-time connection subscription for user:",
-      currentUserId
-    );
-
-    const channel = supabase
-      .channel(`connections:${currentUserId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
           table: "connections",
-          filter: `requester_id=eq.${currentUserId},addressee_id=eq.${currentUserId}`,
         },
-        (payload) => {
-          const updatedConnection = payload.new as Connection;
-          setConnections((prev) =>
-            prev.map((conn) => {
-              if (conn.id === updatedConnection.id) {
-                // Preserve existing profile data if not present in update
-                return {
-                  ...updatedConnection,
-                  requester: updatedConnection.requester || conn.requester,
-                  addressee: updatedConnection.addressee || conn.addressee,
-                };
-              }
-              return conn;
-            })
-          );
+        async (payload) => {
+          const newConnection = payload.new as Connection;
+          console.log("New connection request received:", newConnection);
 
-          // Update selected connection if it's the one being updated
-          if (
-            selectedConnection &&
-            selectedConnection.id === updatedConnection.id
-          ) {
-            setSelectedConnection({
-              ...updatedConnection,
-              requester:
-                updatedConnection.requester || selectedConnection.requester,
-              addressee:
-                updatedConnection.addressee || selectedConnection.addressee,
+          // Add new connection request to the list if it's for the current user
+          if (newConnection.addressee_id === currentUserId) {
+            console.log("Adding new connection request to UI");
+
+            // Fetch profile data for the new connection
+            const userIds = [
+              newConnection.requester_id,
+              newConnection.addressee_id,
+            ];
+            const { data: profiles, error: profilesError } = await supabase
+              .from("profiles")
+              .select("id, name, avatar_url, id_verification")
+              .in("id", userIds);
+
+            if (profilesError) {
+              console.error(
+                "Error fetching profiles for new connection:",
+                profilesError
+              );
+            }
+
+            // Add connection with profile data
+            const connectionWithProfiles = {
+              ...newConnection,
+              requester: profiles?.find(
+                (p) => p.id === newConnection.requester_id
+              ),
+              addressee: profiles?.find(
+                (p) => p.id === newConnection.addressee_id
+              ),
+            };
+
+            setConnections((prev) => {
+              // Check if connection already exists to avoid duplicates
+              const exists = prev.some((conn) => conn.id === newConnection.id);
+              if (exists) {
+                console.log("Connection already exists, skipping");
+                return prev;
+              }
+
+              return [connectionWithProfiles, ...prev];
             });
           }
         }
@@ -479,540 +962,731 @@ export default function MessagesPageClient({
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "UPDATE",
           schema: "public",
           table: "connections",
-          filter: `addressee_id=eq.${currentUserId}`,
         },
         (payload) => {
-          const newConnection = payload.new as Connection;
-          // Add new connection to the list
-          setConnections((prev) => {
-            const exists = prev.some((conn) => conn.id === newConnection.id);
-            if (exists) return prev;
-            return [newConnection, ...prev];
-          });
+          const updatedConnection = payload.new as Connection;
+          console.log("Connection updated:", updatedConnection);
+
+          // Update connections list while preserving existing profile data
+          setConnections((prev) =>
+            prev.map((conn) => {
+              if (conn.id === updatedConnection.id) {
+                console.log("Updating connection:", {
+                  old: conn,
+                  new: updatedConnection,
+                  preservedRequester: conn.requester,
+                  preservedAddressee: conn.addressee,
+                });
+                return {
+                  ...updatedConnection,
+                  requester: conn.requester, // Preserve existing profile data
+                  addressee: conn.addressee, // Preserve existing profile data
+                };
+              }
+              return conn;
+            })
+          );
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "connections",
+        },
+        (payload) => {
+          const deletedConnection = payload.old as Connection;
+          console.log("Connection deleted:", deletedConnection);
+
+          // Remove from connections list
+          setConnections((prev) =>
+            prev.filter((conn) => conn.id !== deletedConnection.id)
+          );
         }
       )
       .subscribe((status) => {
-        console.log("Real-time connection subscription status:", status);
+        console.log("Connections subscription status:", status);
+        if (status === "SUBSCRIBED") {
+          console.log(
+            "✅ Successfully subscribed to connections real-time updates"
+          );
+        } else if (status === "CHANNEL_ERROR") {
+          console.error(
+            "❌ Error subscribing to connections real-time updates"
+          );
+        } else if (status === "TIMED_OUT") {
+          console.error(
+            "⏰ Timeout subscribing to connections real-time updates"
+          );
+        } else if (status === "CLOSED") {
+          console.warn("🔒 Connections real-time subscription closed");
+        }
       });
 
     return () => {
-      console.log(
-        "Cleaning up real-time connection subscription for user:",
-        currentUserId
-      );
-      supabase.removeChannel(channel);
+      console.log("Cleaning up real-time subscriptions...");
+      messagesSubscription.unsubscribe();
+      connectionsSubscription.unsubscribe();
     };
-  }, [currentUserId, selectedConnection, supabase, markMessagesAsRead]);
+  }, [currentUserId, selectedConnection, supabase, scrollToBottom]);
 
-  // Don't render messages if currentUserId is not available
+  // Load messages when connection is selected
+  useEffect(() => {
+    if (selectedConnection) {
+      loadMessages(selectedConnection.id);
+      markMessagesAsRead(selectedConnection.id);
+    }
+  }, [selectedConnection, loadMessages, markMessagesAsRead]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  // Load initial unread counts
+  useEffect(() => {
+    const loadUnreadCounts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("messages")
+          .select("connection_id")
+          .eq("receiver_id", currentUserId)
+          .eq("is_read", false);
+
+        if (!error && data) {
+          const counts: Record<string, number> = {};
+          data.forEach((msg) => {
+            counts[msg.connection_id] = (counts[msg.connection_id] || 0) + 1;
+          });
+          setUnreadCounts(counts);
+        }
+      } catch (error) {
+        console.error("Error loading unread counts:", error);
+      }
+    };
+
+    if (currentUserId) {
+      loadUnreadCounts();
+    }
+  }, [currentUserId, supabase]);
+
+  // Cleanup recording timer on unmount
+  useEffect(() => {
+    return () => {
+      if (recordingTimer) {
+        clearInterval(recordingTimer);
+      }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [recordingTimer, audioUrl]);
+
   if (!currentUserId) {
     return (
       <div className="min-h-screen bg-gray-50">
         <DashboardHeader />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <p>Loading...</p>
-          </div>
+        <div className="flex items-center justify-center h-96">
+          <p>Loading...</p>
         </div>
       </div>
     );
   }
-
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConnection) return;
-
-    const messageContent = newMessage.trim();
-    setNewMessage(""); // Clear input immediately for better UX
-
-    // Create optimistic message for instant feedback
-    const tempMessage: Message = {
-      id: `temp-${crypto.randomUUID()}`, // Prefix to identify optimistic messages
-      connection_id: selectedConnection.id,
-      sender_id: currentUserId,
-      receiver_id:
-        selectedConnection.requester_id === currentUserId
-          ? selectedConnection.addressee_id
-          : selectedConnection.requester_id,
-      content: messageContent,
-      message_type: "text",
-      is_read: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    // Ensure currentUserId is valid before creating optimistic message
-    if (!currentUserId) {
-      console.error("currentUserId is not available");
-      setNewMessage(messageContent); // Restore message
-      return;
-    }
-
-    // Add optimistic message immediately
-    setMessages((prev) => [...prev, tempMessage]);
-
-    // Scroll to bottom when user sends a message
-    setTimeout(() => {
-      scrollToBottom();
-    }, 100);
-
-    try {
-      const { data, error } = await supabase
-        .from("messages")
-        .insert({
-          connection_id: selectedConnection.id,
-          sender_id: currentUserId,
-          receiver_id:
-            selectedConnection.requester_id === currentUserId
-              ? selectedConnection.addressee_id
-              : selectedConnection.requester_id,
-          content: messageContent,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Error sending message:", error);
-        // Remove optimistic message on error
-        setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
-        setNewMessage(messageContent); // Restore message
-      } else {
-        // Replace optimistic message with real message
-        setMessages((prev) =>
-          prev.map((msg) => (msg.id === tempMessage.id ? data : msg))
-        );
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      // Remove optimistic message on error
-      setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
-      setNewMessage(messageContent); // Restore message
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  const handleAcceptConnection = async (connectionId: string) => {
-    setIsProcessingRequest(true);
-    try {
-      // First, update the connection status
-      const { error: connectionError } = await supabase
-        .from("connections")
-        .update({ status: "accepted" })
-        .eq("id", connectionId);
-
-      if (connectionError) {
-        console.error("Error accepting connection:", connectionError);
-        alert("Failed to accept connection request. Please try again.");
-        return;
-      }
-
-      // Find the connection to get the message
-      const connection = connections.find((conn) => conn.id === connectionId);
-      if (connection && connection.message && connection.message.trim()) {
-        // Create the initial message from the connection request
-        // Create it as the original requester (sender of the connection request)
-        const { error: messageError } = await supabase.from("messages").insert({
-          connection_id: connectionId,
-          sender_id: connection.requester_id, // Original requester (sender)
-          receiver_id: connection.addressee_id, // Current user (receiver)
-          content: connection.message.trim(), // Original message without prefix
-        });
-
-        if (messageError) {
-          console.error("Error creating initial message:", messageError);
-          // Don't fail the whole operation, just log the error
-        }
-      }
-
-      // Update the connection in the list
-      setConnections((prev) =>
-        prev.map((conn) =>
-          conn.id === connectionId ? { ...conn, status: "accepted" } : conn
-        )
-      );
-
-      // Update selected connection status
-      if (selectedConnection && selectedConnection.id === connectionId) {
-        setSelectedConnection((prev) =>
-          prev ? { ...prev, status: "accepted" } : null
-        );
-      }
-
-      alert("Connection request accepted!");
-    } catch (error) {
-      console.error("Error accepting connection:", error);
-      alert("Failed to accept connection request. Please try again.");
-    } finally {
-      setIsProcessingRequest(false);
-    }
-  };
-
-  const handleDeclineConnection = async (connectionId: string) => {
-    setIsProcessingRequest(true);
-    try {
-      const { error } = await supabase
-        .from("connections")
-        .update({ status: "declined" })
-        .eq("id", connectionId);
-
-      if (error) {
-        console.error("Error declining connection:", error);
-        alert("Failed to decline connection request. Please try again.");
-      } else {
-        // Remove the connection from the list
-        setConnections((prev) =>
-          prev.filter((conn) => conn.id !== connectionId)
-        );
-        alert("Connection request declined.");
-      }
-    } catch (error) {
-      console.error("Error declining connection:", error);
-      alert("Failed to decline connection request. Please try again.");
-    } finally {
-      setIsProcessingRequest(false);
-    }
-  };
-
-  const getLastMessageTime = (connection: Connection) => {
-    // This would ideally come from the database with the last message timestamp
-    return new Date(connection.updated_at).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const isPendingRequest = (connection: Connection) => {
-    return (
-      connection.status === "pending" &&
-      connection.addressee_id === currentUserId
-    );
-  };
-
-  const handleConnectionSelect = (connection: Connection) => {
-    setSelectedConnection(connection);
-    const otherUser = getOtherUser(connection);
-    // Update URL hash with user ID
-    window.location.hash = otherUser.id;
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Messages</h1>
-          <p className="text-gray-600">
-            Connect and chat with your co-founders
-          </p>
-        </div>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-[calc(100vh-200px)] flex">
+          {/* Connections List */}
+          <div className="w-1/3 border-r border-gray-200 flex flex-col">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
+              <p className="text-sm text-gray-500">
+                {connections.length} connection
+                {connections.length !== 1 ? "s" : ""}
+              </p>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 max-h-[100vh]">
-          {/* Left Sidebar - Connections */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col">
-              <div className="p-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Conversations
-                </h2>
-              </div>
+            <div className="flex-1 overflow-y-auto">
+              {connections.length === 0 ? (
+                <div className="p-4 text-center text-gray-500">
+                  <MessageCircle className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                  <p>No connections yet</p>
+                  <p className="text-sm">
+                    Connect with founders to start messaging
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {connections.map((connection) => {
+                    const otherUser = getOtherUser(connection);
+                    const unreadCount = unreadCounts[connection.id] || 0;
+                    const isPendingRequest =
+                      connection.status === "pending" &&
+                      connection.addressee_id === currentUserId;
 
-              <div className="flex-1 overflow-y-auto">
-                {connections.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500">
-                    <MessageCircle className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                    <p>No conversations yet</p>
-                    <p className="text-sm">
-                      Connect with co-founders to start chatting
-                    </p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-gray-100">
-                    {connections.map((connection) => {
-                      const otherUser = getOtherUser(connection);
-                      const unreadCount = unreadCounts[connection.id] || 0;
-
-                      // Skip rendering if otherUser is still undefined
-                      if (!otherUser) return null;
-
+                    if (isPendingRequest) {
+                      // Show connection request UI
                       return (
                         <div
                           key={connection.id}
-                          onClick={() => handleConnectionSelect(connection)}
-                          className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                          className={`w-full p-4 border-b border-gray-100 bg-yellow-50 ${
                             selectedConnection?.id === connection.id
-                              ? "bg-blue-50 border-r-2 border-blue-500"
+                              ? "ring-2 ring-yellow-300"
                               : ""
                           }`}
                         >
-                          <div className="flex items-center space-x-3">
-                            <div className="relative">
-                              {otherUser.avatar_url ? (
-                                <Image
-                                  src={otherUser.avatar_url}
-                                  alt={otherUser.name || "User"}
-                                  width={48}
-                                  height={48}
-                                  className="w-12 h-12 rounded-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
-                                  <Users className="w-6 h-6 text-white" />
-                                </div>
-                              )}
-                              {otherUser.id_verification && (
-                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                                  <CheckCircle className="w-3 h-3 text-white" />
-                                </div>
+                          <button
+                            onClick={() => handleConnectionSelect(connection)}
+                            className="w-full text-left"
+                          >
+                            <div className="flex items-center space-x-3 mb-3">
+                              <div className="relative">
+                                {otherUser.avatar_url ? (
+                                  <Image
+                                    src={otherUser.avatar_url!}
+                                    alt={otherUser.name}
+                                    width={48}
+                                    height={48}
+                                    className="w-12 h-12 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                                    <User className="w-6 h-6 text-gray-600" />
+                                  </div>
+                                )}
+                                {otherUser.id_verification && (
+                                  <div className="absolute -bottom-1 -right-1">
+                                    <Shield className="w-4 h-4 text-green-500 bg-white rounded-full" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {otherUser.name}
+                                </p>
+                                <p className="text-xs text-yellow-600 font-medium">
+                                  Connection Request
+                                </p>
+                              </div>
+                            </div>
+                          </button>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAcceptConnection(connection.id);
+                              }}
+                              disabled={isProcessingRequest}
+                              className="flex-1 px-3 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeclineConnection(connection.id);
+                              }}
+                              disabled={isProcessingRequest}
+                              className="flex-1 px-3 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    // Show regular connection UI
+                    return (
+                      <button
+                        key={connection.id}
+                        onClick={() => handleConnectionSelect(connection)}
+                        className={`w-full p-4 text-left hover:bg-gray-50 border-b border-gray-100 ${
+                          selectedConnection?.id === connection.id
+                            ? "bg-blue-50 border-blue-200"
+                            : ""
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="relative">
+                            {otherUser.avatar_url ? (
+                              <Image
+                                src={otherUser.avatar_url!}
+                                alt={otherUser.name}
+                                width={48}
+                                height={48}
+                                className="w-12 h-12 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                                <User className="w-6 h-6 text-gray-600" />
+                              </div>
+                            )}
+                            {otherUser.id_verification && (
+                              <div className="absolute -bottom-1 -right-1">
+                                <Shield className="w-4 h-4 text-green-500 bg-white rounded-full" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {otherUser.name}
+                              </p>
+                              {unreadCount > 0 && (
+                                <span className="bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                  {unreadCount}
+                                </span>
                               )}
                             </div>
+                            <p className="text-xs text-gray-500">
+                              {new Date(
+                                connection.updated_at
+                              ).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
 
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-2">
-                                  <p className="text-sm font-medium text-gray-900 truncate">
-                                    {otherUser.name || "Anonymous"}
-                                  </p>
-                                  {isPendingRequest(connection) && (
-                                    <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
-                                      Pending
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <span className="text-xs text-gray-500">
-                                    {getLastMessageTime(connection)}
-                                  </span>
-                                  {unreadCount > 0 && (
-                                    <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
-                                      {unreadCount}
-                                    </span>
-                                  )}
-                                </div>
+          {/* Chat Area */}
+          <div className="flex-1 flex flex-col">
+            {selectedConnection ? (
+              <>
+                {/* Chat Header */}
+                <div className="p-4 border-b border-gray-200 bg-white">
+                  <div className="flex items-center space-x-3">
+                    <div className="relative">
+                      {getOtherUser(selectedConnection).avatar_url ? (
+                        <Image
+                          src={getOtherUser(selectedConnection).avatar_url!}
+                          alt={getOtherUser(selectedConnection).name}
+                          width={40}
+                          height={40}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-gray-600" />
+                        </div>
+                      )}
+                      {getOtherUser(selectedConnection).id_verification && (
+                        <div className="absolute -bottom-1 -right-1">
+                          <Shield className="w-3 h-3 text-green-500 bg-white rounded-full" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900">
+                        {getOtherUser(selectedConnection).name}
+                      </h3>
+                      <p className="text-xs text-gray-500">
+                        {selectedConnection.status === "pending"
+                          ? "Connection Request"
+                          : "Online"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {selectedConnection.status === "pending" ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center max-w-md">
+                        <MessageCircle className="w-16 h-16 mx-auto mb-4 text-yellow-400" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                          Connection Request
+                        </h3>
+                        <p className="text-gray-600 mb-4">
+                          {getOtherUser(selectedConnection).name} wants to
+                          connect with you.
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Accept the request to start messaging, or decline to
+                          remove it.
+                        </p>
+                      </div>
+                    </div>
+                  ) : isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-gray-500">Loading messages...</p>
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <MessageCircle className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                        <p className="text-gray-500">No messages yet</p>
+                        <p className="text-sm text-gray-400">
+                          Start the conversation!
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    messages.map((message) => {
+                      const isOwn = message.sender_id === currentUserId;
+
+                      return (
+                        <div
+                          key={message.id}
+                          className={`flex ${
+                            isOwn ? "justify-end" : "justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                              isOwn
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-200 text-gray-900"
+                            }`}
+                          >
+                            {message.message_type === "voice" &&
+                            message.content ? (
+                              <VoiceMessagePlayer
+                                audioData={message.content}
+                                isOwn={isOwn}
+                              />
+                            ) : message.message_type === "image" &&
+                              message.content ? (
+                              <div className="max-w-xs">
+                                <Image
+                                  src={message.content}
+                                  alt="Shared image"
+                                  width={200}
+                                  height={200}
+                                  className="rounded-lg object-cover"
+                                  unoptimized
+                                />
                               </div>
-                              <p className="text-xs text-gray-500 truncate">
-                                {isPendingRequest(connection)
-                                  ? "Connection request pending"
-                                  : connection.message || "Connection request"}
-                              </p>
+                            ) : message.message_type === "file" &&
+                              message.content ? (
+                              <div className="max-w-xs">
+                                {(() => {
+                                  try {
+                                    const fileData = JSON.parse(
+                                      message.content
+                                    );
+                                    return (
+                                      <div className="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg">
+                                        <div className="text-2xl">
+                                          {getFileIcon(
+                                            fileData.filename || "file"
+                                          )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm font-medium text-gray-900 truncate">
+                                            {fileData.filename ||
+                                              "Unknown file"}
+                                          </p>
+                                          <p className="text-xs text-gray-500">
+                                            {formatFileSize(fileData.size || 0)}
+                                          </p>
+                                        </div>
+                                        <button
+                                          onClick={() => {
+                                            const link =
+                                              document.createElement("a");
+                                            link.href = fileData.data;
+                                            link.download =
+                                              fileData.filename || "download";
+                                            link.click();
+                                          }}
+                                          className="p-1 text-blue-500 hover:text-blue-700"
+                                        >
+                                          <Download className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    );
+                                  } catch {
+                                    // Fallback for old format or corrupted data
+                                    return (
+                                      <div className="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg">
+                                        <div className="text-2xl">📎</div>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm font-medium text-gray-900">
+                                            File
+                                          </p>
+                                          <p className="text-xs text-gray-500">
+                                            Click to download
+                                          </p>
+                                        </div>
+                                        <button
+                                          onClick={() => {
+                                            const link =
+                                              document.createElement("a");
+                                            link.href = message.content;
+                                            link.download = "download";
+                                            link.click();
+                                          }}
+                                          className="p-1 text-blue-500 hover:text-blue-700"
+                                        >
+                                          <Download className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    );
+                                  }
+                                })()}
+                              </div>
+                            ) : (
+                              <p className="text-sm">{message.content}</p>
+                            )}
+                            <div className="flex items-center justify-between mt-1">
+                              <span className="text-xs opacity-70">
+                                {new Date(
+                                  message.created_at
+                                ).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                              {isOwn && (
+                                <div className="ml-2">
+                                  {message.is_read ? (
+                                    <Check className="w-3 h-3 text-blue-300" />
+                                  ) : (
+                                    <Clock className="w-3 h-3 text-blue-200" />
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
                       );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+                    })
+                  )}
+                </div>
 
-          {/* Right Area - Chat */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-[500px] lg:h-[600px] flex flex-col">
-              {selectedConnection ? (
-                <>
-                  {/* Chat Header */}
-                  <div className="p-4 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="relative">
-                          {(() => {
-                            const otherUser = getOtherUser(selectedConnection);
-                            if (!otherUser) return null;
-                            return otherUser.avatar_url ? (
-                              <Image
-                                src={otherUser.avatar_url}
-                                alt={otherUser.name || "User"}
-                                width={40}
-                                height={40}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
-                                <Users className="w-5 h-5 text-white" />
-                              </div>
-                            );
-                          })()}
-                          {getOtherUser(selectedConnection)
-                            ?.id_verification && (
-                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full flex items-center justify-center">
-                              <CheckCircle className="w-2 h-2 text-white" />
+                {/* Message Input */}
+                {selectedConnection.status === "accepted" && (
+                  <div className="p-4 border-t border-gray-200 bg-white">
+                    {/* Voice Recording Preview */}
+                    {audioBlob && (
+                      <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <button
+                              onClick={playPreview}
+                              className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+                            >
+                              {isPlayingPreview ? (
+                                <Pause className="w-4 h-4" />
+                              ) : (
+                                <Play className="w-4 h-4" />
+                              )}
+                            </button>
+                            <div>
+                              <p className="text-sm font-medium">
+                                Voice Recording
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {formatRecordingTime(recordingTime)}
+                              </p>
                             </div>
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-gray-900">
-                            {getOtherUser(selectedConnection)?.name ||
-                              "Anonymous"}
-                          </h3>
-                          <p className="text-sm text-gray-500">Co-founder</p>
+                          </div>
+                          <button
+                            onClick={cancelRecording}
+                            className="text-red-500 hover:text-red-700 text-sm"
+                          >
+                            Cancel
+                          </button>
                         </div>
                       </div>
-                      <button className="p-2 text-gray-400 hover:text-gray-600">
-                        <MoreVertical className="w-5 h-5" />
+                    )}
+
+                    {/* Image Preview */}
+                    {imagePreview && (
+                      <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-12 rounded-lg overflow-hidden">
+                              <Image
+                                src={imagePreview}
+                                alt="Image preview"
+                                width={48}
+                                height={48}
+                                className="w-full h-full object-cover"
+                                unoptimized
+                              />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">Image</p>
+                              <p className="text-xs text-gray-500">
+                                {selectedImage?.name}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={cancelImageUpload}
+                            className="text-red-500 hover:text-red-700 text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* File Preview */}
+                    {selectedFile && (
+                      <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="text-2xl">
+                              {getFileIcon(selectedFile.name)}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">
+                                {selectedFile.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {formatFileSize(selectedFile.size)}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={cancelFileUpload}
+                            className="text-red-500 hover:text-red-700 text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex space-x-2">
+                      {/* File Upload Button */}
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                          disabled={isSending}
+                        />
+                        <div className="p-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                          <Paperclip className="w-5 h-5" />
+                        </div>
+                      </label>
+
+                      {/* Image Upload Button */}
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageSelect}
+                          className="hidden"
+                          disabled={isSending}
+                        />
+                        <div className="p-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                          <ImageIcon className="w-5 h-5" />
+                        </div>
+                      </label>
+
+                      {/* Voice Recording Button */}
+                      <button
+                        onClick={isRecording ? stopRecording : startRecording}
+                        className={`p-2 rounded-lg transition-colors ${
+                          isRecording
+                            ? "bg-red-500 text-white hover:bg-red-600"
+                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        }`}
+                        disabled={isSending}
+                      >
+                        {isRecording ? (
+                          <Square className="w-5 h-5" />
+                        ) : (
+                          <Mic className="w-5 h-5" />
+                        )}
+                      </button>
+
+                      {/* Text Input */}
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onFocus={() => {
+                          // Mark messages as read when user focuses on input field
+                          if (selectedConnection) {
+                            markMessagesAsRead(selectedConnection.id);
+                          }
+                        }}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                          }
+                        }}
+                        placeholder="Type a message..."
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={isSending}
+                      />
+
+                      {/* Send Button */}
+                      <button
+                        onClick={
+                          audioBlob
+                            ? sendVoiceMessage
+                            : selectedImage
+                            ? sendImageMessage
+                            : selectedFile
+                            ? sendFileMessage
+                            : sendMessage
+                        }
+                        disabled={
+                          isSending ||
+                          (!newMessage.trim() &&
+                            !audioBlob &&
+                            !selectedImage &&
+                            !selectedFile)
+                        }
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                      >
+                        {isSending ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Send className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
-                  </div>
 
-                  {/* Messages or Connection Request */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {isPendingRequest(selectedConnection) ? (
-                      // Connection Request Card
-                      <div className="flex justify-center items-center h-full">
-                        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 max-w-md w-full">
-                          <div className="text-center mb-6">
-                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                              <Users className="w-8 h-8 text-blue-600" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                              Connection Request
-                            </h3>
-                            <p className="text-gray-600">
-                              <span className="font-medium">
-                                {getOtherUser(selectedConnection)?.name ||
-                                  "Anonymous"}
-                              </span>{" "}
-                              wants to connect with you
-                            </p>
-                          </div>
-
-                          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                            <p className="text-sm text-gray-700">
-                              <span className="font-medium">Message:</span>
-                            </p>
-                            <p className="text-gray-600 mt-1">
-                              {selectedConnection.message ||
-                                "No message provided"}
-                            </p>
-                          </div>
-
-                          <div className="flex space-x-3">
-                            <button
-                              onClick={() =>
-                                handleDeclineConnection(selectedConnection.id)
-                              }
-                              disabled={isProcessingRequest}
-                              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                              Decline
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleAcceptConnection(selectedConnection.id)
-                              }
-                              disabled={isProcessingRequest}
-                              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                              {isProcessingRequest ? "Processing..." : "Accept"}
-                            </button>
-                          </div>
+                    {/* Recording Timer */}
+                    {isRecording && (
+                      <div className="mt-2 text-center">
+                        <div className="inline-flex items-center space-x-2 text-red-500">
+                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                          <span className="text-sm font-medium">
+                            Recording... {formatRecordingTime(recordingTime)}
+                          </span>
                         </div>
                       </div>
-                    ) : isLoading ? (
-                      <div className="flex justify-center items-center h-full">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                      </div>
-                    ) : deduplicatedMessages.length === 0 ? (
-                      <div className="flex justify-center items-center h-full text-gray-500">
-                        <div className="text-center">
-                          <MessageCircle className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                          <p>No messages yet</p>
-                          <p className="text-sm">Start the conversation!</p>
-                        </div>
-                      </div>
-                    ) : (
-                      deduplicatedMessages.map((message) => {
-                        const isOwn = message.sender_id === currentUserId;
-                        return (
-                          <div
-                            key={message.id}
-                            className={`flex ${
-                              isOwn ? "justify-end" : "justify-start"
-                            }`}
-                          >
-                            <div
-                              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                                isOwn
-                                  ? "bg-blue-500 text-white"
-                                  : "bg-gray-100 text-gray-900"
-                              }`}
-                            >
-                              <p className="text-sm">{message.content}</p>
-                              <div className="flex items-center justify-between mt-1">
-                                <p
-                                  className={`text-xs ${
-                                    isOwn ? "text-blue-100" : "text-gray-500"
-                                  }`}
-                                >
-                                  {new Date(
-                                    message.created_at
-                                  ).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </p>
-                                {isOwn && (
-                                  <div className="ml-2">
-                                    {message.is_read ? (
-                                      <Check className="w-3 h-3 text-blue-300" />
-                                    ) : (
-                                      <Clock className="w-3 h-3 text-blue-200" />
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
                     )}
                   </div>
-
-                  {/* Message Input - Only show for accepted connections */}
-                  {!isPendingRequest(selectedConnection) && (
-                    <div className="p-4 border-t border-gray-200">
-                      <div className="flex space-x-2">
-                        <textarea
-                          value={newMessage}
-                          onChange={(e) => setNewMessage(e.target.value)}
-                          onKeyPress={handleKeyPress}
-                          placeholder="Type a message..."
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                          rows={1}
-                        />
-                        <button
-                          onClick={sendMessage}
-                          disabled={!newMessage.trim()}
-                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <Send className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="flex-1 flex items-center justify-center text-gray-500">
-                  <div className="text-center">
-                    <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Select a conversation
-                    </h3>
-                    <p>
-                      Choose a conversation from the sidebar to start chatting
-                    </p>
-                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Select a conversation
+                  </h3>
+                  <p className="text-gray-500">
+                    Choose a connection from the list to start messaging
+                  </p>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
