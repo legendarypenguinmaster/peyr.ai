@@ -196,14 +196,16 @@ export default function DashboardHeader() {
               <span>Reputation</span>
             </Link>
 
+            {/* Messages */}
             <div className="relative">
               <button
                 className="p-2 text-gray-700 hover:text-blue-600 cursor-pointer relative"
                 onClick={() => router.push("/messages")}
+                title="Messages"
               >
                 <MessageCircle className="w-5 h-5" />
                 {unreadMessageCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
                   </span>
                 )}
