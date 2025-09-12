@@ -106,6 +106,7 @@ export default function EditMentorProfileModal({
   const [formData, setFormData] = useState({
     // Profile data
     name: profile?.name || "",
+    title: mentorData?.title || "",
     bio: mentorData?.bio ?? profile?.bio ?? "",
     location: mentorData?.location ?? profile?.location ?? "",
     linkedin_url: mentorData?.linkedin_url ?? profile?.linkedin_url ?? "",
@@ -141,6 +142,7 @@ export default function EditMentorProfileModal({
       setFormData({
         // Profile data
         name: profile?.name || "",
+        title: mentorData?.title || "",
         bio: mentorData?.bio ?? profile?.bio ?? "",
         location: mentorData?.location ?? profile?.location ?? "",
         linkedin_url: mentorData?.linkedin_url ?? profile?.linkedin_url ?? "",
@@ -214,6 +216,7 @@ export default function EditMentorProfileModal({
 
       // Update mentor data
       const mentorDataToUpdate = {
+        title: formData.title,
         expertise_domains: formData.expertise_domains,
         past_roles: formData.past_roles,
         industries: formData.industries,
@@ -322,6 +325,20 @@ export default function EditMentorProfileModal({
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   placeholder="Enter your full name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Professional Title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="e.g., Full Stack Developer, Product Manager, CEO"
                 />
               </div>
 

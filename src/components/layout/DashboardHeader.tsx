@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -26,7 +26,27 @@ export default function DashboardHeader() {
   const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [unreadMessageCount, setUnreadMessageCount] = useState<number>(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const loadUnreadMessageCount = useCallback(
+    async (userId: string) => {
+      try {
+        const { count, error } = await supabase
+          .from("messages")
+          .select("*", { count: "exact", head: true })
+          .eq("receiver_id", userId)
+          .eq("is_read", false);
+
+        if (!error && count !== null) {
+          setUnreadMessageCount(count);
+        }
+      } catch (error) {
+        console.error("Error loading unread message count:", error);
+      }
+    },
+    [supabase]
+  );
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -43,9 +63,12 @@ export default function DashboardHeader() {
         .eq("id", user.id)
         .single();
       if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
+
+      // Load unread message count
+      loadUnreadMessageCount(user.id);
     };
     loadUserData();
-  }, [supabase]);
+  }, [supabase, loadUnreadMessageCount]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -62,6 +85,45 @@ export default function DashboardHeader() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Set up real-time subscription for new messages
+  useEffect(() => {
+    if (!userId) return;
+
+    const messagesSubscription = supabase
+      .channel("header-messages")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `receiver_id=eq.${userId}`,
+        },
+        () => {
+          // Reload unread count when new message is received
+          loadUnreadMessageCount(userId);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `receiver_id=eq.${userId}`,
+        },
+        () => {
+          // Reload unread count when message is marked as read
+          loadUnreadMessageCount(userId);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      messagesSubscription.unsubscribe();
+    };
+  }, [userId, supabase, loadUnreadMessageCount]);
 
   const handleSignOut = async () => {
     try {
@@ -92,7 +154,7 @@ export default function DashboardHeader() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link
-              href="/dashboard"
+              href="/co-founders"
               className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
             >
               <Search className="w-5 h-5" />
@@ -134,16 +196,23 @@ export default function DashboardHeader() {
               <span>Reputation</span>
             </Link>
 
-            <Link
-              href="/messages"
-              className="flex items-center text-gray-700 hover:text-blue-600"
-            >
-              <MessageCircle className="w-5 h-5" />
-            </Link>
+            <div className="relative">
+              <button
+                className="p-2 text-gray-700 hover:text-blue-600 cursor-pointer relative"
+                onClick={() => router.push("/messages")}
+              >
+                <MessageCircle className="w-5 h-5" />
+                {unreadMessageCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
+                  </span>
+                )}
+              </button>
+            </div>
 
             {/* Notifications */}
             <div className="relative">
-              <button className="p-2 text-gray-700 hover:text-blue-600 relative">
+              <button className="p-2 text-gray-700 cursor-pointer hover:text-blue-600 relative">
                 <Bell className="w-5 h-5" />
                 <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   3

@@ -32,6 +32,16 @@ export default function MentorProfile({
             </div>
             <h2 className="text-2xl font-bold text-gray-900">About Me</h2>
           </div>
+
+          {/* Professional Title */}
+          {mentorData.title && (
+            <div className="mb-4">
+              <p className="text-lg font-semibold text-purple-600">
+                {mentorData.title}
+              </p>
+            </div>
+          )}
+
           <p className="text-gray-700 leading-relaxed text-lg mb-6">
             {mentorData.bio || "No bio provided yet."}
           </p>

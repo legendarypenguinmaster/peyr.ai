@@ -38,6 +38,7 @@ export interface FounderData {
 
 export interface MentorData {
   id: string;
+  title?: string | null;
   expertise_domains: string[];
   years_experience: number | null;
   availability_hours: number | null;

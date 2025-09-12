@@ -24,6 +24,7 @@ export interface FounderData {
 }
 
 export interface MentorData {
+  title?: string;
   bio?: string;
   expertise_domains?: string[];
   industries?: string[];
