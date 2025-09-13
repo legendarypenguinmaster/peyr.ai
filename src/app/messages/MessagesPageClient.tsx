@@ -1,134 +1,21 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import DashboardHeader from "@/components/layout/DashboardHeader";
-import Image from "next/image";
 import {
-  MessageCircle,
-  Send,
-  Check,
-  Clock,
+  ConnectionsList,
+  ChatArea,
+  Connection,
+  Message,
   User,
-  Shield,
-  Mic,
-  Square,
-  Play,
-  Pause,
-  Image as ImageIcon,
-  Paperclip,
-  File,
-  Download,
-} from "lucide-react";
-
-interface Profile {
-  id: string;
-  name: string;
-  avatar_url: string | null;
-  id_verification: boolean;
-}
-
-interface Connection {
-  id: string;
-  requester_id: string;
-  addressee_id: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  requester?: Profile;
-  addressee?: Profile;
-}
-
-interface Message {
-  id: string;
-  connection_id: string;
-  sender_id: string;
-  receiver_id: string;
-  content: string;
-  message_type: string;
-  is_read: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-interface User {
-  id: string;
-  email?: string;
-}
+  Profile,
+} from "@/components/messages";
 
 interface MessagesPageClientProps {
   initialConnections: Connection[];
   currentUser: User;
 }
-
-// Voice Message Player Component
-const VoiceMessagePlayer = ({
-  audioData,
-  isOwn,
-}: {
-  audioData: string;
-  isOwn: boolean;
-}) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(
-    null
-  );
-
-  useEffect(() => {
-    const audio = new Audio(audioData);
-    setAudioElement(audio);
-
-    const handleEnded = () => setIsPlaying(false);
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
-
-    audio.addEventListener("ended", handleEnded);
-    audio.addEventListener("play", handlePlay);
-    audio.addEventListener("pause", handlePause);
-
-    return () => {
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("play", handlePlay);
-      audio.removeEventListener("pause", handlePause);
-      audio.pause();
-    };
-  }, [audioData]);
-
-  const togglePlay = () => {
-    if (audioElement) {
-      if (isPlaying) {
-        audioElement.pause();
-      } else {
-        audioElement.play();
-      }
-    }
-  };
-
-  return (
-    <div className="flex items-center space-x-2">
-      <button
-        onClick={togglePlay}
-        className={`p-2 rounded-full ${
-          isOwn
-            ? "bg-blue-400 hover:bg-blue-300"
-            : "bg-gray-300 hover:bg-gray-400"
-        } transition-colors`}
-      >
-        {isPlaying ? (
-          <Pause className="w-4 h-4" />
-        ) : (
-          <Play className="w-4 h-4" />
-        )}
-      </button>
-      <div className="flex-1">
-        <div className="text-xs opacity-70">
-          {isPlaying ? "Playing..." : "Voice message"}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export default function MessagesPageClient({
   initialConnections,
@@ -165,10 +52,13 @@ export default function MessagesPageClient({
   // File upload state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  // Latest message timestamps for sorting
+  const [latestMessageTimestamps, setLatestMessageTimestamps] = useState<
+    Record<string, string>
+  >({});
+
   const supabase = createClient();
   const currentUserId = currentUser.id;
-  const router = useRouter();
-  const searchParams = useSearchParams();
 
   // Scroll to bottom when messages change
   const scrollToBottom = useCallback(() => {
@@ -351,11 +241,6 @@ export default function MessagesPageClient({
   const handleConnectionSelect = (connection: Connection) => {
     setSelectedConnection(connection);
     setMessages([]);
-
-    // Update URL with user parameter
-    const params = new URLSearchParams();
-    params.set("user", getOtherUser(connection).id);
-    router.push(`/messages?${params.toString()}`);
 
     if (connection.status === "accepted") {
       loadMessages(connection.id);
@@ -745,31 +630,6 @@ export default function MessagesPageClient({
     }
   };
 
-  // Restore selected user from URL on page load
-  useEffect(() => {
-    const userIdFromUrl = searchParams.get("user");
-    if (userIdFromUrl && connections.length > 0) {
-      const connection = connections.find(
-        (conn) => getOtherUser(conn).id === userIdFromUrl
-      );
-      if (connection && connection.id !== selectedConnection?.id) {
-        setSelectedConnection(connection);
-        setMessages([]);
-        if (connection.status === "accepted") {
-          loadMessages(connection.id);
-          markMessagesAsRead(connection.id);
-        }
-      }
-    }
-  }, [
-    searchParams,
-    connections,
-    selectedConnection,
-    getOtherUser,
-    loadMessages,
-    markMessagesAsRead,
-  ]);
-
   // Set up real-time subscriptions
   useEffect(() => {
     if (!currentUserId) return;
@@ -836,6 +696,12 @@ export default function MessagesPageClient({
                 (prev[newMessage.connection_id] || 0) + 1,
             }));
           }
+
+          // Update latest message timestamp for sorting
+          setLatestMessageTimestamps((prev) => ({
+            ...prev,
+            [newMessage.connection_id]: newMessage.created_at,
+          }));
         }
       )
       .on(
@@ -1047,6 +913,34 @@ export default function MessagesPageClient({
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
+  // Load latest message timestamps for sorting
+  const loadLatestMessageTimestamps = useCallback(async () => {
+    if (connections.length === 0) return;
+
+    try {
+      const connectionIds = connections.map((conn) => conn.id);
+      const { data, error } = await supabase
+        .from("messages")
+        .select("connection_id, created_at")
+        .in("connection_id", connectionIds)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error loading latest message timestamps:", error);
+      } else {
+        const timestamps: Record<string, string> = {};
+        data?.forEach((msg) => {
+          if (!timestamps[msg.connection_id]) {
+            timestamps[msg.connection_id] = msg.created_at;
+          }
+        });
+        setLatestMessageTimestamps(timestamps);
+      }
+    } catch (error) {
+      console.error("Error loading latest message timestamps:", error);
+    }
+  }, [connections, supabase]);
+
   // Load initial unread counts
   useEffect(() => {
     const loadUnreadCounts = async () => {
@@ -1073,6 +967,22 @@ export default function MessagesPageClient({
       loadUnreadCounts();
     }
   }, [currentUserId, supabase]);
+
+  // Load latest message timestamps when connections change
+  useEffect(() => {
+    if (connections.length > 0) {
+      loadLatestMessageTimestamps();
+    }
+  }, [connections, loadLatestMessageTimestamps]);
+
+  // Sort connections by latest message timestamp
+  const sortedConnections = useMemo(() => {
+    return [...connections].sort((a, b) => {
+      const timestampA = latestMessageTimestamps[a.id] || a.updated_at;
+      const timestampB = latestMessageTimestamps[b.id] || b.updated_at;
+      return new Date(timestampB).getTime() - new Date(timestampA).getTime();
+    });
+  }, [connections, latestMessageTimestamps]);
 
   // Cleanup recording timer on unmount
   useEffect(() => {
@@ -1103,591 +1013,56 @@ export default function MessagesPageClient({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-[calc(100vh-200px)] flex">
-          {/* Connections List */}
-          <div className="w-1/3 border-r border-gray-200 flex flex-col">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
-              <p className="text-sm text-gray-500">
-                {connections.length} connection
-                {connections.length !== 1 ? "s" : ""}
-              </p>
-            </div>
+          <ConnectionsList
+            connections={sortedConnections}
+            selectedConnection={selectedConnection}
+            unreadCounts={unreadCounts}
+            currentUserId={currentUserId}
+            isProcessingRequest={isProcessingRequest}
+            onConnectionSelect={handleConnectionSelect}
+            onAcceptConnection={handleAcceptConnection}
+            onDeclineConnection={handleDeclineConnection}
+            getOtherUser={getOtherUser}
+          />
 
-            <div className="flex-1 overflow-y-auto">
-              {connections.length === 0 ? (
-                <div className="p-4 text-center text-gray-500">
-                  <MessageCircle className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                  <p>No connections yet</p>
-                  <p className="text-sm">
-                    Connect with founders to start messaging
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  {connections.map((connection) => {
-                    const otherUser = getOtherUser(connection);
-                    const unreadCount = unreadCounts[connection.id] || 0;
-                    const isPendingRequest =
-                      connection.status === "pending" &&
-                      connection.addressee_id === currentUserId;
-
-                    if (isPendingRequest) {
-                      // Show connection request UI
-                      return (
-                        <div
-                          key={connection.id}
-                          className={`w-full p-4 border-b border-gray-100 bg-yellow-50 ${
-                            selectedConnection?.id === connection.id
-                              ? "ring-2 ring-yellow-300"
-                              : ""
-                          }`}
-                        >
-                          <button
-                            onClick={() => handleConnectionSelect(connection)}
-                            className="w-full text-left"
-                          >
-                            <div className="flex items-center space-x-3 mb-3">
-                              <div className="relative">
-                                {otherUser.avatar_url ? (
-                                  <Image
-                                    src={otherUser.avatar_url!}
-                                    alt={otherUser.name}
-                                    width={48}
-                                    height={48}
-                                    className="w-12 h-12 rounded-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                                    <User className="w-6 h-6 text-gray-600" />
-                                  </div>
-                                )}
-                                {otherUser.id_verification && (
-                                  <div className="absolute -bottom-1 -right-1">
-                                    <Shield className="w-4 h-4 text-green-500 bg-white rounded-full" />
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                  {otherUser.name}
-                                </p>
-                                <p className="text-xs text-yellow-600 font-medium">
-                                  Connection Request
-                                </p>
-                              </div>
-                            </div>
-                          </button>
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleAcceptConnection(connection.id);
-                              }}
-                              disabled={isProcessingRequest}
-                              className="flex-1 px-3 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              Accept
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeclineConnection(connection.id);
-                              }}
-                              disabled={isProcessingRequest}
-                              className="flex-1 px-3 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              Decline
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    // Show regular connection UI
-                    return (
-                      <button
-                        key={connection.id}
-                        onClick={() => handleConnectionSelect(connection)}
-                        className={`w-full p-4 text-left hover:bg-gray-50 border-b border-gray-100 ${
-                          selectedConnection?.id === connection.id
-                            ? "bg-blue-50 border-blue-200"
-                            : ""
-                        }`}
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="relative">
-                            {otherUser.avatar_url ? (
-                              <Image
-                                src={otherUser.avatar_url!}
-                                alt={otherUser.name}
-                                width={48}
-                                height={48}
-                                className="w-12 h-12 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                                <User className="w-6 h-6 text-gray-600" />
-                              </div>
-                            )}
-                            {otherUser.id_verification && (
-                              <div className="absolute -bottom-1 -right-1">
-                                <Shield className="w-4 h-4 text-green-500 bg-white rounded-full" />
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-medium text-gray-900 truncate">
-                                {otherUser.name}
-                              </p>
-                              {unreadCount > 0 && (
-                                <span className="bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                  {unreadCount}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs text-gray-500">
-                              {new Date(
-                                connection.updated_at
-                              ).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Chat Area */}
-          <div className="flex-1 flex flex-col">
-            {selectedConnection ? (
-              <>
-                {/* Chat Header */}
-                <div className="p-4 border-b border-gray-200 bg-white">
-                  <div className="flex items-center space-x-3">
-                    <div className="relative">
-                      {getOtherUser(selectedConnection).avatar_url ? (
-                        <Image
-                          src={getOtherUser(selectedConnection).avatar_url!}
-                          alt={getOtherUser(selectedConnection).name}
-                          width={40}
-                          height={40}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-gray-600" />
-                        </div>
-                      )}
-                      {getOtherUser(selectedConnection).id_verification && (
-                        <div className="absolute -bottom-1 -right-1">
-                          <Shield className="w-3 h-3 text-green-500 bg-white rounded-full" />
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900">
-                        {getOtherUser(selectedConnection).name}
-                      </h3>
-                      <p className="text-xs text-gray-500">
-                        {selectedConnection.status === "pending"
-                          ? "Connection Request"
-                          : "Online"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {selectedConnection.status === "pending" ? (
-                    <div className="flex items-center justify-center h-full">
-                      <div className="text-center max-w-md">
-                        <MessageCircle className="w-16 h-16 mx-auto mb-4 text-yellow-400" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Connection Request
-                        </h3>
-                        <p className="text-gray-600 mb-4">
-                          {getOtherUser(selectedConnection).name} wants to
-                          connect with you.
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Accept the request to start messaging, or decline to
-                          remove it.
-                        </p>
-                      </div>
-                    </div>
-                  ) : isLoading ? (
-                    <div className="flex items-center justify-center h-full">
-                      <p className="text-gray-500">Loading messages...</p>
-                    </div>
-                  ) : messages.length === 0 ? (
-                    <div className="flex items-center justify-center h-full">
-                      <div className="text-center">
-                        <MessageCircle className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                        <p className="text-gray-500">No messages yet</p>
-                        <p className="text-sm text-gray-400">
-                          Start the conversation!
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    messages.map((message) => {
-                      const isOwn = message.sender_id === currentUserId;
-
-                      return (
-                        <div
-                          key={message.id}
-                          className={`flex ${
-                            isOwn ? "justify-end" : "justify-start"
-                          }`}
-                        >
-                          <div
-                            className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                              isOwn
-                                ? "bg-blue-500 text-white"
-                                : "bg-gray-200 text-gray-900"
-                            }`}
-                          >
-                            {message.message_type === "voice" &&
-                            message.content ? (
-                              <VoiceMessagePlayer
-                                audioData={message.content}
-                                isOwn={isOwn}
-                              />
-                            ) : message.message_type === "image" &&
-                              message.content ? (
-                              <div className="max-w-xs">
-                                <Image
-                                  src={message.content}
-                                  alt="Shared image"
-                                  width={200}
-                                  height={200}
-                                  className="rounded-lg object-cover"
-                                  unoptimized
-                                />
-                              </div>
-                            ) : message.message_type === "file" &&
-                              message.content ? (
-                              <div className="max-w-xs">
-                                {(() => {
-                                  try {
-                                    const fileData = JSON.parse(
-                                      message.content
-                                    );
-                                    return (
-                                      <div className="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg">
-                                        <div className="text-2xl">
-                                          {getFileIcon(
-                                            fileData.filename || "file"
-                                          )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <p className="text-sm font-medium text-gray-900 truncate">
-                                            {fileData.filename ||
-                                              "Unknown file"}
-                                          </p>
-                                          <p className="text-xs text-gray-500">
-                                            {formatFileSize(fileData.size || 0)}
-                                          </p>
-                                        </div>
-                                        <button
-                                          onClick={() => {
-                                            const link =
-                                              document.createElement("a");
-                                            link.href = fileData.data;
-                                            link.download =
-                                              fileData.filename || "download";
-                                            link.click();
-                                          }}
-                                          className="p-1 text-blue-500 hover:text-blue-700"
-                                        >
-                                          <Download className="w-4 h-4" />
-                                        </button>
-                                      </div>
-                                    );
-                                  } catch {
-                                    // Fallback for old format or corrupted data
-                                    return (
-                                      <div className="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg">
-                                        <div className="text-2xl">📎</div>
-                                        <div className="flex-1 min-w-0">
-                                          <p className="text-sm font-medium text-gray-900">
-                                            File
-                                          </p>
-                                          <p className="text-xs text-gray-500">
-                                            Click to download
-                                          </p>
-                                        </div>
-                                        <button
-                                          onClick={() => {
-                                            const link =
-                                              document.createElement("a");
-                                            link.href = message.content;
-                                            link.download = "download";
-                                            link.click();
-                                          }}
-                                          className="p-1 text-blue-500 hover:text-blue-700"
-                                        >
-                                          <Download className="w-4 h-4" />
-                                        </button>
-                                      </div>
-                                    );
-                                  }
-                                })()}
-                              </div>
-                            ) : (
-                              <p className="text-sm">{message.content}</p>
-                            )}
-                            <div className="flex items-center justify-between mt-1">
-                              <span className="text-xs opacity-70">
-                                {new Date(
-                                  message.created_at
-                                ).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </span>
-                              {isOwn && (
-                                <div className="ml-2">
-                                  {message.is_read ? (
-                                    <Check className="w-3 h-3 text-blue-300" />
-                                  ) : (
-                                    <Clock className="w-3 h-3 text-blue-200" />
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                {/* Message Input */}
-                {selectedConnection.status === "accepted" && (
-                  <div className="p-4 border-t border-gray-200 bg-white">
-                    {/* Voice Recording Preview */}
-                    {audioBlob && (
-                      <div className="mb-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <button
-                              onClick={playPreview}
-                              className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-                            >
-                              {isPlayingPreview ? (
-                                <Pause className="w-4 h-4" />
-                              ) : (
-                                <Play className="w-4 h-4" />
-                              )}
-                            </button>
-                            <div>
-                              <p className="text-sm font-medium">
-                                Voice Recording
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {formatRecordingTime(recordingTime)}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={cancelRecording}
-                            className="text-red-500 hover:text-red-700 text-sm"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Image Preview */}
-                    {imagePreview && (
-                      <div className="mb-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 rounded-lg overflow-hidden">
-                              <Image
-                                src={imagePreview}
-                                alt="Image preview"
-                                width={48}
-                                height={48}
-                                className="w-full h-full object-cover"
-                                unoptimized
-                              />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Image</p>
-                              <p className="text-xs text-gray-500">
-                                {selectedImage?.name}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={cancelImageUpload}
-                            className="text-red-500 hover:text-red-700 text-sm"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* File Preview */}
-                    {selectedFile && (
-                      <div className="mb-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="text-2xl">
-                              {getFileIcon(selectedFile.name)}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">
-                                {selectedFile.name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {formatFileSize(selectedFile.size)}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={cancelFileUpload}
-                            className="text-red-500 hover:text-red-700 text-sm"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex space-x-2">
-                      {/* File Upload Button */}
-                      <label className="cursor-pointer">
-                        <input
-                          type="file"
-                          onChange={handleFileSelect}
-                          className="hidden"
-                          disabled={isSending}
-                        />
-                        <div className="p-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                          <Paperclip className="w-5 h-5" />
-                        </div>
-                      </label>
-
-                      {/* Image Upload Button */}
-                      <label className="cursor-pointer">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageSelect}
-                          className="hidden"
-                          disabled={isSending}
-                        />
-                        <div className="p-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                          <ImageIcon className="w-5 h-5" />
-                        </div>
-                      </label>
-
-                      {/* Voice Recording Button */}
-                      <button
-                        onClick={isRecording ? stopRecording : startRecording}
-                        className={`p-2 rounded-lg transition-colors ${
-                          isRecording
-                            ? "bg-red-500 text-white hover:bg-red-600"
-                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        }`}
-                        disabled={isSending}
-                      >
-                        {isRecording ? (
-                          <Square className="w-5 h-5" />
-                        ) : (
-                          <Mic className="w-5 h-5" />
-                        )}
-                      </button>
-
-                      {/* Text Input */}
-                      <input
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onFocus={() => {
-                          // Mark messages as read when user focuses on input field
-                          if (selectedConnection) {
-                            markMessagesAsRead(selectedConnection.id);
-                          }
-                        }}
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault();
-                            sendMessage();
-                          }
-                        }}
-                        placeholder="Type a message..."
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        disabled={isSending}
-                      />
-
-                      {/* Send Button */}
-                      <button
-                        onClick={
-                          audioBlob
-                            ? sendVoiceMessage
-                            : selectedImage
-                            ? sendImageMessage
-                            : selectedFile
-                            ? sendFileMessage
-                            : sendMessage
-                        }
-                        disabled={
-                          isSending ||
-                          (!newMessage.trim() &&
-                            !audioBlob &&
-                            !selectedImage &&
-                            !selectedFile)
-                        }
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                      >
-                        {isSending ? (
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <Send className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Recording Timer */}
-                    {isRecording && (
-                      <div className="mt-2 text-center">
-                        <div className="inline-flex items-center space-x-2 text-red-500">
-                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                          <span className="text-sm font-medium">
-                            Recording... {formatRecordingTime(recordingTime)}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Select a conversation
-                  </h3>
-                  <p className="text-gray-500">
-                    Choose a connection from the list to start messaging
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+          <ChatArea
+            selectedConnection={selectedConnection}
+            messages={messages}
+            isLoading={isLoading}
+            currentUserId={currentUserId}
+            getOtherUser={getOtherUser}
+            formatFileSize={formatFileSize}
+            getFileIcon={getFileIcon}
+            newMessage={newMessage}
+            setNewMessage={setNewMessage}
+            isSending={isSending}
+            sendMessage={sendMessage}
+            sendVoiceMessage={sendVoiceMessage}
+            sendImageMessage={sendImageMessage}
+            sendFileMessage={sendFileMessage}
+            markMessagesAsRead={() => {
+              if (selectedConnection) {
+                markMessagesAsRead(selectedConnection.id);
+              }
+            }}
+            isRecording={isRecording}
+            recordingTime={recordingTime}
+            audioBlob={audioBlob}
+            audioUrl={audioUrl}
+            isPlayingPreview={isPlayingPreview}
+            startRecording={startRecording}
+            stopRecording={stopRecording}
+            cancelRecording={cancelRecording}
+            playPreview={playPreview}
+            formatRecordingTime={formatRecordingTime}
+            selectedImage={selectedImage}
+            imagePreview={imagePreview}
+            handleImageSelect={handleImageSelect}
+            cancelImageUpload={cancelImageUpload}
+            selectedFile={selectedFile}
+            handleFileSelect={handleFileSelect}
+            cancelFileUpload={cancelFileUpload}
+          />
         </div>
       </div>
     </div>
