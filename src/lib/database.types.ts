@@ -156,6 +156,49 @@ export interface Database {
           }
         ];
       };
+      connections: {
+        Row: {
+          id: string;
+          requester_id: string;
+          addressee_id: string;
+          message: string | null;
+          status: "pending" | "accepted" | "declined" | "blocked";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          requester_id: string;
+          addressee_id: string;
+          message?: string | null;
+          status?: "pending" | "accepted" | "declined" | "blocked";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          requester_id?: string;
+          addressee_id?: string;
+          message?: string | null;
+          status?: "pending" | "accepted" | "declined" | "blocked";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "connections_requester_id_fkey";
+            columns: ["requester_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "connections_addressee_id_fkey";
+            columns: ["addressee_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

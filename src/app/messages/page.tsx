@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import MessagesPageClient from "./MessagesPageClient";
+import ClientPageWrapper from "@/components/ui/ClientPageWrapper";
 
 export default async function MessagesPage() {
   const supabase = await createClient();
@@ -54,6 +55,8 @@ export default async function MessagesPage() {
   }
 
   return (
-    <MessagesPageClient initialConnections={connections} currentUser={user} />
+    <ClientPageWrapper loadingText="Loading messages...">
+      <MessagesPageClient initialConnections={connections} currentUser={user} />
+    </ClientPageWrapper>
   );
 }

@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import ProfilePageClient from "../ProfilePageClient";
+import ClientPageWrapper from "@/components/ui/ClientPageWrapper";
 
 interface ProfilePageProps {
   params: Promise<{
@@ -48,10 +49,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   }
 
   return (
-    <ProfilePageClient
-      profile={profile}
-      roleData={roleData}
-      currentUserId={currentUser.id}
-    />
+    <ClientPageWrapper loadingText="Loading profile...">
+      <ProfilePageClient
+        profile={profile}
+        roleData={roleData}
+        currentUserId={currentUser.id}
+      />
+    </ClientPageWrapper>
   );
 }
