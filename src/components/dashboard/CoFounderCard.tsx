@@ -1,5 +1,7 @@
-import { User, Star } from "lucide-react";
+import { User, Star, Info, AlertCircle } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+import ConnectModal from "../ConnectModal";
 
 interface CoFounderCardProps {
   name: string;
@@ -12,6 +14,14 @@ interface CoFounderCardProps {
   isOnline?: boolean;
   lastSeen?: string;
   avatar?: string;
+  matchReasoning?: string;
+  matchPercentage?: number;
+  yearsExperience?: number | null;
+  isPaid?: boolean;
+  industries?: string[];
+  communicationChannel?: string | null;
+  mentorshipStyle?: string | null;
+  mentorId?: string;
 }
 
 export default function CoFounderCard({
@@ -25,7 +35,16 @@ export default function CoFounderCard({
   isOnline = false,
   lastSeen,
   avatar,
+  matchReasoning,
+  matchPercentage,
+  yearsExperience,
+  isPaid,
+  industries,
+  communicationChannel,
+  mentorId,
 }: CoFounderCardProps) {
+  const [showReasoning, setShowReasoning] = useState(false);
+  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   return (
     <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start space-x-4">
@@ -61,14 +80,33 @@ export default function CoFounderCard({
             Looking for: {lookingFor}
           </p>
           <div className="flex items-center space-x-2 mb-2">
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-              ✓ Verified
-            </span>
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-              Startup Veteran
-            </span>
+            {matchPercentage && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-blue-100 text-green-800 border border-green-200">
+                {matchPercentage}% Match
+              </span>
+            )}
+            {yearsExperience && (
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                {yearsExperience}+ years exp
+              </span>
+            )}
+            {isPaid && (
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                Paid Mentor
+              </span>
+            )}
           </div>
-          <p className="text-sm text-gray-600 mb-3">{location}</p>
+          <p className="text-sm text-gray-600 mb-2">{location}</p>
+          {industries && industries.length > 0 && (
+            <p className="text-sm text-gray-500 mb-2">
+              Industries: {industries.join(", ")}
+            </p>
+          )}
+          {communicationChannel && (
+            <p className="text-sm text-gray-500 mb-2">
+              Preferred: {communicationChannel}
+            </p>
+          )}
           <p className="text-sm text-gray-600 mb-3">{description}</p>
           <div className="flex flex-wrap gap-2 mb-3">
             {skills.map((skill, index) => (
@@ -84,16 +122,56 @@ export default function CoFounderCard({
             <Star className="w-4 h-4 text-yellow-400 fill-current" />
             <span className="text-sm text-gray-600">{rating}</span>
           </div>
+          
+          {/* Match Reasoning Alert */}
+          {matchReasoning && (
+            <div className="mb-3">
+              <button
+                onClick={() => setShowReasoning(!showReasoning)}
+                className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                <AlertCircle className="w-4 h-4" />
+                <span>Why this match?</span>
+                <Info className="w-3 h-3" />
+              </button>
+              
+              {showReasoning && (
+                <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className="text-sm font-medium text-blue-900 mb-1">AI Match Analysis</h4>
+                      <p className="text-sm text-blue-800 leading-relaxed">{matchReasoning}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           <div className="flex space-x-3">
-            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
-              Message
-            </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+            <button 
+              onClick={() => setIsConnectModalOpen(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
               Connect
             </button>
           </div>
         </div>
       </div>
+      
+      {/* Connect Modal */}
+      <ConnectModal
+        isOpen={isConnectModalOpen}
+        onClose={() => setIsConnectModalOpen(false)}
+        mentor={{
+          id: mentorId || "",
+          name: name,
+          avatar_url: avatar,
+        }}
+        onSuccess={() => {
+          setIsConnectModalOpen(false);
+        }}
+      />
     </div>
   );
 }

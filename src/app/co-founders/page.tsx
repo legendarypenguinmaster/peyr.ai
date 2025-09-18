@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import CoFoundersPageClient from "./CoFoundersPageClient";
+import ClientPageWrapper from "@/components/ui/ClientPageWrapper";
 
 export default async function CoFoundersPage() {
   // This will redirect to sign-in if not authenticated
@@ -30,5 +31,9 @@ export default async function CoFoundersPage() {
     console.error("Error fetching mentors:", error);
   }
 
-  return <CoFoundersPageClient mentors={mentors || []} />;
+  return (
+    <ClientPageWrapper loadingText="Loading co-founders...">
+      <CoFoundersPageClient mentors={mentors || []} />
+    </ClientPageWrapper>
+  );
 }
