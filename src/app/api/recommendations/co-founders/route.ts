@@ -45,6 +45,36 @@ interface Recommendation {
   reasoning: string;
 }
 
+interface DatabaseRecommendation {
+  id: string;
+  founder_id: string;
+  recommended_mentor_id: string;
+  match_score: number;
+  match_percentage: number;
+  match_reasoning: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ProfileData {
+  id: string;
+  name: string | null;
+  avatar_url: string | null;
+}
+
+interface MentorDetails {
+  id: string;
+  bio: string | null;
+  expertise_domains: string[] | null;
+  industries: string[] | null;
+  years_experience: number | null;
+  past_roles: string[] | null;
+  availability_hours: number | null;
+  communication_channel: string | null;
+  mentorship_style: string | null;
+  is_paid: boolean | null;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -117,7 +147,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get founder profile name
-    const { data: founderProfile, error: founderProfileError } = await supabase
+    const { data: founderProfile } = await supabase
       .from('profiles')
       .select('name')
       .eq('id', user.id)
@@ -144,7 +174,7 @@ export async function GET(request: NextRequest) {
 
     // Get mentor profile names
     const mentorIds = mentorsData.map(mentor => mentor.id);
-    const { data: mentorProfiles, error: mentorProfilesError } = await supabase
+    const { data: mentorProfiles } = await supabase
       .from('profiles')
       .select('id, name, avatar_url')
       .in('id', mentorIds);
@@ -393,7 +423,7 @@ IMPORTANT: Return ONLY the JSON array, no markdown formatting, no code blocks, n
   }
 }
 
-async function enrichRecommendationsWithMentorData(recommendations: any[], supabase: any) {
+async function enrichRecommendationsWithMentorData(recommendations: DatabaseRecommendation[], supabase: Awaited<ReturnType<typeof createClient>>) {
   if (!recommendations || recommendations.length === 0) {
     return [];
   }
@@ -418,9 +448,9 @@ async function enrichRecommendationsWithMentorData(recommendations: any[], supab
   }
 
   // Enrich recommendations with complete data
-  return recommendations.map((rec: any) => {
-    const profile = mentorProfiles?.find((p: any) => p.id === rec.recommended_mentor_id);
-    const details = mentorDetails?.find((d: any) => d.id === rec.recommended_mentor_id);
+  return recommendations.map((rec: DatabaseRecommendation) => {
+    const profile = mentorProfiles?.find((p: ProfileData) => p.id === rec.recommended_mentor_id);
+    const details = mentorDetails?.find((d: MentorDetails) => d.id === rec.recommended_mentor_id);
     
     return {
       ...rec,

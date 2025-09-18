@@ -41,7 +41,6 @@ export default function CoFounderCard({
   isPaid,
   industries,
   communicationChannel,
-  mentorshipStyle,
   mentorId,
 }: CoFounderCardProps) {
   const [showReasoning, setShowReasoning] = useState(false);

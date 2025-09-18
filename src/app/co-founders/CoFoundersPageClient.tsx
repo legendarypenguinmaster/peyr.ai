@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Filter, Users, CheckCircle } from "lucide-react";
 import DashboardHeader from "@/components/layout/DashboardHeader";
@@ -57,13 +57,7 @@ export default function CoFoundersPageClient({
   });
   const [connectionStatuses, setConnectionStatuses] = useState<Map<string, string>>(new Map());
 
-  // Fetch network statistics and connection statuses
-  useEffect(() => {
-    fetchNetworkStats();
-    fetchConnectionStatuses();
-  }, [mentors]);
-
-  const fetchNetworkStats = async () => {
+  const fetchNetworkStats = useCallback(async () => {
     try {
       const supabase = createClient();
       
@@ -120,9 +114,9 @@ export default function CoFoundersPageClient({
       console.error('Error fetching network stats:', error);
       setNetworkStats(prev => ({ ...prev, loading: false }));
     }
-  };
+  }, []);
 
-  const fetchConnectionStatuses = async () => {
+  const fetchConnectionStatuses = useCallback(async () => {
     try {
       const supabase = createClient();
       
@@ -162,7 +156,13 @@ export default function CoFoundersPageClient({
     } catch (error) {
       console.error('Error fetching connection statuses:', error);
     }
-  };
+  }, [mentors]);
+
+  // Fetch network statistics and connection statuses
+  useEffect(() => {
+    fetchNetworkStats();
+    fetchConnectionStatuses();
+  }, [mentors, fetchNetworkStats, fetchConnectionStatuses]);
 
   // Get all unique skills and industries for filter options
   const allSkills = useMemo(() => {

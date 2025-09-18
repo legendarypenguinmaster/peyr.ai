@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { RefreshCw, AlertCircle, Info, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import ConnectModal from "./ConnectModal";
+import Image from "next/image";
 
 interface Recommendation {
   id: string;
@@ -50,12 +51,6 @@ export default function CoFoundersRecommendedSection() {
   useEffect(() => {
     fetchRecommendations();
   }, []);
-
-  useEffect(() => {
-    if (recommendations.length > 0) {
-      fetchConnectionStatuses();
-    }
-  }, [recommendations]);
 
   const fetchRecommendations = async (refresh = false) => {
     try {
@@ -106,7 +101,7 @@ export default function CoFoundersRecommendedSection() {
     setSelectedReasoning(null);
   };
 
-  const fetchConnectionStatuses = async () => {
+  const fetchConnectionStatuses = useCallback(async () => {
     try {
       const supabase = createClient();
       
@@ -146,7 +141,13 @@ export default function CoFoundersRecommendedSection() {
     } catch (error) {
       console.error('Error fetching connection statuses:', error);
     }
-  };
+  }, [recommendations]);
+
+  useEffect(() => {
+    if (recommendations.length > 0) {
+      fetchConnectionStatuses();
+    }
+  }, [recommendations, fetchConnectionStatuses]);
 
   const getConnectionStatus = (mentorId: string) => {
     return connectionStatuses.get(mentorId) || 'none';
@@ -356,9 +357,11 @@ export default function CoFoundersRecommendedSection() {
               <div className="flex justify-center mb-4">
                 <div className="relative">
                   {mentorData.avatar_url ? (
-                    <img
+                    <Image
                       src={mentorData.avatar_url}
                       alt={mentorData.name}
+                      width={80}
+                      height={80}
                       className="w-20 h-20 rounded-full object-cover"
                     />
                   ) : (
