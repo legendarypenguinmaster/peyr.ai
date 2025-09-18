@@ -346,9 +346,9 @@ export default function CoFoundersPageClient({
                   {networkStats.loading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
                   ) : (
-                    <span className="text-lg font-semibold text-blue-600">
+                  <span className="text-lg font-semibold text-blue-600">
                       {networkStats.sentRequests}
-                    </span>
+                  </span>
                   )}
                 </div>
                 <div className="flex items-center justify-between">
@@ -356,9 +356,9 @@ export default function CoFoundersPageClient({
                   {networkStats.loading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
                   ) : (
-                    <span className="text-lg font-semibold text-green-600">
+                  <span className="text-lg font-semibold text-green-600">
                       {networkStats.connections}
-                    </span>
+                  </span>
                   )}
                 </div>
                 <div className="flex items-center justify-between">
@@ -366,9 +366,9 @@ export default function CoFoundersPageClient({
                   {networkStats.loading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
                   ) : (
-                    <span className="text-lg font-semibold text-yellow-600">
+                  <span className="text-lg font-semibold text-yellow-600">
                       {networkStats.pending}
-                    </span>
+                  </span>
                   )}
                 </div>
               </div>
@@ -542,10 +542,10 @@ export default function CoFoundersPageClient({
                       </p>
                     </div>
 
-                      {/* Connect Button */}
-                      <div className="pt-4 border-t border-gray-100 mt-auto">
+                    {/* Connect Button */}
+                    <div className="pt-4 border-t border-gray-100 mt-auto">
                         {getConnectionButton(mentor)}
-                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

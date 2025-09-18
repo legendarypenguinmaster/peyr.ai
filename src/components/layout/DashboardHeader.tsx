@@ -28,6 +28,8 @@ export default function DashboardHeader() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState<number>(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const aiToolsRef = useRef<HTMLDivElement>(null);
+  const [isAiToolsOpen, setIsAiToolsOpen] = useState(false);
 
   const loadUnreadMessageCount = useCallback(
     async (userId: string) => {
@@ -77,6 +79,12 @@ export default function DashboardHeader() {
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsDropdownOpen(false);
+      }
+      if (
+        aiToolsRef.current &&
+        !aiToolsRef.current.contains(event.target as Node)
+      ) {
+        setIsAiToolsOpen(false);
       }
     };
 
@@ -174,16 +182,60 @@ export default function DashboardHeader() {
               <Layout className="w-5 h-5" />
               <span>Workspace</span>
             </Link>
-            <Link
-              href="/ai-tools"
-              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
-            >
-              <Brain className="w-5 h-5" />
-              <span>AI Tools</span>
-              <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">
-                NEW
-              </span>
-            </Link>
+            {/* AI Tools with dropdown */}
+            <div className="relative" ref={aiToolsRef}>
+              <button
+                onClick={() => setIsAiToolsOpen(!isAiToolsOpen)}
+                className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap cursor-pointer"
+              >
+                <Brain className="w-5 h-5" />
+                <span>AI Tools</span>
+                <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">
+                  NEW
+                </span>
+              </button>
+              {isAiToolsOpen && (
+                <div className="absolute left-0 mt-2 w-[520px] bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-50">
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { slug: "ai-coach", name: "AI Startup Coach" },
+                      { slug: "investor-matching", name: "AI Investor Matching" },
+                      { slug: "market-validation", name: "AI Market Validation" },
+                      { slug: "team-builder", name: "AI Team Builder" },
+                      { slug: "financial-modeling", name: "AI Financial Modeling" },
+                      { slug: "product-strategy", name: "AI Product Strategy" },
+                      { slug: "competitor-intel", name: "AI Competitor Intel" },
+                      { slug: "partnership-discovery", name: "AI Partnership Discovery" },
+                      { slug: "performance-optimizer", name: "AI Performance Optimizer" },
+                      { slug: "global-expansion", name: "AI Global Expansion" },
+                      { slug: "pitch-generator", name: "AI Pitch Generator" },
+                      { slug: "equity-calculator", name: "AI Equity Calculator" },
+                      { slug: "legal-generator", name: "AI Legal Generator" },
+                      { slug: "risk-assessment", name: "AI Risk Assessment" },
+                      { slug: "compatibility-analysis", name: "AI Compatibility Analysis" },
+                    ].map((t) => (
+                      <Link
+                        key={t.slug}
+                        href={`/ai-tools/${t.slug}`}
+                        className="px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsAiToolsOpen(false)}
+                      >
+                        {t.name}
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-gray-100">
+                    <Link
+                      href="/ai-tools"
+                      className="block px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50"
+                      onClick={() => setIsAiToolsOpen(false)}
+                    >
+                      View all AI Tools →
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* User Actions */}
