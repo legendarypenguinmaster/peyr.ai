@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const lightGray = [243, 244, 246]; // Gray-100
 
     // Helper function to add a slide
-    const addSlide = (slide: any, slideNumber: number, totalSlides: number) => {
+    const addSlide = (slide: { title: string; bullets: string[] }, slideNumber: number, totalSlides: number) => {
       if (slideNumber > 1) {
         pdf.addPage();
       }
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       pdf.setFont("helvetica", "normal");
 
       let yPosition = 90;
-      slide.bullets.forEach((bullet: string, index: number) => {
+      slide.bullets.forEach((bullet: string) => {
         if (yPosition > 180) {
           // If we run out of space, we could add a new page, but for now just stop
           return;
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Add each slide
-    deck.slides.forEach((slide: any, index: number) => {
+    deck.slides.forEach((slide: { title: string; bullets: string[] }, index: number) => {
       addSlide(slide, index + 1, deck.slides.length);
     });
 

@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { useEffect, useState } from "react";
 import PitchGeneratorStep1 from "./PitchGeneratorStep1";
 
 type Step = "prepare" | "review" | "slides";
@@ -73,7 +71,7 @@ export default function PitchGeneratorClient() {
     </div>
   );
 
-  const handleGenerate = async (form: any) => {
+  const handleGenerate = async (form: Record<string, string>) => {
     // call the generator API and move to review, store result locally
     try {
       setGenerating(true);

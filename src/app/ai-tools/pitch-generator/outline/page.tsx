@@ -27,7 +27,7 @@ export default function PitchOutlinePage() {
         if (!res.ok) throw new Error("Failed to generate");
         const text = await res.text();
         setOutline(text);
-      } catch (e) {
+      } catch {
         setError("Failed to generate deck. Please try again.");
       } finally {
         setLoading(false);

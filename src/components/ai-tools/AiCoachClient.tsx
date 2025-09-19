@@ -74,7 +74,7 @@ export default function AiCoachClient() {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  const suggestionsByTab: Record<string, string[]> = {
+  const suggestionsByTab: Record<string, string[]> = useMemo(() => ({
     idea: [
       "How do I validate my startup idea?",
       "Can you outline a quick experiment plan?",
@@ -105,7 +105,7 @@ export default function AiCoachClient() {
       "What channels fit a low‑budget launch?",
       "How do I design a referral loop?",
     ],
-  };
+  }), []);
 
   const suggested = useMemo(() => suggestionsByTab[activeTab] || suggestionsByTab.idea, [activeTab, suggestionsByTab]);
   const placeholder = useMemo(() => (suggested?.[0] ? suggested[0] : "Ask your startup coach anything"), [suggested]);
@@ -177,7 +177,7 @@ export default function AiCoachClient() {
           }
         }
       } catch {}
-    } catch (e) {
+    } catch {
       setMessages((m) => [
         ...m,
         {
