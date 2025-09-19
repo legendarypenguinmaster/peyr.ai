@@ -125,7 +125,7 @@ export default function PitchGeneratorClient() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen">
       <Stepper />
       {step === "prepare" && <PitchGeneratorStep1 onGenerate={handleGenerate} />}
       {step === "review" && (
