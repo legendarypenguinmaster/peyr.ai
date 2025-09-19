@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
+import { Document, Packer, Paragraph, TextRun } from "docx";
 import jsPDF from "jspdf";
 
 const openai = new OpenAI({
@@ -130,7 +130,7 @@ Create a comprehensive, professional legal document that includes all necessary 
       // Parse and format the document content
       const parseDocumentContent = (content: string) => {
         const lines = content.split('\n');
-        const children: any[] = [];
+        const children: (Paragraph)[] = [];
         
         for (const line of lines) {
           if (line.trim() === '') {
@@ -141,7 +141,7 @@ Create a comprehensive, professional legal document that includes all necessary 
           // Handle bold text (**text**)
           if (line.includes('**')) {
             const parts = line.split(/(\*\*[^*]+\*\*)/g);
-            const textRuns: any[] = [];
+            const textRuns: TextRun[] = [];
             
             for (const part of parts) {
               if (part.startsWith('**') && part.endsWith('**')) {
@@ -164,7 +164,7 @@ Create a comprehensive, professional legal document that includes all necessary 
           // Handle italic text (*text*)
           else if (line.includes('*') && !line.includes('**')) {
             const parts = line.split(/(\*[^*]+\*)/g);
-            const textRuns: any[] = [];
+            const textRuns: TextRun[] = [];
             
             for (const part of parts) {
               if (part.startsWith('*') && part.endsWith('*')) {
@@ -211,7 +211,7 @@ Create a comprehensive, professional legal document that includes all necessary 
       });
 
       const buffer = await Packer.toBuffer(doc);
-      return new Response(buffer as any, {
+      return new Response(buffer as BodyInit, {
         headers: {
           "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
           "Content-Disposition": `attachment; filename="${documentType.replace("-", "_")}.docx"`,
@@ -310,7 +310,7 @@ Create a comprehensive, professional legal document that includes all necessary 
       }
 
       const pdfBuffer = Buffer.from(pdf.output("arraybuffer"));
-      return new Response(pdfBuffer as any, {
+      return new Response(pdfBuffer as BodyInit, {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": `attachment; filename="${documentType.replace("-", "_")}.pdf"`,
