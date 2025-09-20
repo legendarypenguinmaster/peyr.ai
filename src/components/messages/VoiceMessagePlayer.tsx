@@ -54,7 +54,7 @@ export const VoiceMessagePlayer = ({
         className={`p-2 rounded-full ${
           isOwn
             ? "bg-blue-400 hover:bg-blue-300"
-            : "bg-gray-300 hover:bg-gray-400"
+            : "bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
         } transition-colors`}
       >
         {isPlaying ? (
@@ -64,7 +64,7 @@ export const VoiceMessagePlayer = ({
         )}
       </button>
       <div className="flex-1">
-        <div className="text-xs opacity-70">
+        <div className="text-xs opacity-70 text-gray-900 dark:text-white">
           {isPlaying ? "Playing..." : "Voice message"}
         </div>
       </div>

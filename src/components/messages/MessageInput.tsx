@@ -76,10 +76,10 @@ export const MessageInput = ({
   getFileIcon,
 }: MessageInputProps) => {
   return (
-    <div className="p-4 border-t border-gray-200 bg-white">
+    <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
       {/* Voice Recording Preview */}
       {audioBlob && (
-        <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+        <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <button
@@ -93,15 +93,15 @@ export const MessageInput = ({
                 )}
               </button>
               <div>
-                <p className="text-sm font-medium">Voice Recording</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">Voice Recording</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {formatRecordingTime(recordingTime)}
                 </p>
               </div>
             </div>
             <button
               onClick={cancelRecording}
-              className="text-red-500 hover:text-red-700 text-sm"
+              className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm"
             >
               Cancel
             </button>
@@ -111,7 +111,7 @@ export const MessageInput = ({
 
       {/* Image Preview */}
       {imagePreview && (
-        <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+        <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 rounded-lg overflow-hidden">
@@ -125,13 +125,13 @@ export const MessageInput = ({
                 />
               </div>
               <div>
-                <p className="text-sm font-medium">Image</p>
-                <p className="text-xs text-gray-500">{selectedImage?.name}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">Image</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{selectedImage?.name}</p>
               </div>
             </div>
             <button
               onClick={cancelImageUpload}
-              className="text-red-500 hover:text-red-700 text-sm"
+              className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm"
             >
               Cancel
             </button>
@@ -141,20 +141,20 @@ export const MessageInput = ({
 
       {/* File Preview */}
       {selectedFile && (
-        <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+        <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="text-2xl">{getFileIcon(selectedFile.name)}</div>
               <div>
-                <p className="text-sm font-medium">{selectedFile.name}</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedFile.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {formatFileSize(selectedFile.size)}
                 </p>
               </div>
             </div>
             <button
               onClick={cancelFileUpload}
-              className="text-red-500 hover:text-red-700 text-sm"
+              className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm"
             >
               Cancel
             </button>
@@ -171,7 +171,7 @@ export const MessageInput = ({
             className="hidden"
             disabled={isSending}
           />
-          <div className="w-10 h-10 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center">
+          <div className="w-10 h-10 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors flex items-center justify-center">
             <Paperclip className="w-5 h-5" />
           </div>
         </label>
@@ -185,7 +185,7 @@ export const MessageInput = ({
             className="hidden"
             disabled={isSending}
           />
-          <div className="w-10 h-10 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center">
+          <div className="w-10 h-10 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors flex items-center justify-center">
             <ImageIcon className="w-5 h-5" />
           </div>
         </label>
@@ -196,7 +196,7 @@ export const MessageInput = ({
           className={`w-10 h-10 rounded-lg transition-colors flex items-center justify-center ${
             isRecording
               ? "bg-red-500 text-white hover:bg-red-600"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500"
           }`}
           disabled={isSending}
         >
@@ -220,7 +220,7 @@ export const MessageInput = ({
             }
           }}
           placeholder="Type a message..."
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           disabled={isSending}
         />
 
@@ -257,7 +257,7 @@ export const MessageInput = ({
         <div className="mt-2 text-center">
           <div className="inline-flex items-center space-x-2 text-red-500">
             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">
+            <span className="text-sm font-medium text-gray-900 dark:text-white">
               Recording... {formatRecordingTime(recordingTime)}
             </span>
           </div>

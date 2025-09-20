@@ -108,7 +108,7 @@ export default function SignIn() {
     >
       <form className="space-y-6" onSubmit={handleSubmit}>
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md">
             {error}
           </div>
         )}
@@ -143,7 +143,7 @@ export default function SignIn() {
             />
             <label
               htmlFor="remember-me"
-              className="ml-2 block text-sm text-gray-900"
+              className="ml-2 block text-sm text-gray-900 dark:text-gray-300"
             >
               Remember me
             </label>
@@ -167,7 +167,7 @@ export default function SignIn() {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">
+              <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
                 Or continue with
               </span>
             </div>
@@ -178,7 +178,7 @@ export default function SignIn() {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path

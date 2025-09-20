@@ -65,9 +65,9 @@ export default function ProfileCompletion() {
   }, []);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-gray-100">
+      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 px-6 py-4 border-b border-gray-100 dark:border-gray-700">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
             <svg
@@ -85,10 +85,10 @@ export default function ProfileCompletion() {
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Profile Completion
             </h3>
-            <p className="text-sm text-gray-600">Complete your profile</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Complete your profile</p>
           </div>
         </div>
       </div>
@@ -97,10 +97,10 @@ export default function ProfileCompletion() {
         {/* Progress Section */}
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-600 font-medium">Completion Rate</span>
-            <span className="font-bold text-gray-900">{progress}%</span>
+            <span className="text-gray-600 dark:text-gray-400 font-medium">Completion Rate</span>
+            <span className="font-bold text-gray-900 dark:text-white">{progress}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
               className="bg-gradient-to-r from-emerald-500 to-teal-600 h-2 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
@@ -119,11 +119,11 @@ export default function ProfileCompletion() {
           ].map((item) => (
             <div
               key={item.key}
-              className="flex items-center space-x-2 p-2 rounded-lg bg-gray-50"
+              className="flex items-center space-x-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-700"
             >
               <div className="text-sm">{item.icon}</div>
               <div className="flex-1">
-                <span className="text-xs font-medium text-gray-700">
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                   {item.label}
                 </span>
               </div>

@@ -12,9 +12,9 @@ export default function TrustScore() {
   const trustScore = (completedCount / trustItems.length) * 10;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-100">
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 px-6 py-4 border-b border-gray-100 dark:border-gray-700">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
             <svg
@@ -32,8 +32,8 @@ export default function TrustScore() {
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Trust Score</h3>
-            <p className="text-sm text-gray-600">Build credibility</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Trust Score</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Build credibility</p>
           </div>
         </div>
       </div>
@@ -60,12 +60,12 @@ export default function TrustScore() {
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-lg font-bold text-gray-900">
+              <span className="text-lg font-bold text-gray-900 dark:text-white">
                 {trustScore.toFixed(1)}
               </span>
             </div>
           </div>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-600 dark:text-gray-400">
             {trustScore < 3
               ? "Building"
               : trustScore < 7
@@ -79,11 +79,11 @@ export default function TrustScore() {
           {trustItems.map((item, index) => (
             <div
               key={index}
-              className="flex items-center space-x-2 p-2 rounded-lg bg-gray-50"
+              className="flex items-center space-x-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-700"
             >
               <div className="text-sm">{item.icon}</div>
               <div className="flex-1">
-                <span className="text-xs font-medium text-gray-700">
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                   {item.label}
                 </span>
               </div>

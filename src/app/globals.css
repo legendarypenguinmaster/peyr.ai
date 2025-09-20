@@ -12,6 +12,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Dark mode configuration for Tailwind CSS v4 */
+@variant dark (.dark &);
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

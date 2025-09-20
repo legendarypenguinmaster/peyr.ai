@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function HeroSection() {
   return (
-    <section className="bg-white py-20 lg:py-32">
+    <section className="bg-white dark:bg-gray-900 py-20 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
@@ -28,7 +28,7 @@ export default function HeroSection() {
                 ></span>
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
               Peyr.ai helps entrepreneurs connect, sign fair agreements, and
               build startups together safely.
             </p>
@@ -39,7 +39,7 @@ export default function HeroSection() {
               >
                 Get Started
               </a>
-              <button className="bg-white text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 cursor-pointer">
+              <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 cursor-pointer">
                 Learn More
               </button>
             </div>

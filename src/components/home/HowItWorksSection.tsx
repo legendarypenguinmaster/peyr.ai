@@ -29,13 +29,13 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
             How It Works
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
             From finding your co-founder to launching your startup, we&apos;ve
             simplified the entire process into three simple steps
           </p>
@@ -49,7 +49,7 @@ export default function HowItWorksSection() {
             {steps.map((step, index) => (
               <div key={index} className="relative flex">
                 {/* Step card */}
-                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden flex flex-col w-full h-full">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col w-full h-full">
                   {/* Step image */}
                   <div className="relative h-48 overflow-hidden flex-shrink-0">
                     <Image
@@ -71,10 +71,10 @@ export default function HowItWorksSection() {
 
                   {/* Step content */}
                   <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3 leading-tight">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 leading-tight">
                       {step.title}
                     </h3>
-                    <p className="text-gray-600 leading-relaxed mb-4 flex-grow">
+                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4 flex-grow">
                       {step.description}
                     </p>
 

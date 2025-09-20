@@ -11,7 +11,7 @@ export default async function Home() {
   // Redirect authenticated users to dashboard
   await redirectIfAuthenticated();
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <Header />
       <HeroSection />
       <FeaturesSection />

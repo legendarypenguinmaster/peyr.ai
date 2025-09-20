@@ -20,7 +20,7 @@ export default async function Dashboard() {
 
   return (
     <ClientPageWrapper loadingText="Loading your dashboard...">
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <DashboardHeader />
 
         {/* Main Content */}
@@ -32,7 +32,7 @@ export default async function Dashboard() {
 
           {/* Dashboard Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center">
                 <div className="p-3 bg-blue-100 rounded-lg">
                   <svg
@@ -50,15 +50,15 @@ export default async function Dashboard() {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                     Active Matches
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">12</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">12</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center">
                 <div className="p-3 bg-green-100 rounded-lg">
                   <svg
@@ -76,15 +76,15 @@ export default async function Dashboard() {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                     Completed Projects
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">3</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">3</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center">
                 <div className="p-3 bg-purple-100 rounded-lg">
                   <svg
@@ -102,13 +102,13 @@ export default async function Dashboard() {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Trust Score</p>
-                  <p className="text-2xl font-bold text-gray-900">8.5</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Trust Score</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">8.5</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center">
                 <div className="p-3 bg-orange-100 rounded-lg">
                   <svg
@@ -126,10 +126,10 @@ export default async function Dashboard() {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                     Response Time
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">2h</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">2h</p>
                 </div>
               </div>
             </div>
@@ -159,9 +159,9 @@ export default async function Dashboard() {
             {/* Compact Sidebar - Fixed Width */}
             <div className="w-full xl:w-80 xl:flex-shrink-0">
               <div className="sticky top-8 space-y-4">
+                <QuickActions />
                 <ProfileCompletion />
                 <TrustScore />
-                <QuickActions />
                 <EscrowStatus />
               </div>
             </div>

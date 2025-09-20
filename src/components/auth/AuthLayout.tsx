@@ -25,7 +25,7 @@ export default function AuthLayout({
   layout = "form-left",
 }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <div className="flex min-h-screen">
         {/* Form Section */}
         <div
@@ -53,8 +53,8 @@ export default function AuthLayout({
                   <span className="text-white font-bold text-lg">P</span>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Peyr.ai</h1>
-                  <p className="text-sm text-gray-600">Dream. Pair. Do.</p>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Peyr.ai</h1>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Dream. Pair. Do.</p>
                 </div>
               </Link>
             </div>
@@ -65,8 +65,8 @@ export default function AuthLayout({
                 imageSrc ? "text-center lg:text-left" : "text-center"
               }`}
             >
-              <h2 className="text-3xl font-bold text-gray-900">{title}</h2>
-              <p className="mt-2 text-sm text-gray-600">{subtitle}</p>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{title}</h2>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{subtitle}</p>
             </div>
 
             {/* Form Content */}
@@ -80,7 +80,7 @@ export default function AuthLayout({
                 imageSrc ? "text-center lg:text-left" : "text-center"
               }`}
             >
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 {footerText}{" "}
                 <Link
                   href={footerLink}

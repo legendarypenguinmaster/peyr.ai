@@ -238,12 +238,12 @@ export default function LegalGeneratorClient() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <DashboardHeader />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Legal Document Generator</h1>
-          <p className="text-lg text-gray-600">Generate professional legal documents with AI</p>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Legal Document Generator</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400">Generate professional legal documents with AI</p>
         </div>
 
         <Stepper />

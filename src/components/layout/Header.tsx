@@ -1,6 +1,6 @@
 export default function Header() {
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-2">
           <div className="flex items-center">
@@ -9,15 +9,15 @@ export default function Header() {
                 <span className="text-white font-bold text-lg">P</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Peyr.ai</h1>
-                <p className="text-sm text-gray-600">Dream. Pair. Do.</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Peyr.ai</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Dream. Pair. Do.</p>
               </div>
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <a
               href="/auth/sign-in"
-              className="text-gray-700 hover:text-gray-900 font-medium transition-colors cursor-pointer"
+              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors cursor-pointer"
             >
               Sign In
             </a>

@@ -46,9 +46,9 @@ export default function CoFounderCard({
   const [showReasoning, setShowReasoning] = useState(false);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   return (
-    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow bg-white dark:bg-gray-800">
       <div className="flex items-start space-x-4">
-        <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+        <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
           {avatar ? (
             <Image
               src={avatar}
@@ -58,61 +58,61 @@ export default function CoFounderCard({
               className="w-12 h-12 rounded-full object-cover"
             />
           ) : (
-            <User className="w-6 h-6 text-gray-600" />
+            <User className="w-6 h-6 text-gray-600 dark:text-gray-400" />
           )}
         </div>
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-1">
-            <h4 className="font-semibold text-gray-900">{name}</h4>
+            <h4 className="font-semibold text-gray-900 dark:text-white">{name}</h4>
             {isOnline ? (
               <>
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span className="text-xs text-gray-500">Online now</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Online now</span>
               </>
             ) : (
               lastSeen && (
-                <span className="text-xs text-gray-500">{lastSeen}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{lastSeen}</span>
               )
             )}
           </div>
-          <p className="text-sm text-gray-600 mb-2">{role}</p>
-          <p className="text-sm text-gray-500 mb-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{role}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 mb-2">
             Looking for: {lookingFor}
           </p>
           <div className="flex items-center space-x-2 mb-2">
             {matchPercentage && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-blue-100 text-green-800 border border-green-200">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-700">
                 {matchPercentage}% Match
               </span>
             )}
             {yearsExperience && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
                 {yearsExperience}+ years exp
               </span>
             )}
             {isPaid && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
                 Paid Mentor
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-600 mb-2">{location}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{location}</p>
           {industries && industries.length > 0 && (
-            <p className="text-sm text-gray-500 mb-2">
+            <p className="text-sm text-gray-500 dark:text-gray-500 mb-2">
               Industries: {industries.join(", ")}
             </p>
           )}
           {communicationChannel && (
-            <p className="text-sm text-gray-500 mb-2">
+            <p className="text-sm text-gray-500 dark:text-gray-500 mb-2">
               Preferred: {communicationChannel}
             </p>
           )}
-          <p className="text-sm text-gray-600 mb-3">{description}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{description}</p>
           <div className="flex flex-wrap gap-2 mb-3">
             {skills.map((skill, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
               >
                 {skill}
               </span>
@@ -120,7 +120,7 @@ export default function CoFounderCard({
           </div>
           <div className="flex items-center space-x-2 mb-3">
             <Star className="w-4 h-4 text-yellow-400 fill-current" />
-            <span className="text-sm text-gray-600">{rating}</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">{rating}</span>
           </div>
           
           {/* Match Reasoning Alert */}
@@ -128,7 +128,7 @@ export default function CoFounderCard({
             <div className="mb-3">
               <button
                 onClick={() => setShowReasoning(!showReasoning)}
-                className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                className="flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
               >
                 <AlertCircle className="w-4 h-4" />
                 <span>Why this match?</span>
@@ -136,12 +136,12 @@ export default function CoFounderCard({
               </button>
               
               {showReasoning && (
-                <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                   <div className="flex items-start space-x-2">
                     <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <h4 className="text-sm font-medium text-blue-900 mb-1">AI Match Analysis</h4>
-                      <p className="text-sm text-blue-800 leading-relaxed">{matchReasoning}</p>
+                      <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">AI Match Analysis</h4>
+                      <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed">{matchReasoning}</p>
                     </div>
                   </div>
                 </div>
