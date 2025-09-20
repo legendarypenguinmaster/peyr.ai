@@ -88,23 +88,23 @@ export default function ProfilePageClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <DashboardHeader />
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
-        <div className="relative bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-8">
+        <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
           {/* Background Pattern */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 opacity-50"></div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full -translate-y-32 translate-x-32"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-green-400/20 to-blue-400/20 rounded-full translate-y-24 -translate-x-24"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/10 dark:via-purple-900/10 dark:to-pink-900/10 opacity-50"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-purple-400/20 dark:from-blue-500/10 dark:to-purple-500/10 rounded-full -translate-y-32 translate-x-32"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-green-400/20 to-blue-400/20 dark:from-green-500/10 dark:to-blue-500/10 rounded-full translate-y-24 -translate-x-24"></div>
 
           <div className="relative p-8">
             <div className="flex flex-col lg:flex-row items-start lg:items-center space-y-6 lg:space-y-0 lg:space-x-8">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gray-200 flex items-center justify-center shadow-lg ring-4 ring-white">
+                <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-600 flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-gray-800">
                   {currentProfile.avatar_url ? (
                     <Image
                       src={currentProfile.avatar_url}
@@ -119,7 +119,7 @@ export default function ProfilePageClient({
                     </div>
                   )}
                 </div>
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white dark:border-gray-800 flex items-center justify-center">
                   <div className="w-3 h-3 bg-white rounded-full"></div>
                 </div>
               </div>
@@ -129,14 +129,14 @@ export default function ProfilePageClient({
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <h1 className="text-4xl font-bold text-gray-900">
+                      <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
                         {currentProfile.name}
                       </h1>
                       <div
                         className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                           currentProfile.id_verification
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-600"
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                         }`}
                       >
                         <Shield className="w-4 h-4 mr-1" />
@@ -151,12 +151,12 @@ export default function ProfilePageClient({
                         {currentProfile.role === "mentor" && "🧑‍🏫 Mentor"}
                         {currentProfile.role === "investor" && "💰 Investor"}
                       </span>
-                      <span className="text-gray-600 flex items-center">
+                      <span className="text-gray-600 dark:text-gray-400 flex items-center">
                         <MapPin className="w-4 h-4 mr-1" />
                         {currentProfile.location || "Location not specified"}
                       </span>
                     </div>
-                    <p className="text-gray-600 text-lg">
+                    <p className="text-gray-600 dark:text-gray-400 text-lg">
                       {currentProfile.email}
                     </p>
                   </div>
@@ -167,14 +167,14 @@ export default function ProfilePageClient({
                       <>
                         <button
                           onClick={handleEditProfile}
-                          className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                          className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                         >
                           <Edit3 className="w-4 h-4 mr-2" />
                           Edit Profile
                         </button>
                         <button
                           onClick={handleShare}
-                          className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                          className="flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                         >
                           <Share2 className="w-4 h-4 mr-2" />
                           Share
@@ -195,31 +195,31 @@ export default function ProfilePageClient({
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-8 pt-8 border-t border-gray-200">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">1.2K</div>
-                <div className="text-sm text-gray-600 flex items-center justify-center">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">1.2K</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center">
                   <Eye className="w-4 h-4 mr-1" />
                   Profile Views
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">47</div>
-                <div className="text-sm text-gray-600 flex items-center justify-center">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">47</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center">
                   <MessageCircle className="w-4 h-4 mr-1" />
                   Messages
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">23</div>
-                <div className="text-sm text-gray-600 flex items-center justify-center">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">23</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center">
                   <Heart className="w-4 h-4 mr-1" />
                   Connections
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">4.8</div>
-                <div className="text-sm text-gray-600 flex items-center justify-center">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">4.8</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center">
                   <Star className="w-4 h-4 mr-1" />
                   Rating
                 </div>

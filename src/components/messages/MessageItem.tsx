@@ -45,15 +45,15 @@ export const MessageItem = ({
             try {
               const fileData = JSON.parse(message.content);
               return (
-                <div className="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg">
+                <div className="flex items-center space-x-3 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
                   <div className="text-2xl">
                     {getFileIcon(fileData.filename || "file")}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                       {fileData.filename || "Unknown file"}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {formatFileSize(fileData.size || 0)}
                     </p>
                   </div>
@@ -64,7 +64,7 @@ export const MessageItem = ({
                       link.download = fileData.filename || "download";
                       link.click();
                     }}
-                    className="p-1 text-blue-500 hover:text-blue-700"
+                    className="p-1 text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                   >
                     <Download className="w-4 h-4" />
                   </button>
@@ -73,11 +73,11 @@ export const MessageItem = ({
             } catch {
               // Fallback for old format or corrupted data
               return (
-                <div className="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg">
+                <div className="flex items-center space-x-3 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
                   <div className="text-2xl">📎</div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">File</p>
-                    <p className="text-xs text-gray-500">Click to download</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">File</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Click to download</p>
                   </div>
                   <button
                     onClick={() => {
@@ -86,7 +86,7 @@ export const MessageItem = ({
                       link.download = "download";
                       link.click();
                     }}
-                    className="p-1 text-blue-500 hover:text-blue-700"
+                    className="p-1 text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                   >
                     <Download className="w-4 h-4" />
                   </button>
@@ -98,14 +98,14 @@ export const MessageItem = ({
       );
     }
 
-    return <p className="text-sm">{message.content}</p>;
+    return <p className="text-sm text-gray-900 dark:text-white">{message.content}</p>;
   };
 
   return (
     <div className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
       <div
         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-          isOwn ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-900"
+          isOwn ? "bg-blue-500 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
         }`}
       >
         {renderMessageContent()}

@@ -198,9 +198,9 @@ export default function AiCoachClient() {
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Sidebar with chat history */}
       <aside className="lg:col-span-3">
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 h-[80vh] flex flex-col">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 h-[80vh] flex flex-col">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-gray-800">Your Chats</h3>
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Your Chats</h3>
             <button
               onClick={() => { setMessages([]); setHasAsked(false); setSessionId(null); }}
               className="inline-flex items-center gap-1 bg-blue-600 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-blue-700"
@@ -268,7 +268,7 @@ export default function AiCoachClient() {
         </div>
       </aside>
 
-      <div className="lg:col-span-9 rounded-2xl border border-blue-200 bg-white shadow-[0_10px_30px_rgba(59,130,246,0.08)] h-[80vh] flex flex-col">
+      <div className="lg:col-span-9 rounded-2xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 shadow-[0_10px_30px_rgba(59,130,246,0.08)] dark:shadow-[0_10px_30px_rgba(59,130,246,0.15)] h-[80vh] flex flex-col">
       {/* Header */}
       <div className="px-5 sm:px-6 pt-5">
         <div className="flex items-center justify-between">
@@ -278,10 +278,10 @@ export default function AiCoachClient() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">AI Startup Coach</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">AI Startup Coach</h2>
                 <span className="text-[10px] bg-purple-100 text-purple-800 px-2 py-1 rounded-full font-semibold">INTELLIGENT</span>
               </div>
-              <p className="text-xs sm:text-sm text-gray-600">Your personal AI mentor for startup success, trained on thousands of ventures</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Your personal AI mentor for startup success, trained on thousands of ventures</p>
             </div>
           </div>
         </div>

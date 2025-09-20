@@ -24,20 +24,20 @@ const tools = [
 export default function AiToolsPage() {
   return (
     <ClientPageWrapper loadingText="Loading AI tools...">
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <DashboardHeader />
 
         {/* Hero Section */}
         <section className="relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
             <div className="text-center">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Ultimate AI Entrepreneurial Operating System
               </h1>
-              <p className="mt-4 text-gray-600 max-w-3xl mx-auto">
+              <p className="mt-4 text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
                 15 AI-powered tools trained on millions of successful ventures — from investor matching to global expansion. Build smarter, faster, and with confidence.
               </p>
-              <div className="mt-6 inline-flex items-center space-x-2 text-sm text-blue-700">
+              <div className="mt-6 inline-flex items-center space-x-2 text-sm text-blue-700 dark:text-blue-400">
                 <span>AI Investor Matching</span>
                 <span>•</span>
                 <span>Global Market Analysis</span>
@@ -58,16 +58,16 @@ export default function AiToolsPage() {
                 <Link
                   key={tool.slug}
                   href={`/ai-tools/${tool.slug}`}
-                  className="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col"
+                  className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col"
                 >
                   {/* Full-width image header */}
                   <div className="relative w-full h-40 bg-gray-100">
                     <Image src={tool.icon} alt={tool.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw" />
                   </div>
                   <div className="p-5 text-left">
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-700">{tool.name}</h3>
-                    <p className="mt-2 text-sm text-gray-600">{tool.description}</p>
-                    <div className="mt-4 text-sm font-medium text-blue-700">Explore →</div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-400">{tool.name}</h3>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{tool.description}</p>
+                    <div className="mt-4 text-sm font-medium text-blue-700 dark:text-blue-400">Explore →</div>
                   </div>
                 </Link>
               ))}

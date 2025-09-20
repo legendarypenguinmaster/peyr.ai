@@ -1,8 +1,8 @@
 export default function ActiveCollaborations() {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-50 to-red-50 px-6 py-4 border-b border-gray-100">
+      <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 px-6 py-4 border-b border-gray-100 dark:border-gray-700">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
@@ -21,15 +21,15 @@ export default function ActiveCollaborations() {
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Active Collaborations
               </h3>
-              <p className="text-sm text-gray-600">Your ongoing partnerships</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Your ongoing partnerships</p>
             </div>
           </div>
           <a
             href="#"
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium bg-white px-3 py-1 rounded-lg border border-blue-200 hover:border-blue-300 transition-colors cursor-pointer"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium bg-white dark:bg-gray-800 px-3 py-1 rounded-lg border border-blue-200 dark:border-blue-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors cursor-pointer"
           >
             Manage All
           </a>
@@ -38,7 +38,7 @@ export default function ActiveCollaborations() {
 
       <div className="p-8">
         <div className="text-center">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               className="w-10 h-10 text-gray-400"
               fill="none"
@@ -53,10 +53,10 @@ export default function ActiveCollaborations() {
               />
             </svg>
           </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">
+          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             No Active Collaborations
           </h4>
-          <p className="text-gray-500 mb-6">
+          <p className="text-gray-500 dark:text-gray-400 mb-6">
             Start collaborating with other entrepreneurs to build amazing
             projects together.
           </p>

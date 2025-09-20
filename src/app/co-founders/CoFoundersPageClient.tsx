@@ -317,16 +317,16 @@ export default function CoFoundersPageClient({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <DashboardHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Find Co-founders
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Connect with experienced mentors who can become your co-founders
           </p>
         </div>
@@ -336,13 +336,13 @@ export default function CoFoundersPageClient({
           {/* Left Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Stats Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Your Network
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Sent Requests</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Sent Requests</span>
                   {networkStats.loading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
                   ) : (
@@ -352,7 +352,7 @@ export default function CoFoundersPageClient({
                   )}
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Connections</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Connections</span>
                   {networkStats.loading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
                   ) : (
@@ -362,7 +362,7 @@ export default function CoFoundersPageClient({
                   )}
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Pending</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Pending</span>
                   {networkStats.loading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
                   ) : (
@@ -375,8 +375,8 @@ export default function CoFoundersPageClient({
             </div>
 
             {/* Search and Filter Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Search & Filters
               </h3>
 
@@ -479,12 +479,12 @@ export default function CoFoundersPageClient({
             <CoFoundersRecommendedSection />
 
             {/* All Co-founders Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   All Co-founders
                 </h2>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {filteredMentors.length} co-founders found
                 </span>
               </div>
@@ -495,7 +495,7 @@ export default function CoFoundersPageClient({
                   <div
                     key={mentor.id}
                     onClick={() => handleCardClick(mentor.id)}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer flex flex-col h-full"
+                    className="bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 p-6 hover:shadow-md transition-shadow cursor-pointer flex flex-col h-full"
                   >
                     {/* Avatar */}
                     <div className="flex justify-center mb-4">
@@ -523,27 +523,27 @@ export default function CoFoundersPageClient({
 
                     {/* Name */}
                     <div className="text-center mb-2">
-                      <h3 className="font-semibold text-gray-900 text-lg">
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
                         {mentor.profiles.name || "Anonymous"}
                       </h3>
                     </div>
 
                     {/* Title */}
                     <div className="text-center mb-4">
-                      <p className="text-sm text-gray-600 font-medium">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                         {mentor.title || "Professional"}
                       </p>
                     </div>
 
                     {/* Bio */}
                     <div className="mb-4 text-center">
-                      <p className="text-gray-600 text-sm line-clamp-3">
+                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">
                         {mentor.bio || "No bio available yet."}
                       </p>
                     </div>
 
                     {/* Connect Button */}
-                    <div className="pt-4 border-t border-gray-100 mt-auto">
+                    <div className="pt-4 border-t border-gray-100 dark:border-gray-600 mt-auto">
                         {getConnectionButton(mentor)}
                     </div>
                   </div>
@@ -553,16 +553,16 @@ export default function CoFoundersPageClient({
               {/* No Results */}
               {filteredMentors.length === 0 && (
                 <div className="text-center py-12">
-                  <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <Users className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                     No co-founders found
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
                     Try adjusting your search or filters to find more results.
                   </p>
                   <button
                     onClick={clearFilters}
-                    className="text-purple-600 hover:text-purple-700 font-medium"
+                    className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
                   >
                     Clear all filters
                   </button>

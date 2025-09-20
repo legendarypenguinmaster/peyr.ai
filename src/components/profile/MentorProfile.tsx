@@ -25,43 +25,43 @@ export default function MentorProfile({
       {/* Main Content */}
       <div className="lg:col-span-2 space-y-8">
         {/* About Section */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
           <div className="flex items-center mb-6">
             <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mr-4">
               <Users className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">About Me</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">About Me</h2>
           </div>
 
           {/* Professional Title */}
           {mentorData.title && (
             <div className="mb-4">
-              <p className="text-lg font-semibold text-purple-600">
+              <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">
                 {mentorData.title}
               </p>
             </div>
           )}
 
-          <p className="text-gray-700 leading-relaxed text-lg mb-6">
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg mb-6">
             {mentorData.bio || "No bio provided yet."}
           </p>
 
           {/* Location and Timezone */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center">
-              <MapPin className="w-5 h-5 text-gray-400 mr-3" />
+              <MapPin className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3" />
               <div>
-                <p className="text-sm text-gray-500">Location</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Location</p>
+                <p className="font-medium text-gray-900 dark:text-white">
                   {mentorData.location || profile.location || "Not specified"}
                 </p>
               </div>
             </div>
             <div className="flex items-center">
-              <Clock className="w-5 h-5 text-gray-400 mr-3" />
+              <Clock className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3" />
               <div>
-                <p className="text-sm text-gray-500">Timezone</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Timezone</p>
+                <p className="font-medium text-gray-900 dark:text-white">
                   {mentorData.timezone || "Not specified"}
                 </p>
               </div>
@@ -70,12 +70,12 @@ export default function MentorProfile({
         </div>
 
         {/* Expertise Domains */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
           <div className="flex items-center mb-6">
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
               <Award className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               Areas of Expertise
             </h2>
           </div>
@@ -83,7 +83,7 @@ export default function MentorProfile({
             {mentorData.expertise_domains?.map((expertise: string) => (
               <span
                 key={expertise}
-                className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 border border-purple-200 hover:shadow-md transition-shadow cursor-pointer"
+                className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 hover:shadow-md transition-shadow cursor-pointer"
               >
                 {expertise}
               </span>
@@ -92,18 +92,18 @@ export default function MentorProfile({
         </div>
 
         {/* Industries */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
           <div className="flex items-center mb-6">
             <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center mr-4">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Industries</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Industries</h2>
           </div>
           <div className="flex flex-wrap gap-3">
             {mentorData.industries?.map((industry: string) => (
               <span
                 key={industry}
-                className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-green-50 to-teal-50 text-green-700 border border-green-200 hover:shadow-md transition-shadow cursor-pointer"
+                className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/30 dark:to-teal-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700 hover:shadow-md transition-shadow cursor-pointer"
               >
                 {industry}
               </span>
@@ -113,21 +113,21 @@ export default function MentorProfile({
 
         {/* Past Roles */}
         {mentorData.past_roles && mentorData.past_roles.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
             <div className="flex items-center mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mr-4">
                 <Award className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Past Roles</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Past Roles</h2>
             </div>
             <div className="space-y-4">
               {mentorData.past_roles.map((role: string) => (
                 <div
                   key={role}
-                  className="flex items-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-200"
+                  className="flex items-center p-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl border border-orange-200 dark:border-orange-800"
                 >
                   <div className="w-3 h-3 bg-orange-500 rounded-full mr-4"></div>
-                  <span className="text-gray-700 font-medium">{role}</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{role}</span>
                 </div>
               ))}
             </div>
@@ -138,44 +138,44 @@ export default function MentorProfile({
       {/* Sidebar */}
       <div className="space-y-8">
         {/* Quick Info */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Quick Info
           </h3>
           <div className="space-y-4">
             <div className="flex items-center">
-              <Calendar className="w-5 h-5 text-gray-400 mr-3" />
+              <Calendar className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3" />
               <div>
-                <p className="text-sm text-gray-500">Experience</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Experience</p>
+                <p className="font-medium text-gray-900 dark:text-white">
                   {mentorData.years_experience} years
                 </p>
               </div>
             </div>
             <div className="flex items-center">
-              <Clock className="w-5 h-5 text-gray-400 mr-3" />
+              <Clock className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3" />
               <div>
-                <p className="text-sm text-gray-500">Availability</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Availability</p>
+                <p className="font-medium text-gray-900 dark:text-white">
                   {mentorData.availability_hours} hours per week
                 </p>
               </div>
             </div>
             <div className="flex items-center">
-              <MessageCircle className="w-5 h-5 text-gray-400 mr-3" />
+              <MessageCircle className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3" />
               <div>
-                <p className="text-sm text-gray-500">Preferred Channel</p>
-                <p className="font-medium text-gray-900 capitalize">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Preferred Channel</p>
+                <p className="font-medium text-gray-900 dark:text-white capitalize">
                   {mentorData.communication_channel?.replace("-", " ") ||
                     "Not specified"}
                 </p>
               </div>
             </div>
             <div className="flex items-center">
-              <Award className="w-5 h-5 text-gray-400 mr-3" />
+              <Award className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3" />
               <div>
-                <p className="text-sm text-gray-500">Mentorship Style</p>
-                <p className="font-medium text-gray-900 capitalize">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Mentorship Style</p>
+                <p className="font-medium text-gray-900 dark:text-white capitalize">
                   {mentorData.mentorship_style?.replace("-", " ") ||
                     "Not specified"}
                 </p>
@@ -185,15 +185,15 @@ export default function MentorProfile({
         </div>
 
         {/* Paid Mentorship */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Mentorship Details
           </h3>
           <div
             className={`rounded-xl p-4 border ${
               mentorData.is_paid
-                ? "bg-gradient-to-r from-green-50 to-emerald-50 border-green-200"
-                : "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200"
+                ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800"
+                : "bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800"
             }`}
           >
             <div className="flex items-center">
@@ -203,10 +203,10 @@ export default function MentorProfile({
                 }`}
               ></div>
               <div>
-                <p className="font-medium text-gray-900">
+                <p className="font-medium text-gray-900 dark:text-white">
                   {mentorData.is_paid ? "Paid Mentorship" : "Free Mentorship"}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   {mentorData.is_paid
                     ? "Professional mentoring services"
                     : "Community-driven mentorship"}
@@ -218,8 +218,8 @@ export default function MentorProfile({
 
         {/* Social Links */}
         {(mentorData.linkedin_url || mentorData.github_url) && (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Social Links
             </h3>
             <div className="space-y-3">
@@ -228,14 +228,14 @@ export default function MentorProfile({
                   href={mentorData.linkedin_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:shadow-md transition-shadow group"
+                  className="flex items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800 hover:shadow-md transition-shadow group"
                 >
                   <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-700 transition-colors">
                     <Linkedin className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">LinkedIn</p>
-                    <p className="text-sm text-gray-600 truncate max-w-[200px]">
+                    <p className="font-medium text-gray-900 dark:text-white">LinkedIn</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[200px]">
                       {mentorData.linkedin_url}
                     </p>
                   </div>
@@ -246,14 +246,14 @@ export default function MentorProfile({
                   href={mentorData.github_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center p-3 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200 hover:shadow-md transition-shadow group"
+                  className="flex items-center p-3 bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-800 dark:to-slate-800 rounded-xl border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow group"
                 >
                   <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center mr-3 group-hover:bg-gray-900 transition-colors">
                     <Github className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">GitHub</p>
-                    <p className="text-sm text-gray-600 truncate max-w-[200px]">
+                    <p className="font-medium text-gray-900 dark:text-white">GitHub</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[200px]">
                       {mentorData.github_url}
                     </p>
                   </div>

@@ -1,5 +1,6 @@
 import ClientPageWrapper from "@/components/ui/ClientPageWrapper";
 import DashboardHeader from "@/components/layout/DashboardHeader";
+import RiskAssessmentClient from "../risk-assessment/RiskAssessmentClient";
 
 const toolCopy: Record<string, { title: string; subtitle: string; body: string }> = {
   "ai-coach": {
@@ -22,6 +23,12 @@ const toolCopy: Record<string, { title: string; subtitle: string; body: string }
 
 export default async function AiToolPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  
+  // Handle specific tools that have dedicated pages
+  if (slug === "risk-assessment") {
+    return <RiskAssessmentClient />;
+  }
+  
   const copy = toolCopy[slug] || {
     title: "Coming Soon",
     subtitle: "This AI tool page is under construction",

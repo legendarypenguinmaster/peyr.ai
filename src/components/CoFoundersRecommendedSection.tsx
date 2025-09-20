@@ -161,7 +161,7 @@ export default function CoFoundersRecommendedSection() {
         return (
           <button
             disabled
-            className="w-full bg-yellow-100 text-yellow-800 py-2 px-4 rounded-lg font-medium cursor-not-allowed"
+            className="w-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 py-2 px-4 rounded-lg font-medium cursor-not-allowed"
           >
             Pending
           </button>
@@ -170,7 +170,7 @@ export default function CoFoundersRecommendedSection() {
         return (
           <button
             disabled
-            className="w-full bg-green-100 text-green-800 py-2 px-4 rounded-lg font-medium cursor-not-allowed"
+            className="w-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 py-2 px-4 rounded-lg font-medium cursor-not-allowed"
           >
             Connected
           </button>
@@ -188,7 +188,7 @@ export default function CoFoundersRecommendedSection() {
         return (
           <button
             disabled
-            className="w-full bg-red-100 text-red-800 py-2 px-4 rounded-lg font-medium cursor-not-allowed"
+            className="w-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 py-2 px-4 rounded-lg font-medium cursor-not-allowed"
           >
             Blocked
           </button>
@@ -227,21 +227,21 @@ export default function CoFoundersRecommendedSection() {
 
   if (loading && recommendations.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             AI Recommended for You
           </h2>
           <div className="flex items-center space-x-2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-            <span className="text-sm text-gray-500">Finding matches...</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Finding matches...</span>
           </div>
         </div>
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Finding your perfect co-founder matches...</p>
-            <p className="text-sm text-gray-500 mt-2">This may take a few moments</p>
+            <p className="text-gray-600 dark:text-gray-400">Finding your perfect co-founder matches...</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">This may take a few moments</p>
           </div>
         </div>
       </div>
@@ -250,9 +250,9 @@ export default function CoFoundersRecommendedSection() {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             AI Recommended for You
           </h2>
         </div>
@@ -262,8 +262,8 @@ export default function CoFoundersRecommendedSection() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to load recommendations</h3>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Unable to load recommendations</h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
           <button
             onClick={() => fetchRecommendations()}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -277,20 +277,20 @@ export default function CoFoundersRecommendedSection() {
 
   if (recommendations.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             AI Recommended for You
           </h2>
         </div>
         <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
+          <div className="text-gray-400 dark:text-gray-500 mb-4">
             <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No recommendations found</h3>
-          <p className="text-gray-600 mb-4">Complete your profile to get personalized co-founder recommendations.</p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No recommendations found</h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">Complete your profile to get personalized co-founder recommendations.</p>
           <button
             onClick={() => fetchRecommendations(true)}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -303,19 +303,19 @@ export default function CoFoundersRecommendedSection() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             AI Recommended for You
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {isCached ? "AI-powered matches (cached)" : "Fresh AI-powered matches"}
           </p>
         </div>
         <div className="flex items-center space-x-2">
           {loading && (
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
+            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
               <span>Refreshing...</span>
             </div>
@@ -323,7 +323,7 @@ export default function CoFoundersRecommendedSection() {
           <button
             onClick={() => fetchRecommendations(true)}
             disabled={loading}
-            className="text-gray-500 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Refresh recommendations"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -339,15 +339,15 @@ export default function CoFoundersRecommendedSection() {
           return (
             <div
               key={recommendation.id}
-              className="bg-gray-50 rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow flex flex-col h-full"
+              className="bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 p-6 hover:shadow-md transition-shadow flex flex-col h-full"
             >
               {/* Match Percentage Badge */}
               <div className="flex justify-between items-start mb-4">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-blue-100 text-green-800 border border-green-200">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-700">
                   {mentorData.match_percentage}% Match
                 </span>
                 {mentorData.years_experience && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
                     {mentorData.years_experience}+ years exp
                   </span>
                 )}
@@ -376,21 +376,21 @@ export default function CoFoundersRecommendedSection() {
 
               {/* Name */}
               <div className="text-center mb-2">
-                <h3 className="font-semibold text-gray-900 text-lg">
+                <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
                   {mentorData.name}
                 </h3>
               </div>
 
               {/* Title */}
               <div className="text-center mb-4">
-                <p className="text-sm text-gray-600 font-medium">
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                   {mentorData.title}
                 </p>
               </div>
 
               {/* Bio */}
               <div className="mb-4 text-center flex-1">
-                <p className="text-gray-600 text-sm line-clamp-3">
+                <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">
                   {mentorData.bio}
                 </p>
               </div>
@@ -400,7 +400,7 @@ export default function CoFoundersRecommendedSection() {
                 {mentorData.expertise_domains.slice(0, 3).map((skill, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
                   >
                     {skill}
                   </span>
@@ -411,7 +411,7 @@ export default function CoFoundersRecommendedSection() {
               <div className="mb-4">
                 <button
                   onClick={() => handleShowReasoning(recommendation)}
-                  className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-700 transition-colors w-full justify-center"
+                  className="flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors w-full justify-center"
                 >
                   <AlertCircle className="w-4 h-4" />
                   <span>Why this match?</span>
@@ -420,7 +420,7 @@ export default function CoFoundersRecommendedSection() {
               </div>
 
               {/* Connect Button */}
-              <div className="pt-4 border-t border-gray-200 mt-auto">
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-600 mt-auto">
                 {getConnectionButton(recommendation)}
               </div>
             </div>
@@ -442,26 +442,26 @@ export default function CoFoundersRecommendedSection() {
 
       {/* Match Reasoning Modal */}
       {isReasoningModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                   <AlertCircle className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                     AI Match Analysis
                   </h2>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Why {selectedReasoning?.name} is recommended for you
                   </p>
                 </div>
               </div>
               <button
                 onClick={handleCloseReasoning}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -469,15 +469,15 @@ export default function CoFoundersRecommendedSection() {
 
             {/* Content */}
             <div className="p-6 overflow-y-auto max-h-[60vh]">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
                 <div className="flex items-start space-x-3">
                   <AlertCircle className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="text-lg font-semibold text-blue-900 mb-3">
+                    <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-3">
                       Detailed Match Analysis
                     </h3>
                     <div className="prose prose-blue max-w-none">
-                      <p className="text-blue-800 leading-relaxed whitespace-pre-wrap">
+                      <p className="text-blue-800 dark:text-blue-300 leading-relaxed whitespace-pre-wrap">
                         {selectedReasoning?.reasoning}
                       </p>
                     </div>
@@ -487,7 +487,7 @@ export default function CoFoundersRecommendedSection() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
+            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={handleCloseReasoning}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"

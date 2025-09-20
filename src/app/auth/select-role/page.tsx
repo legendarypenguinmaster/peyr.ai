@@ -181,7 +181,7 @@ export default function SelectRole() {
     >
       <div className="space-y-6">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md">
             {error}
           </div>
         )}
@@ -192,10 +192,10 @@ export default function SelectRole() {
               key={role.id}
               className={`relative border-2 rounded-lg p-6 cursor-pointer transition-all ${
                 selectedRole === role.id
-                  ? "border-blue-500 bg-blue-50"
+                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400"
                   : role.disabled
-                  ? "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
-                  : "border-gray-200 hover:border-gray-300"
+                  ? "border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-60"
+                  : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
               }`}
               onClick={() => !role.disabled && handleRoleSelect(role.id)}
             >
@@ -210,15 +210,15 @@ export default function SelectRole() {
               <div className="flex items-start space-x-4">
                 <div className="text-4xl">{role.emoji}</div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                     {role.title}
                   </h3>
-                  <p className="text-gray-600 mb-3">{role.description}</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-3">{role.description}</p>
                   <ul className="space-y-1">
                     {role.features.map((feature, index) => (
                       <li
                         key={index}
-                        className="text-sm text-gray-500 flex items-center"
+                        className="text-sm text-gray-500 dark:text-gray-400 flex items-center"
                       >
                         <Check className="w-4 h-4 text-green-500 mr-2" />
                         {feature}

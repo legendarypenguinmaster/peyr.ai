@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import ThemeSwitch from "@/components/ui/ThemeSwitch";
 import {
   Shield,
   Search,
@@ -15,7 +16,6 @@ import {
   MessageCircle,
   Bell,
   User,
-  Plus,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -143,7 +143,7 @@ export default function DashboardHeader() {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
       <div className="max-w-full mx-auto px-6 sm:px-8 lg:px-12">
         <div className="flex justify-between items-center py-2">
           {/* Logo */}
@@ -153,8 +153,8 @@ export default function DashboardHeader() {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Peyr.ai</h1>
-                <p className="text-sm text-gray-600">Dream. Pair. Do.</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Peyr.ai</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Dream. Pair. Do.</p>
               </div>
             </Link>
           </div>
@@ -163,21 +163,21 @@ export default function DashboardHeader() {
           <nav className="hidden md:flex items-center space-x-8">
             <Link
               href="/co-founders"
-              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+              className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 whitespace-nowrap"
             >
               <Search className="w-5 h-5" />
               <span>Find Co-Founders</span>
             </Link>
             <Link
               href="/projects"
-              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+              className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 whitespace-nowrap"
             >
               <Grid3X3 className="w-5 h-5" />
               <span>Browse Projects</span>
             </Link>
             <Link
               href="/workspace"
-              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+              className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 whitespace-nowrap"
             >
               <Layout className="w-5 h-5" />
               <span>Workspace</span>
@@ -186,7 +186,7 @@ export default function DashboardHeader() {
             <div className="relative" ref={aiToolsRef}>
               <button
                 onClick={() => setIsAiToolsOpen(!isAiToolsOpen)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap cursor-pointer"
+                className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 whitespace-nowrap cursor-pointer"
               >
                 <Brain className="w-5 h-5" />
                 <span>AI Tools</span>
@@ -195,7 +195,7 @@ export default function DashboardHeader() {
                 </span>
               </button>
               {isAiToolsOpen && (
-                <div className="absolute left-0 mt-2 w-[520px] bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-50">
+                <div className="absolute left-0 mt-2 w-[520px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-3 z-50">
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { slug: "ai-coach", name: "AI Startup Coach" },
@@ -217,17 +217,17 @@ export default function DashboardHeader() {
                       <Link
                         key={t.slug}
                         href={`/ai-tools/${t.slug}`}
-                        className="px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
+                        className="px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         onClick={() => setIsAiToolsOpen(false)}
                       >
                         {t.name}
                       </Link>
                     ))}
                   </div>
-                  <div className="mt-2 pt-2 border-t border-gray-100">
+                  <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                     <Link
                       href="/ai-tools"
-                      className="block px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50"
+                      className="block px-3 py-2 rounded-md text-sm font-medium text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                       onClick={() => setIsAiToolsOpen(false)}
                     >
                       View all AI Tools →
@@ -242,16 +242,19 @@ export default function DashboardHeader() {
           <div className="flex items-center space-x-6">
             <Link
               href="/reputation"
-              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 whitespace-nowrap"
+              className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 whitespace-nowrap"
             >
               <Award className="w-5 h-5" />
               <span>Reputation</span>
             </Link>
 
+            {/* Theme Switch */}
+            <ThemeSwitch />
+
             {/* Messages */}
             <div className="relative">
               <button
-                className="p-2 text-gray-700 hover:text-blue-600 cursor-pointer relative"
+                className="p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer relative"
                 onClick={() => router.push("/messages")}
                 title="Messages"
               >
@@ -266,7 +269,7 @@ export default function DashboardHeader() {
 
             {/* Notifications */}
             <div className="relative">
-              <button className="p-2 text-gray-700 cursor-pointer hover:text-blue-600 relative">
+              <button className="p-2 text-gray-700 dark:text-gray-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 relative">
                 <Bell className="w-5 h-5" />
                 <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   3
@@ -278,9 +281,9 @@ export default function DashboardHeader() {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                   {avatarUrl ? (
                     <Image
                       src={avatarUrl}
@@ -290,17 +293,17 @@ export default function DashboardHeader() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="w-5 h-5 text-gray-600" />
+                    <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   )}
                 </div>
               </button>
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
                   <Link
                     href={userId ? `/profile/${userId}` : "/profile"}
-                    className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                    className="flex items-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     <User className="w-4 h-4" />
@@ -308,16 +311,16 @@ export default function DashboardHeader() {
                   </Link>
                   <Link
                     href="/account"
-                    className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                    className="flex items-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     <Settings className="w-4 h-4" />
                     <span>Account Settings</span>
                   </Link>
-                  <hr className="my-1" />
+                  <hr className="my-1 border-gray-200 dark:border-gray-700" />
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors w-full text-left cursor-pointer"
+                    className="flex items-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Sign Out</span>
@@ -325,12 +328,6 @@ export default function DashboardHeader() {
                 </div>
               )}
             </div>
-
-            {/* Post Project Button */}
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2 whitespace-nowrap cursor-pointer">
-              <Plus className="w-4 h-4" />
-              <span>Post Project</span>
-            </button>
           </div>
         </div>
       </div>

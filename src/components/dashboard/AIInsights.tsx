@@ -49,7 +49,7 @@ export default function AIInsights() {
   const IconComponent = currentCardData.icon;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
       {/* Gradient Header */}
       <div className="h-1 bg-gradient-to-r from-purple-500 to-pink-500"></div>
       
@@ -61,8 +61,8 @@ export default function AIInsights() {
               <Brain className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">AI Insights</h3>
-              <p className="text-sm text-gray-600">Personalized recommendations</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">AI Insights</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Personalized recommendations</p>
             </div>
           </div>
           <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">NEW</span>
@@ -74,17 +74,17 @@ export default function AIInsights() {
             <IconComponent className={`w-5 h-5 ${currentCardData.iconColor}`} />
           </div>
           <div className="flex-1">
-            <h4 className="font-medium text-gray-900">{currentCardData.title}</h4>
-            <p className="text-sm text-gray-600">{currentCardData.description}</p>
+            <h4 className="font-medium text-gray-900 dark:text-white">{currentCardData.title}</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{currentCardData.description}</p>
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="flex items-center space-x-3 mb-6">
-          <div className="flex-1 bg-gray-200 rounded-full h-2">
+          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${currentCardData.progress}%` }}></div>
           </div>
-          <span className="text-sm font-medium text-gray-900">{currentCardData.progress}%</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-white">{currentCardData.progress}%</span>
         </div>
 
         {/* Action Buttons */}
@@ -93,7 +93,7 @@ export default function AIInsights() {
             <span>{currentCardData.buttonText}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
-          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50">
+          <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700">
             Next
           </button>
         </div>
