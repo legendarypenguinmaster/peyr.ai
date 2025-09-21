@@ -19,6 +19,7 @@ const tools = [
   { slug: "performance-optimizer", name: "AI Performance Optimizer", description: "Team analytics for burnout prevention and workflow optimization.", icon: "/images/ai-tools/ai-performance.jpg" },
   { slug: "global-expansion", name: "AI Global Expansion", description: "International expansion strategy with regulatory guidance.", icon: "/images/ai-tools/ai-global.jpg" },
   { slug: "compatibility-analysis", name: "AI Compatibility Analysis", description: "Deep analysis of co‑founder compatibility and patterns.", icon: "/images/ai-tools/ai-compatibility.jpg" },
+  { slug: "ai-diagram-generator", name: "AI Diagram Generator", description: "Create professional diagrams instantly with AI from process descriptions.", icon: "/images/ai-tools/ai-diagram.jpg" },
 ];
 
 export default function AiToolsPage() {
