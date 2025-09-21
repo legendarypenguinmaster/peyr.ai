@@ -52,7 +52,7 @@ export default function PitchGeneratorClient() {
   };
 
   const Stepper = () => (
-    <div className="sticky top-[68px] z-10 bg-white/70 backdrop-blur border-b border-gray-100">{/* fixed step line */}
+    <div className="sticky top-[68px] z-10 bg-white/70 dark:bg-gray-900/70 backdrop-blur border-b border-gray-100 dark:border-gray-700">{/* fixed step line */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center gap-3 text-sm">
           {([
@@ -61,9 +61,9 @@ export default function PitchGeneratorClient() {
             { key: "slides", label: "Deck" },
           ] as { key: Step; label: string }[]).map((s, idx, arr) => (
             <div key={s.key} className="flex items-center gap-3">
-              <button onClick={() => go(s.key)} className={`h-7 w-7 rounded-full text-xs font-semibold flex items-center justify-center ${step === s.key ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}`}>{idx + 1}</button>
-              <span className={`text-sm ${step === s.key ? "text-gray-900" : "text-gray-500"}`}>{s.label}</span>
-              {idx < arr.length - 1 && <div className="h-px w-10 sm:w-20 bg-gray-200" />}
+              <button onClick={() => go(s.key)} className={`h-7 w-7 rounded-full text-xs font-semibold flex items-center justify-center ${step === s.key ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"}`}>{idx + 1}</button>
+              <span className={`text-sm ${step === s.key ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>{s.label}</span>
+              {idx < arr.length - 1 && <div className="h-px w-10 sm:w-20 bg-gray-200 dark:bg-gray-600" />}
             </div>
           ))}
         </div>
@@ -130,7 +130,7 @@ export default function PitchGeneratorClient() {
       {step === "prepare" && <PitchGeneratorStep1 onGenerate={handleGenerate} />}
       {step === "review" && (
         <div className="mt-6">
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4 border border-purple-100 dark:border-purple-800">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { title: "Market Size", icon: "📈" },
@@ -138,63 +138,63 @@ export default function PitchGeneratorClient() {
                 { title: "Target Audience", icon: "👥" },
                 { title: "Success Score", icon: "🎯" },
               ].map((c) => (
-                <div key={c.title} className="bg-white rounded-lg border border-gray-200 p-4 text-center">
+                <div key={c.title} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 p-4 text-center">
                   <div className="text-2xl">{c.icon}</div>
-                  <div className="mt-2 text-sm font-medium text-gray-800">{c.title}</div>
+                  <div className="mt-2 text-sm font-medium text-gray-800 dark:text-gray-200">{c.title}</div>
                 </div>
               ))}
             </div>
           </div>
           {/* Generated structured result */}
-          <div className="mt-6 bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="text-base font-semibold text-gray-900">Generated Overview</h3>
+          <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">Generated Overview</h3>
             {generating ? (
-              <p className="mt-2 text-gray-600">Generating...</p>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">Generating...</p>
             ) : (
               <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Problem</div>
-                  <div className="mt-1 text-gray-900">{deck?.problem || "—"}</div>
+                <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Problem</div>
+                  <div className="mt-1 text-gray-900 dark:text-white">{deck?.problem || "—"}</div>
                 </div>
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Solution</div>
-                  <div className="mt-1 text-gray-900">{deck?.solution || "—"}</div>
+                <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Solution</div>
+                  <div className="mt-1 text-gray-900 dark:text-white">{deck?.solution || "—"}</div>
                 </div>
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Target Audience</div>
-                  <div className="mt-1 text-gray-900">{deck?.market?.audience || "—"}</div>
+                <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Target Audience</div>
+                  <div className="mt-1 text-gray-900 dark:text-white">{deck?.market?.audience || "—"}</div>
                 </div>
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Business Model</div>
-                  <div className="mt-1 text-gray-900">{deck?.businessModel?.model || "—"}</div>
+                <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Business Model</div>
+                  <div className="mt-1 text-gray-900 dark:text-white">{deck?.businessModel?.model || "—"}</div>
                   {deck?.businessModel?.revenueStreams && (
-                    <ul className="mt-2 list-disc list-inside text-gray-800 text-sm">
+                    <ul className="mt-2 list-disc list-inside text-gray-800 dark:text-gray-200 text-sm">
                       {deck.businessModel.revenueStreams.map((r, i) => (
                         <li key={i}>{r}</li>
                       ))}
                     </ul>
                   )}
                 </div>
-                <div className="md:col-span-2 border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Go-To-Market</div>
+                <div className="md:col-span-2 border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Go-To-Market</div>
                   {deck?.goToMarket && deck.goToMarket.length > 0 ? (
-                    <ul className="mt-1 list-disc list-inside text-gray-800">
+                    <ul className="mt-1 list-disc list-inside text-gray-800 dark:text-gray-200">
                       {deck.goToMarket.map((g, i) => (
                         <li key={i}>{g}</li>
                       ))}
                     </ul>
                   ) : (
-                    <div className="mt-1 text-gray-900">—</div>
+                    <div className="mt-1 text-gray-900 dark:text-white">—</div>
                   )}
                 </div>
-                <div className="md:col-span-2 border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Slides</div>
+                <div className="md:col-span-2 border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Slides</div>
                   {deck?.slides && deck.slides.length > 0 ? (
                     <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
                       {deck.slides.map((s, i) => (
-                        <div key={i} className="rounded-md border p-3">
-                          <div className="font-medium text-gray-900">{s.title}</div>
-                          <ul className="mt-1 list-disc list-inside text-sm text-gray-800">
+                        <div key={i} className="rounded-md border border-gray-200 dark:border-gray-600 p-3 bg-white dark:bg-gray-800">
+                          <div className="font-medium text-gray-900 dark:text-white">{s.title}</div>
+                          <ul className="mt-1 list-disc list-inside text-sm text-gray-800 dark:text-gray-200">
                             {s.bullets.map((b, j) => (
                               <li key={j}>{b}</li>
                             ))}
@@ -228,21 +228,21 @@ export default function PitchGeneratorClient() {
                 "Preview Full Deck"
               )}
             </button>
-            <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Download PDF</button>
-            <button onClick={() => go("prepare") } className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Generate New Deck</button>
+            <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">Download PDF</button>
+            <button onClick={() => go("prepare") } className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">Generate New Deck</button>
           </div>
         </div>
       )}
       {step === "slides" && (
         <div className="mt-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">{deck?.title || "Pitch Deck"}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{deck?.title || "Pitch Deck"}</h2>
               <div className="flex items-center gap-3">
                 <button 
                   onClick={handleDownloadPdf}
                   disabled={!pdfDataUrl}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -265,7 +265,7 @@ export default function PitchGeneratorClient() {
                 {deck?.slides?.map((slide, index) => (
                   <button
                     key={index}
-                    className="flex-shrink-0 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-sm font-medium whitespace-nowrap"
+                    className="flex-shrink-0 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium whitespace-nowrap text-gray-700 dark:text-gray-300"
                   >
                     Slide {index + 1}: {slide.title}
                   </button>
@@ -274,12 +274,12 @@ export default function PitchGeneratorClient() {
             </div>
 
             {/* PDF Viewer or Slide Display */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-8 min-h-[500px] border border-purple-100">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-8 min-h-[500px] border border-purple-100 dark:border-purple-800">
               {pdfDataUrl ? (
                 <div className="w-full h-full">
                   <iframe
                     src={pdfDataUrl}
-                    className="w-full h-[500px] rounded-lg border border-gray-200"
+                    className="w-full h-[500px] rounded-lg border border-gray-200 dark:border-gray-600"
                     title="Pitch Deck PDF"
                   />
                 </div>

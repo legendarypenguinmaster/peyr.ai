@@ -217,7 +217,7 @@ export default function LegalGeneratorClient() {
   };
 
   const Stepper = () => (
-    <div className="sticky top-[68px] z-10 bg-white/70 backdrop-blur border-b border-gray-100">
+    <div className="sticky top-[68px] z-10 bg-white/70 dark:bg-gray-900/70 backdrop-blur border-b border-gray-100 dark:border-gray-700">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center gap-3 text-sm">
           {([
@@ -227,9 +227,9 @@ export default function LegalGeneratorClient() {
             { key: "review", label: "Review" },
           ] as { key: Step; label: string }[]).map((s, idx, arr) => (
             <div key={s.key} className="flex items-center gap-3">
-              <button onClick={() => go(s.key)} className={`h-7 w-7 rounded-full text-xs font-semibold flex items-center justify-center ${step === s.key ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}`}>{idx + 1}</button>
-              <span className={`text-sm ${step === s.key ? "text-gray-900" : "text-gray-500"}`}>{s.label}</span>
-              {idx < arr.length - 1 && <div className="h-px w-10 sm:w-20 bg-gray-200" />}
+              <button onClick={() => go(s.key)} className={`h-7 w-7 rounded-full text-xs font-semibold flex items-center justify-center ${step === s.key ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"}`}>{idx + 1}</button>
+              <span className={`text-sm ${step === s.key ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>{s.label}</span>
+              {idx < arr.length - 1 && <div className="h-px w-10 sm:w-20 bg-gray-200 dark:bg-gray-600" />}
             </div>
           ))}
         </div>
@@ -250,8 +250,8 @@ export default function LegalGeneratorClient() {
 
         {step === "document-type" && (
           <div className="mt-6">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Select Document Type</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Select Document Type</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {documentTypes.map((doc) => (
                   <button
@@ -259,13 +259,13 @@ export default function LegalGeneratorClient() {
                     onClick={() => setSelectedDocumentType(doc.id)}
                     className={`p-6 rounded-xl border-2 text-left transition-all duration-200 hover:shadow-lg ${
                       selectedDocumentType === doc.id
-                        ? "border-blue-500 bg-blue-50 shadow-lg"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20 shadow-lg"
+                        : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700"
                     }`}
                   >
                     <div className="text-4xl mb-4">{doc.icon}</div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{doc.title}</h3>
-                    <p className="text-sm text-gray-600">{doc.description}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{doc.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{doc.description}</p>
                   </button>
                 ))}
               </div>
@@ -287,8 +287,8 @@ export default function LegalGeneratorClient() {
 
          {step === "company-info" && (
            <div className="mt-6">
-             <div className="bg-white rounded-xl border border-gray-200 p-6">
-               <h2 className="text-2xl font-bold text-gray-900 mb-6">
+             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                  {documentTypes.find(d => d.id === selectedDocumentType)?.title} Information
                </h2>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -298,7 +298,7 @@ export default function LegalGeneratorClient() {
                <div className="mt-8 flex justify-between">
                  <button
                    onClick={() => go("document-type")}
-                   className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-50"
+                   className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
                  >
                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -322,19 +322,19 @@ export default function LegalGeneratorClient() {
 
         {step === "generate" && (
           <div className="mt-6">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Review & Generate</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Review & Generate</h2>
               
               {/* Document Type Selection */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Document Format</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Document Format</h3>
                 <div className="flex gap-4">
                   <button
                     onClick={() => setSelectedFormat("docx")}
                     className={`px-6 py-3 rounded-lg border-2 transition-all ${
                       selectedFormat === "docx"
-                        ? "border-blue-500 bg-blue-50 text-blue-700"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400"
+                        : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                     }`}
                   >
                     📄 DOCX
@@ -343,8 +343,8 @@ export default function LegalGeneratorClient() {
                     onClick={() => setSelectedFormat("pdf")}
                     className={`px-6 py-3 rounded-lg border-2 transition-all ${
                       selectedFormat === "pdf"
-                        ? "border-blue-500 bg-blue-50 text-blue-700"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400"
+                        : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                     }`}
                   >
                     📋 PDF
@@ -353,28 +353,28 @@ export default function LegalGeneratorClient() {
               </div>
 
               {/* Review Information */}
-              <div className="bg-gray-50 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Review Information</h3>
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Review Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="font-medium text-gray-700">Document Type:</span>
-                    <span className="ml-2 text-gray-900">{documentTypes.find(d => d.id === selectedDocumentType)?.title}</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Document Type:</span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{documentTypes.find(d => d.id === selectedDocumentType)?.title}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-gray-700">Company:</span>
-                    <span className="ml-2 text-gray-900">{companyInfo.companyName}</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Company:</span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{companyInfo.companyName}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-gray-700">Jurisdiction:</span>
-                    <span className="ml-2 text-gray-900">{companyInfo.jurisdiction}</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Jurisdiction:</span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{companyInfo.jurisdiction}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-gray-700">Structure:</span>
-                    <span className="ml-2 text-gray-900">{companyInfo.capitalStructure}</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Structure:</span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{companyInfo.capitalStructure}</span>
                   </div>
                   <div className="md:col-span-2">
-                    <span className="font-medium text-gray-700">Founders:</span>
-                    <span className="ml-2 text-gray-900">{companyInfo.founders}</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Founders:</span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{companyInfo.founders}</span>
                   </div>
                 </div>
               </div>
@@ -382,7 +382,7 @@ export default function LegalGeneratorClient() {
               <div className="flex justify-between">
                 <button
                   onClick={() => go("company-info")}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-50"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -413,9 +413,9 @@ export default function LegalGeneratorClient() {
 
         {step === "review" && (
           <div className="mt-6">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Generated Document</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Generated Document</h2>
                 <button
                   onClick={handleDownload}
                   disabled={!generatedDocument}
@@ -429,7 +429,7 @@ export default function LegalGeneratorClient() {
               </div>
 
               {generatedDocument ? (
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
                   {selectedFormat === "pdf" ? (
                     <iframe
                       src={generatedDocument}
@@ -439,24 +439,24 @@ export default function LegalGeneratorClient() {
                   ) : (
                     <div className="p-8 text-center">
                       <div className="text-6xl mb-4">📄</div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">Document Generated Successfully</h3>
-                      <p className="text-gray-600 mb-4">Your {documentTypes.find(d => d.id === selectedDocumentType)?.title} has been generated.</p>
-                      <p className="text-sm text-gray-500">Click the download button above to save the document.</p>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Document Generated Successfully</h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-4">Your {documentTypes.find(d => d.id === selectedDocumentType)?.title} has been generated.</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Click the download button above to save the document.</p>
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">📋</div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No document available</h3>
-                  <p className="text-gray-600">Please generate a document to see it here.</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No document available</h3>
+                  <p className="text-gray-600 dark:text-gray-400">Please generate a document to see it here.</p>
                 </div>
               )}
 
               <div className="mt-6 flex justify-center">
                 <button
                   onClick={() => go("document-type")}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-50"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />

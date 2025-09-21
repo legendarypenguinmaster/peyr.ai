@@ -114,7 +114,7 @@ export default function EquityCalculatorClient() {
   };
 
   const Stepper = () => (
-    <div className="sticky top-[68px] z-10 bg-white/70 backdrop-blur border-b border-gray-100">
+    <div className="sticky top-[68px] z-10 bg-white/70 dark:bg-gray-900/70 backdrop-blur border-b border-gray-100 dark:border-gray-700">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center gap-3 text-sm">
           {([
@@ -122,9 +122,9 @@ export default function EquityCalculatorClient() {
             { key: "result", label: "Equity Results" },
           ] as { key: Step; label: string }[]).map((s, idx, arr) => (
             <div key={s.key} className="flex items-center gap-3">
-              <button onClick={() => go(s.key)} className={`h-7 w-7 rounded-full text-xs font-semibold flex items-center justify-center ${step === s.key ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}`}>{idx + 1}</button>
-              <span className={`text-sm ${step === s.key ? "text-gray-900" : "text-gray-500"}`}>{s.label}</span>
-              {idx < arr.length - 1 && <div className="h-px w-10 sm:w-20 bg-gray-200" />}
+              <button onClick={() => go(s.key)} className={`h-7 w-7 rounded-full text-xs font-semibold flex items-center justify-center ${step === s.key ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"}`}>{idx + 1}</button>
+              <span className={`text-sm ${step === s.key ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>{s.label}</span>
+              {idx < arr.length - 1 && <div className="h-px w-10 sm:w-20 bg-gray-200 dark:bg-gray-600" />}
             </div>
           ))}
         </div>
@@ -145,9 +145,9 @@ export default function EquityCalculatorClient() {
 
         {step === "prepare" && (
           <div className="mt-6">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Founder Information</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Founder Information</h2>
                 <button
                   onClick={addFounder}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
@@ -161,13 +161,13 @@ export default function EquityCalculatorClient() {
 
               <div className="space-y-8">
                 {founders.map((founder, index) => (
-                  <div key={founder.id} className="border border-gray-200 rounded-lg p-6">
+                  <div key={founder.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-6 bg-gray-50 dark:bg-gray-700/50">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Founder {index + 1}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Founder {index + 1}</h3>
                       {founders.length > 1 && (
                         <button
                           onClick={() => removeFounder(founder.id)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -179,23 +179,23 @@ export default function EquityCalculatorClient() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Founder Name */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Founder Name</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Founder Name</label>
                         <input
                           type="text"
                           value={founder.name}
                           onChange={(e) => updateFounder(founder.id, "name", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                           placeholder="Enter founder name"
                         />
                       </div>
 
                       {/* Primary Role */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Primary Role</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Role</label>
                         <select
                           value={founder.primary}
                           onChange={(e) => updateFounder(founder.id, "primary", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         >
                           <option value="CEO / Business Lead">CEO / Business Lead</option>
                           <option value="CTO / Technical Lead">CTO / Technical Lead</option>
@@ -209,23 +209,23 @@ export default function EquityCalculatorClient() {
 
                       {/* Capital Contribution */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Capital Contribution ($)</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Capital Contribution ($)</label>
                         <input
                           type="number"
                           value={founder.capitalContribution}
                           onChange={(e) => updateFounder(founder.id, "capitalContribution", parseFloat(e.target.value) || 0)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                           placeholder="0"
                         />
                       </div>
 
                       {/* Experience Level */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Experience Level</label>
                         <select
                           value={founder.experienceLevel}
                           onChange={(e) => updateFounder(founder.id, "experienceLevel", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         >
                           <option value="First-time Entrepreneur">First-time Entrepreneur</option>
                           <option value="Experienced (1-2 exits)">Experienced (1-2 exits)</option>
@@ -236,37 +236,37 @@ export default function EquityCalculatorClient() {
 
                       {/* Time Commitment */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Time Commitment: {founder.timeCommitment}%</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Time Commitment: {founder.timeCommitment}%</label>
                         <input
                           type="range"
                           min="0"
                           max="100"
                           value={founder.timeCommitment}
                           onChange={(e) => updateFounder(founder.id, "timeCommitment", parseInt(e.target.value))}
-                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                          className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                         />
                       </div>
 
                       {/* Salary Foregone */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Salary Foregone: {founder.salaryForegone}%</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Salary Foregone: {founder.salaryForegone}%</label>
                         <input
                           type="range"
                           min="0"
                           max="100"
                           value={founder.salaryForegone}
                           onChange={(e) => updateFounder(founder.id, "salaryForegone", parseInt(e.target.value))}
-                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                          className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                         />
                       </div>
 
                       {/* Risk Level */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Risk Level</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Risk Level</label>
                         <select
                           value={founder.riskLevel}
                           onChange={(e) => updateFounder(founder.id, "riskLevel", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         >
                           <option value="Low Risk (Stable income)">Low Risk (Stable income)</option>
                           <option value="Medium Risk (Some savings)">Medium Risk (Some savings)</option>
@@ -276,11 +276,11 @@ export default function EquityCalculatorClient() {
 
                       {/* Network Value */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Network Value</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Network Value</label>
                         <select
                           value={founder.networkValue}
                           onChange={(e) => updateFounder(founder.id, "networkValue", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         >
                           <option value="Limited Network">Limited Network</option>
                           <option value="Moderate Network">Moderate Network</option>
@@ -318,10 +318,10 @@ export default function EquityCalculatorClient() {
 
         {step === "result" && (
           <div className="mt-6">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Equity Distribution Results</h2>
-                <button onClick={() => go("prepare")} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Equity Distribution Results</h2>
+                <button onClick={() => go("prepare")} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
@@ -333,23 +333,23 @@ export default function EquityCalculatorClient() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {equityResults.founders?.map((result, index: number) => (
-                      <div key={index} className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-6 border border-purple-100">
+                      <div key={index} className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-6 border border-purple-100 dark:border-purple-800">
                         <div className="text-center">
-                          <div className="text-3xl font-bold text-purple-600 mb-2">{result.equityPercentage}%</div>
-                          <div className="text-lg font-semibold text-gray-900 mb-1">{result.name}</div>
-                          <div className="text-sm text-gray-600 mb-4">{result.primary}</div>
+                          <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">{result.equityPercentage}%</div>
+                          <div className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{result.name}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">{result.primary}</div>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Capital:</span>
-                              <span className="font-medium">${result.capitalContribution?.toLocaleString()}</span>
+                              <span className="text-gray-600 dark:text-gray-400">Capital:</span>
+                              <span className="font-medium text-gray-900 dark:text-white">${result.capitalContribution?.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Experience:</span>
-                              <span className="font-medium">{result.experienceLevel}</span>
+                              <span className="text-gray-600 dark:text-gray-400">Experience:</span>
+                              <span className="font-medium text-gray-900 dark:text-white">{result.experienceLevel}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Time:</span>
-                              <span className="font-medium">{result.timeCommitment}%</span>
+                              <span className="text-gray-600 dark:text-gray-400">Time:</span>
+                              <span className="font-medium text-gray-900 dark:text-white">{result.timeCommitment}%</span>
                             </div>
                           </div>
                         </div>
@@ -358,9 +358,9 @@ export default function EquityCalculatorClient() {
                   </div>
 
                   {equityResults.analysis && (
-                    <div className="bg-gray-50 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Analysis & Recommendations</h3>
-                      <div className="prose max-w-none text-gray-700">
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Analysis & Recommendations</h3>
+                      <div className="prose max-w-none text-gray-700 dark:text-gray-300">
                         <p>{equityResults.analysis}</p>
                       </div>
                     </div>
@@ -369,8 +369,8 @@ export default function EquityCalculatorClient() {
               ) : (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">📊</div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No results available</h3>
-                  <p className="text-gray-600">Please calculate equity distribution to see results.</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No results available</h3>
+                  <p className="text-gray-600 dark:text-gray-400">Please calculate equity distribution to see results.</p>
                 </div>
               )}
             </div>

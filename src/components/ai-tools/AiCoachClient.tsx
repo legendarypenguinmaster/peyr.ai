@@ -14,11 +14,11 @@ type Message = {
 };
 
 const tabs = [
-  { key: "idea", label: "Idea Validation", icon: Lightbulb, color: "bg-amber-100 text-amber-800" },
-  { key: "market", label: "Market Analysis", icon: LineChart, color: "bg-blue-100 text-blue-800" },
-  { key: "funding", label: "Funding Advice", icon: Rocket, color: "bg-green-100 text-green-800" },
-  { key: "team", label: "Team Building", icon: Users, color: "bg-purple-100 text-purple-800" },
-  { key: "growth", label: "Growth Strategy", icon: Brain, color: "bg-orange-100 text-orange-800" },
+  { key: "idea", label: "Idea Validation", icon: Lightbulb, color: "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400" },
+  { key: "market", label: "Market Analysis", icon: LineChart, color: "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400" },
+  { key: "funding", label: "Funding Advice", icon: Rocket, color: "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400" },
+  { key: "team", label: "Team Building", icon: Users, color: "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400" },
+  { key: "growth", label: "Growth Strategy", icon: Brain, color: "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400" },
 ];
 
 export default function AiCoachClient() {
@@ -230,7 +230,7 @@ export default function AiCoachClient() {
                       }
                     } catch {}
                   }}
-                  className={`w-full text-left pr-9 px-3 py-2 rounded-md text-sm border ${sessionId === s.id ? "bg-blue-50 border-blue-200 text-blue-800" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}`}
+                  className={`w-full text-left pr-9 px-3 py-2 rounded-md text-sm border ${sessionId === s.id ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-300" : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"}`}
                 >
                   {s.title}
                   <div className="text-[10px] text-gray-400">{s.created_at ? new Date(s.created_at).toLocaleString() : ""}</div>
@@ -254,7 +254,7 @@ export default function AiCoachClient() {
                       console.error("Failed to delete session", err);
                     }
                   }}
-                  className="absolute right-2 top-1.5 p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-600"
+                  className="absolute right-2 top-1.5 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"
                   title="Delete chat"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -262,7 +262,7 @@ export default function AiCoachClient() {
               </div>
             ))}
             {sessions.length === 0 && (
-              <div className="text-xs text-gray-500">No chats yet.</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">No chats yet.</div>
             )}
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function AiCoachClient() {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">AI Startup Coach</h2>
-                <span className="text-[10px] bg-purple-100 text-purple-800 px-2 py-1 rounded-full font-semibold">INTELLIGENT</span>
+                <span className="text-[10px] bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400 px-2 py-1 rounded-full font-semibold">INTELLIGENT</span>
               </div>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Your personal AI mentor for startup success, trained on thousands of ventures</p>
             </div>
@@ -295,7 +295,7 @@ export default function AiCoachClient() {
               className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm border transition-colors ${
                 activeTab === t.key
                   ? `${t.color} border-transparent`
-                  : "bg-white text-gray-700 hover:bg-gray-50 border-gray-200"
+                  : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 border-gray-200 dark:border-gray-600"
               }`}
             >
               <t.icon className="w-4 h-4" />
@@ -306,16 +306,16 @@ export default function AiCoachClient() {
       </div>
 
       {/* Conversation / Empty state */}
-      <div className="mt-4 border-t border-gray-100 flex-1 min-h-0">
+      <div className="mt-4 border-t border-gray-100 dark:border-gray-700 flex-1 min-h-0">
         {!hasAsked ? (
           <div className="flex-1 flex items-center justify-center">
-            <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 rounded-full bg-indigo-100 text-indigo-600 items-center justify-center">🤖</span>
+            <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 items-center justify-center">🤖</span>
               How can I help you?
             </h3>
           </div>
         ) : (
-        <div ref={listRef} className="h-full overflow-y-auto px-5 sm:px-6 py-4 space-y-4 bg-gradient-to-b from-gray-50 to-white">
+        <div ref={listRef} className="h-full overflow-y-auto px-5 sm:px-6 py-4 space-y-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
           {messages.map((m) => (
             <div key={m.id}>
               <div className={m.role === "assistant" ? "flex items-start gap-3" : "flex items-start justify-end"}>
@@ -326,7 +326,7 @@ export default function AiCoachClient() {
               )}
                 <div className={`max-w-[90%] w-fit px-3.5 py-2.5 rounded-xl text-[13px] leading-relaxed shadow-sm prose prose-sm ${
                 m.role === "assistant"
-                    ? "bg-white border border-gray-200 text-gray-800"
+                    ? "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"
                     : "bg-blue-600 text-white"
                 }`}>
                   {m.role === "assistant" ? (
@@ -336,14 +336,14 @@ export default function AiCoachClient() {
                   )}
                 </div>
               </div>
-              <div className={`mt-1 text-[11px] ${m.role === "assistant" ? "text-gray-500" : "text-right text-gray-400"}`}>{timeOf(m.createdAt)}</div>
+              <div className={`mt-1 text-[11px] ${m.role === "assistant" ? "text-gray-500 dark:text-gray-400" : "text-right text-gray-400 dark:text-gray-500"}`}>{timeOf(m.createdAt)}</div>
             </div>
           ))}
           {typing && (
-            <div className="flex items-center gap-2 text-gray-500 text-xs">
-              <span className="inline-flex h-2 w-2 rounded-full bg-gray-400 animate-pulse" />
-              <span className="inline-flex h-2 w-2 rounded-full bg-gray-300 animate-pulse delay-150" />
-              <span className="inline-flex h-2 w-2 rounded-full bg-gray-200 animate-pulse delay-300" />
+            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs">
+              <span className="inline-flex h-2 w-2 rounded-full bg-gray-400 dark:bg-gray-500 animate-pulse" />
+              <span className="inline-flex h-2 w-2 rounded-full bg-gray-300 dark:bg-gray-600 animate-pulse delay-150" />
+              <span className="inline-flex h-2 w-2 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse delay-300" />
             </div>
           )}
         </div>
@@ -353,13 +353,13 @@ export default function AiCoachClient() {
       {/* Suggestions */}
       {!hasAsked && (
       <div className="px-5 sm:px-6 pb-4">
-        <p className="text-xs text-gray-500 mb-2">Suggested follow-ups:</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Suggested follow-ups:</p>
         <div className="space-y-2">
           {suggested.map((s) => (
             <button
               key={s}
               onClick={() => setInput(s)}
-              className="w-full text-left text-sm px-4 py-2 rounded-md bg-[#E9F2FF] hover:bg-[#DDEBFF] text-[#194E8A] border border-[#D0E2FF]"
+              className="w-full text-left text-sm px-4 py-2 rounded-md bg-[#E9F2FF] dark:bg-blue-900/20 hover:bg-[#DDEBFF] dark:hover:bg-blue-900/30 text-[#194E8A] dark:text-blue-300 border border-[#D0E2FF] dark:border-blue-800"
             >
               {s}
             </button>
@@ -374,20 +374,20 @@ export default function AiCoachClient() {
           <div className="w-full flex justify-center pb-3">
             <button
               onClick={() => { setMessages([]); setHasAsked(false); setSessionId(null); }}
-              className="inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
+              className="inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
             >
               <span className="inline-flex h-4 w-4 items-center justify-center">🆕</span>
               New chat
             </button>
           </div>
         )}
-        <div className="rounded-xl border border-gray-200 bg-white p-2 shadow-sm flex items-center gap-2">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 p-2 shadow-sm flex items-center gap-2">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSend()}
             placeholder={placeholder}
-            className="flex-1 px-3 py-2 text-sm outline-none placeholder:text-gray-400"
+            className="flex-1 px-3 py-2 text-sm outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500 bg-transparent text-gray-900 dark:text-gray-100"
           />
           <button
             onClick={onSend}
@@ -398,7 +398,7 @@ export default function AiCoachClient() {
             <Send className="w-4 h-4" />
           </button>
         </div>
-        <p className="mt-2 text-[11px] text-gray-500">Powered by advanced AI trained on startup best practices and success patterns</p>
+        <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Powered by advanced AI trained on startup best practices and success patterns</p>
       </div>
       </div>
     </div>

@@ -37,15 +37,15 @@ export default async function AiToolPage({ params }: { params: Promise<{ slug: s
 
   return (
     <ClientPageWrapper loadingText="Loading tool...">
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <DashboardHeader />
         <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">{copy.title}</h1>
-          <p className="mt-3 text-gray-700">{copy.subtitle}</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">{copy.title}</h1>
+          <p className="mt-3 text-gray-700 dark:text-gray-300">{copy.subtitle}</p>
 
-          <div className="mt-8 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <p className="text-gray-700 leading-relaxed">{copy.body}</p>
-            <div className="mt-6 inline-flex items-center text-blue-700 font-medium">Get Started →</div>
+          <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{copy.body}</p>
+            <div className="mt-6 inline-flex items-center text-blue-700 dark:text-blue-400 font-medium">Get Started →</div>
           </div>
         </main>
       </div>

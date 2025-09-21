@@ -12,34 +12,34 @@ export default function FounderAgreementForm({ companyInfo, updateCompanyInfo }:
     <>
       {/* Common Company Fields */}
       <div className="md:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Company Name *</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Company Name *</label>
         <input
           type="text"
           value={companyInfo.companyName}
           onChange={(e) => updateCompanyInfo("companyName", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           placeholder="Enter company name"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Company Address</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Company Address</label>
         <textarea
           value={companyInfo.companyAddress || ""}
           onChange={(e) => updateCompanyInfo("companyAddress", e.target.value)}
           rows={2}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           placeholder="Full company address"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Jurisdiction</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jurisdiction</label>
         <select
           value={companyInfo.jurisdiction}
           onChange={(e) => updateCompanyInfo("jurisdiction", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
         >
           <option value="Delaware, USA">Delaware, USA</option>
           <option value="California, USA">California, USA</option>
@@ -51,11 +51,11 @@ export default function FounderAgreementForm({ companyInfo, updateCompanyInfo }:
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Capital Structure</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Capital Structure</label>
         <select
           value={companyInfo.capitalStructure}
           onChange={(e) => updateCompanyInfo("capitalStructure", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
         >
           <option value="LLC">LLC</option>
           <option value="C-Corporation">C-Corporation</option>
@@ -65,68 +65,68 @@ export default function FounderAgreementForm({ companyInfo, updateCompanyInfo }:
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Document Date</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Document Date</label>
         <input
           type="date"
           value={companyInfo.documentDate || ""}
           onChange={(e) => updateCompanyInfo("documentDate", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Effective Date</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Effective Date</label>
         <input
           type="date"
           value={companyInfo.effectiveDate || ""}
           onChange={(e) => updateCompanyInfo("effectiveDate", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
         />
       </div>
 
       {/* Founder Agreement Specific Fields */}
       <div className="md:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Founders (comma-separated) *</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Founders (comma-separated) *</label>
         <input
           type="text"
           value={companyInfo.founders}
           onChange={(e) => updateCompanyInfo("founders", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           placeholder="John Doe, Jane Smith"
           required
         />
       </div>
 
       <div className="md:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Equity Distribution *</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Equity Distribution *</label>
         <textarea
           value={companyInfo.equityDistribution || ""}
           onChange={(e) => updateCompanyInfo("equityDistribution", e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           placeholder="Describe how equity will be distributed among founders (e.g., 40% CEO, 30% CTO, 30% CMO)"
           required
         />
       </div>
 
       <div className="md:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Roles and Responsibilities *</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Roles and Responsibilities *</label>
         <textarea
           value={companyInfo.rolesAndResponsibilities || ""}
           onChange={(e) => updateCompanyInfo("rolesAndResponsibilities", e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           placeholder="Define each founder's role, responsibilities, and decision-making authority"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Vesting Schedule</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vesting Schedule</label>
         <select
           value={companyInfo.vestingSchedule}
           onChange={(e) => updateCompanyInfo("vestingSchedule", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
         >
           <option value="4 years, 1 year cliff">4 years, 1 year cliff</option>
           <option value="3 years, 6 months cliff">3 years, 6 months cliff</option>
@@ -136,23 +136,23 @@ export default function FounderAgreementForm({ companyInfo, updateCompanyInfo }:
       </div>
 
       <div className="md:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Business Description</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Business Description</label>
         <textarea
           value={companyInfo.businessDescription}
           onChange={(e) => updateCompanyInfo("businessDescription", e.target.value)}
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           placeholder="Describe your business, products, and services"
         />
       </div>
 
       <div className="md:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Special Provisions</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Special Provisions</label>
         <textarea
           value={companyInfo.specialProvisions}
           onChange={(e) => updateCompanyInfo("specialProvisions", e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           placeholder="Any special terms, clauses, or provisions..."
         />
       </div>
