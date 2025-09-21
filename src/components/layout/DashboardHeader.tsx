@@ -199,6 +199,12 @@ export default function DashboardHeader() {
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { slug: "ai-coach", name: "AI Startup Coach" },
+                      { slug: "pitch-generator", name: "AI Pitch Generator" },
+                      { slug: "equity-calculator", name: "AI Equity Calculator" },
+                      { slug: "legal-generator", name: "AI Legal Generator" },
+                      { slug: "risk-assessment", name: "AI Risk Assessment" },
+                      { slug: "compatibility-analysis", name: "AI Compatibility Analysis" },
+                      { slug: "ai-diagram-generator", name: "AI Diagram Generator" },
                       { slug: "investor-matching", name: "AI Investor Matching" },
                       { slug: "market-validation", name: "AI Market Validation" },
                       { slug: "team-builder", name: "AI Team Builder" },
@@ -208,11 +214,6 @@ export default function DashboardHeader() {
                       { slug: "partnership-discovery", name: "AI Partnership Discovery" },
                       { slug: "performance-optimizer", name: "AI Performance Optimizer" },
                       { slug: "global-expansion", name: "AI Global Expansion" },
-                      { slug: "pitch-generator", name: "AI Pitch Generator" },
-                      { slug: "equity-calculator", name: "AI Equity Calculator" },
-                      { slug: "legal-generator", name: "AI Legal Generator" },
-                      { slug: "risk-assessment", name: "AI Risk Assessment" },
-                      { slug: "compatibility-analysis", name: "AI Compatibility Analysis" },
                     ].map((t) => (
                       <Link
                         key={t.slug}
