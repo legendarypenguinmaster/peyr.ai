@@ -3,7 +3,7 @@
 import DashboardHeader from "@/components/layout/DashboardHeader";
 import MermaidRenderer from "@/components/ui/MermaidRenderer";
 import { useState, useEffect } from "react";
-import { CheckCircle, ArrowRight, FileText, GitBranch, Workflow, Brain, Users, Download, RefreshCw } from "lucide-react";
+import { CheckCircle, ArrowRight, FileText, GitBranch, Workflow, Brain, Users, Download, RefreshCw, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 
 type DiagramType = "flowchart" | "process-flow" | "workflow" | "mind-map" | "org-chart";
 type Step = "prepare" | "generate" | "result";
@@ -67,6 +67,7 @@ export default function AiDiagramGeneratorPage() {
   const [generatedDiagram, setGeneratedDiagram] = useState<GeneratedDiagram | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(100);
 
   // Handle URL hash changes
   useEffect(() => {
@@ -81,6 +82,36 @@ export default function AiDiagramGeneratorPage() {
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
+
+  // Handle keyboard shortcuts for zoom
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle zoom shortcuts when we're on the result step and have a diagram
+      if (currentStep !== "result" || !generatedDiagram) return;
+      
+      // Check for Ctrl/Cmd + Plus/Minus/0
+      if ((event.ctrlKey || event.metaKey)) {
+        switch (event.key) {
+          case '=':
+          case '+':
+            event.preventDefault();
+            handleZoomIn();
+            break;
+          case '-':
+            event.preventDefault();
+            handleZoomOut();
+            break;
+          case '0':
+            event.preventDefault();
+            handleResetZoom();
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentStep, generatedDiagram, zoomLevel]);
 
   const validateForm = () => {
     const newErrors: { description?: string } = {};
@@ -139,6 +170,18 @@ export default function AiDiagramGeneratorPage() {
     if (field === "description" && errors.description) {
       setErrors(prev => ({ ...prev, description: undefined }));
     }
+  };
+
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 25, 300));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 25, 50));
+  };
+
+  const handleResetZoom = () => {
+    setZoomLevel(100);
   };
 
   const getColorClasses = (color: string) => {
@@ -405,12 +448,59 @@ export default function AiDiagramGeneratorPage() {
 
               {/* Diagram Visualization */}
               <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 mb-6">
-                <div className="relative min-h-[400px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg overflow-auto">
-                  <MermaidRenderer 
-                    chart={generatedDiagram.mermaidCode} 
-                    id={`diagram-${Date.now()}`}
-                    className="min-h-[400px] flex items-center justify-center"
-                  />
+                {/* Zoom Controls */}
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">Diagram Preview</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Use zoom controls or keyboard shortcuts (Ctrl/Cmd + +/-/0)
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={handleZoomOut}
+                      disabled={zoomLevel <= 50}
+                      className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+                      title="Zoom Out"
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </button>
+                    <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[3rem] text-center">
+                      {zoomLevel}%
+                    </span>
+                    <button
+                      onClick={handleZoomIn}
+                      disabled={zoomLevel >= 300}
+                      className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+                      title="Zoom In"
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={handleResetZoom}
+                      className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                      title="Reset Zoom"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="relative min-h-[400px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg overflow-auto scroll-smooth">
+                  <div 
+                    className="min-h-[400px] flex items-center justify-center transition-transform duration-200 ease-in-out"
+                    style={{ 
+                      transform: `scale(${zoomLevel / 100})`,
+                      transformOrigin: 'center center',
+                      minWidth: zoomLevel > 100 ? '100%' : 'auto'
+                    }}
+                  >
+                    <MermaidRenderer 
+                      chart={generatedDiagram.mermaidCode} 
+                      id={`diagram-${Date.now()}`}
+                      className="min-h-[400px] flex items-center justify-center"
+                    />
+                  </div>
                 </div>
               </div>
 
