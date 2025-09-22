@@ -9,6 +9,8 @@ const tools = [
   { slug: "equity-calculator", name: "AI Equity Calculator", description: "Fair equity analysis based on contribution and risk.", icon: "/images/ai-tools/ai-equity.jpg" },
   { slug: "legal-generator", name: "AI Legal Generator", description: "Generate compliant startup documents and founder agreements.", icon: "/images/ai-tools/ai-legal.jpg" },
   { slug: "risk-assessment", name: "AI Risk Assessment", description: "Predictive analysis of risks and success probability.", icon: "/images/ai-tools/ai-risk.jpg" },
+  { slug: "compatibility-analysis", name: "AI Compatibility Analysis", description: "Deep analysis of co‑founder compatibility and patterns.", icon: "/images/ai-tools/ai-compatibility.jpg" },
+  { slug: "ai-diagram-generator", name: "AI Diagram Generator", description: "Create professional diagrams instantly with AI from process descriptions.", icon: "/images/ai-tools/ai-diagram.jpg" },
   { slug: "investor-matching", name: "AI Investor Matching", description: "Match with 10,000+ active investors by stage, industry, and traction.", icon: "/images/ai-tools/ai-investor.jpg" },
   { slug: "market-validation", name: "AI Market Validation", description: "Real-time trend analysis, competitor intel, and market sizing.", icon: "/images/ai-tools/ai-market.jpg" },
   { slug: "team-builder", name: "AI Team Builder", description: "Find employees, advisors and consultants from global talent networks.", icon: "/images/ai-tools/ai-team.jpg" },
@@ -18,8 +20,6 @@ const tools = [
   { slug: "partnership-discovery", name: "AI Partnership Discovery", description: "Find strategic partnerships and collaboration opportunities.", icon: "/images/ai-tools/ai-partnership.jpg" },
   { slug: "performance-optimizer", name: "AI Performance Optimizer", description: "Team analytics for burnout prevention and workflow optimization.", icon: "/images/ai-tools/ai-performance.jpg" },
   { slug: "global-expansion", name: "AI Global Expansion", description: "International expansion strategy with regulatory guidance.", icon: "/images/ai-tools/ai-global.jpg" },
-  { slug: "compatibility-analysis", name: "AI Compatibility Analysis", description: "Deep analysis of co‑founder compatibility and patterns.", icon: "/images/ai-tools/ai-compatibility.jpg" },
-  { slug: "ai-diagram-generator", name: "AI Diagram Generator", description: "Create professional diagrams instantly with AI from process descriptions.", icon: "/images/ai-tools/ai-diagram.jpg" },
 ];
 
 export default function AiToolsPage() {
