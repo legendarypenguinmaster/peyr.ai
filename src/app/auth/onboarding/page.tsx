@@ -30,10 +30,10 @@ export default function Onboarding() {
 
         console.log("User found:", user.id);
 
-        // Get user's role from profile
+        // Get user's role and completion from profile
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("role")
+          .select("role, signup_completed")
           .eq("id", user.id)
           .single();
 
@@ -45,24 +45,24 @@ export default function Onboarding() {
 
         console.log("Profile found:", profile);
 
+        if (profile?.signup_completed === true) {
+          router.push("/dashboard");
+          return;
+        }
+
         if (profile?.role) {
           // Redirect to role-specific onboarding
           switch (profile.role) {
             case "founder":
-              console.log("Redirecting to founder onboarding");
               router.push("/onboarding/founder");
               break;
             case "mentor":
-              console.log("Redirecting to mentor onboarding");
               router.push("/onboarding/mentor");
               break;
             case "investor":
-              // For now, redirect to dashboard since investor features are not implemented
-              console.log("Redirecting to dashboard for investor");
-              router.push("/dashboard");
+              router.push("/onboarding/investor");
               break;
-      default:
-              console.log("Unknown role, redirecting to select-role");
+            default:
               router.push("/auth/select-role");
           }
         } else {

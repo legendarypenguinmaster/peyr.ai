@@ -17,7 +17,7 @@ export default function Review() {
   const supabase = createClient();
 
   // Get data from Redux state
-  const { profile, founder, mentor, role } = useSelector(
+  const { profile, founder, mentor, investor, role } = useSelector(
     (state: RootState) => state.auth
   );
 
@@ -66,7 +66,7 @@ export default function Review() {
     };
 
     getUserData();
-  }, [router, supabase.auth, supabase, profile, role, founder, mentor]);
+  }, [router, supabase.auth, supabase, profile, role, founder, mentor, investor]);
 
   const handleConfirm = async () => {
     setLoading(true);
@@ -133,6 +133,21 @@ export default function Review() {
         if (mentorError) {
           console.error("Mentor save error:", mentorError);
           setError(`Failed to save mentor data: ${mentorError.message}`);
+          return;
+        }
+      } else if (role === "investor" && investor) {
+        const investorData = {
+          id: user.id,
+          ...investor,
+        } as Record<string, unknown>;
+        console.log("Saving investor data:", investorData);
+        const { error: investorError } = await supabase
+          .from("investors")
+          .upsert(investorData);
+
+        if (investorError) {
+          console.error("Investor save error:", investorError);
+          setError(`Failed to save investor data: ${investorError.message}`);
           return;
         }
       }

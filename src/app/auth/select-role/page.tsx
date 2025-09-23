@@ -77,7 +77,7 @@ export default function SelectRole() {
         "Track investments",
         "Network with founders",
       ],
-      disabled: true,
+      disabled: false,
     },
   ];
 
@@ -156,8 +156,16 @@ export default function SelectRole() {
         console.log("Profile created successfully");
       }
 
-      // Redirect to onboarding
-      router.push("/auth/onboarding");
+      // Redirect to onboarding by role
+      if (selectedRole === "founder") {
+        router.push("/onboarding/founder");
+      } else if (selectedRole === "mentor") {
+        router.push("/onboarding/mentor");
+      } else if (selectedRole === "investor") {
+        router.push("/onboarding/investor");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
       console.error("Role selection error:", err);
