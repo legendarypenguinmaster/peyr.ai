@@ -36,6 +36,21 @@ export interface MentorData {
   is_paid?: boolean;
 }
 
+export interface InvestorData {
+  investor_type?: string;
+  bio?: string;
+  industries?: string[];
+  stage_focus?: string[];
+  geography?: string[];
+  min_check?: number;
+  max_check?: number;
+  investment_type?: string[];
+  linkedin_url?: string;
+  angellist_url?: string;
+  accredited?: boolean;
+  visibility?: "public" | "private";
+}
+
 export interface AuthState {
   isSignedIn: boolean;
   user: User | null;
@@ -43,6 +58,7 @@ export interface AuthState {
   profile: Profile | null;
   founder: FounderData | null;
   mentor: MentorData | null;
+  investor: InvestorData | null;
   onboardingCompleted: boolean;
   currentStep: number;
   totalSteps: number;
@@ -55,6 +71,7 @@ const initialState: AuthState = {
   profile: null,
   founder: null,
   mentor: null,
+  investor: null,
   onboardingCompleted: false,
   currentStep: 1,
   totalSteps: 5,
@@ -133,6 +150,30 @@ export const persistMentorToSupabase = createAsyncThunk(
   }
 );
 
+export const persistInvestorToSupabase = createAsyncThunk(
+  "auth/persistInvestor",
+  async (investorData: InvestorData, { getState }) => {
+    const supabase = createClient();
+    const state = getState() as { auth: AuthState };
+
+    if (!state.auth.user) {
+      throw new Error("User not authenticated");
+    }
+
+    const { data, error } = await supabase
+      .from("investors")
+      .upsert({
+        id: state.auth.user.id,
+        ...investorData,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+);
+
 export const completeOnboarding = createAsyncThunk(
   "auth/completeOnboarding",
   async (_, { getState, dispatch }) => {
@@ -152,6 +193,8 @@ export const completeOnboarding = createAsyncThunk(
       await dispatch(persistFounderToSupabase(state.auth.founder));
     } else if (state.auth.role === "mentor" && state.auth.mentor) {
       await dispatch(persistMentorToSupabase(state.auth.mentor));
+    } else if (state.auth.role === "investor" && state.auth.investor) {
+      await dispatch(persistInvestorToSupabase(state.auth.investor));
     }
 
     return true;
@@ -173,6 +216,7 @@ const authSlice = createSlice({
       state.profile = null;
       state.founder = null;
       state.mentor = null;
+      state.investor = null;
       state.onboardingCompleted = false;
       state.currentStep = 1;
     },
@@ -184,6 +228,7 @@ const authSlice = createSlice({
       // Reset role-specific data when role changes
       state.founder = null;
       state.mentor = null;
+      state.investor = null;
       state.currentStep = 1;
     },
     saveDraftProfile: (state, action: PayloadAction<Partial<Profile>>) => {
@@ -209,6 +254,16 @@ const authSlice = createSlice({
         state.mentor = { ...state.mentor, ...action.payload };
       } else {
         state.mentor = action.payload;
+      }
+    },
+    saveDraftInvestor: (
+      state,
+      action: PayloadAction<Partial<InvestorData>>
+    ) => {
+      if (state.investor) {
+        state.investor = { ...state.investor, ...action.payload };
+      } else {
+        state.investor = action.payload as InvestorData;
       }
     },
     setCurrentStep: (state, action: PayloadAction<number>) => {
@@ -257,6 +312,7 @@ export const {
   saveDraftProfile,
   saveDraftFounder,
   saveDraftMentor,
+  saveDraftInvestor,
   setCurrentStep,
   nextStep,
   previousStep,

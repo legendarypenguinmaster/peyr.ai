@@ -199,6 +199,70 @@ export interface Database {
           }
         ];
       };
+      projects: {
+        Row: {
+          id: string;
+          author_id: string;
+          title: string;
+          description: string;
+          full_description: string | null;
+          industry: string;
+          stage: string;
+          commitment: string;
+          role_needed: string;
+          required_skills: string[];
+          status: "planning" | "in progress" | "on hold";
+          budget: number | null;
+          deadline: string | null;
+          keywords: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_id: string;
+          title: string;
+          description: string;
+          full_description?: string | null;
+          industry: string;
+          stage: string;
+          commitment: string;
+          role_needed: string;
+          required_skills: string[];
+          status?: "planning" | "in progress" | "on hold";
+          budget?: number | null;
+          deadline?: string | null;
+          keywords?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          author_id?: string;
+          title?: string;
+          description?: string;
+          full_description?: string | null;
+          industry?: string;
+          stage?: string;
+          commitment?: string;
+          role_needed?: string;
+          required_skills?: string[];
+          status?: "planning" | "in progress" | "on hold";
+          budget?: number | null;
+          deadline?: string | null;
+          keywords?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "projects_author_id_fkey";
+            columns: ["author_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

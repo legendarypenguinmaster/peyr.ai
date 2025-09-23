@@ -7,6 +7,8 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CallToActionSection from "@/components/home/CallToActionSection";
 import { redirectIfAuthenticated } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   // Redirect authenticated users to dashboard
   await redirectIfAuthenticated();

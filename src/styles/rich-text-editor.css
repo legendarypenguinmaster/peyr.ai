@@ -1,0 +1,146 @@
+/* Rich Text Editor Styles */
+.rich-text-editor {
+  outline: none;
+  line-height: 1.6;
+}
+
+.rich-text-editor:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.rich-text-editor:focus:before {
+  content: none;
+}
+
+.rich-text-editor h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem 0;
+  color: inherit;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.dark .rich-text-editor h2 {
+  border-bottom-color: #4b5563;
+}
+
+.rich-text-editor h2:first-child {
+  margin-top: 0;
+}
+
+.rich-text-editor p {
+  margin: 0.5rem 0;
+}
+
+.rich-text-editor p:first-child {
+  margin-top: 0;
+}
+
+.rich-text-editor p:last-child {
+  margin-bottom: 0;
+}
+
+.rich-text-editor ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.rich-text-editor li {
+  margin: 0.25rem 0;
+}
+
+.rich-text-editor strong {
+  font-weight: 600;
+}
+
+.rich-text-editor em {
+  font-style: italic;
+}
+
+.rich-text-editor u {
+  text-decoration: underline;
+}
+
+.rich-text-editor blockquote {
+  border-left: 4px solid #e5e7eb;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.dark .rich-text-editor blockquote {
+  border-left-color: #4b5563;
+  color: #9ca3af;
+}
+
+/* Dark mode styles */
+.dark .rich-text-editor:empty:before {
+  color: #6b7280;
+}
+
+/* Prose styles for preview */
+.prose h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem 0;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.dark .prose h2 {
+  border-bottom-color: #4b5563;
+}
+
+.prose h2:first-child {
+  margin-top: 0;
+}
+
+.prose p {
+  margin: 0.5rem 0;
+}
+
+.prose p:first-child {
+  margin-top: 0;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.prose ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin: 0.25rem 0;
+}
+
+.prose strong {
+  font-weight: 600;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose u {
+  text-decoration: underline;
+}
+
+.prose blockquote {
+  border-left: 4px solid #e5e7eb;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.dark .prose blockquote {
+  border-left-color: #4b5563;
+  color: #9ca3af;
+}

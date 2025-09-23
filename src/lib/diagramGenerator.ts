@@ -118,7 +118,7 @@ Generate the Mermaid code that best represents this process or structure.`;
 }
 
 // Fallback function for client-side use (without OpenAI)
-export function generateMermaidDiagramFallback(type: DiagramType, description: string): string {
+export function generateMermaidDiagramFallback(type: DiagramType): string {
   const templates = {
     flowchart: `flowchart TD
     A[Start] --> B{Decision Point}
