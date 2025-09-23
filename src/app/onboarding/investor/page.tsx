@@ -11,7 +11,6 @@ import {
   setTotalSteps,
   saveDraftProfile,
   saveDraftInvestor,
-  completeOnboarding,
 } from "@/store/authSlice";
 import { createClient } from "@/lib/supabase/client";
 
@@ -76,8 +75,8 @@ export default function InvestorOnboarding() {
       // Save profile basics; avatar will be set in upload step
       dispatch(
         saveDraftProfile({
-          role: "investor" as any,
-          avatar_url: null as any,
+          role: "investor" as const,
+          avatar_url: null,
         })
       );
       // Proceed to shared avatar upload step, then review will persist
@@ -292,7 +291,11 @@ function MultiSelect({ label, options, value, onChange }: { label: string; optio
               type="button"
               onClick={() => {
                 const next = new Set(selected);
-                active ? next.delete(opt) : next.add(opt);
+                if (active) {
+                  next.delete(opt);
+                } else {
+                  next.add(opt);
+                }
                 onChange(Array.from(next));
               }}
               className={`px-3 py-1 rounded-full text-sm border ${active ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}

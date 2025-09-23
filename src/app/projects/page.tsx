@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "@/components/layout/DashboardHeader";
 import { Search, Plus, Filter, MapPin, Clock, Users, DollarSign } from "lucide-react";
@@ -57,7 +57,7 @@ export default function ProjectsPage() {
   const projectsPerPage = 10;
 
   // Fetch projects from API
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -84,7 +84,7 @@ export default function ProjectsPage() {
           errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
         }
         console.error("API Error:", errorData);
-        throw new Error((errorData as any).error || `HTTP ${response.status}: Failed to fetch projects`);
+        throw new Error((errorData as { error?: string }).error || `HTTP ${response.status}: Failed to fetch projects`);
       }
 
       const data = await response.json();
@@ -100,11 +100,11 @@ export default function ProjectsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [appliedFilters, appliedSearchQuery, currentPage]);
 
   useEffect(() => {
     fetchProjects();
-  }, [appliedFilters, appliedSearchQuery, currentPage]);
+  }, [fetchProjects]);
 
   // Reset to first page when applied filters or search change
   useEffect(() => {

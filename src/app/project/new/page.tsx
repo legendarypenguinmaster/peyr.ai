@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "@/components/layout/DashboardHeader";
 import { ArrowLeft, ArrowRight, Wand2, Check, X, Bold, Italic, List, Type, AlignLeft, Underline, Quote } from "lucide-react";
@@ -53,7 +53,6 @@ export default function NewProjectPage() {
 
   const stages = ["idea", "mvp", "growth"];
   const commitments = ["part-time", "full-time", "contract"];
-  const statuses = ["planning", "in progress", "on hold"];
 
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};

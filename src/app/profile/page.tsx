@@ -1,6 +1,8 @@
 import { requireAuth, requireProfile } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProfilePage() {
   // This will redirect to sign-in if not authenticated
   await requireAuth();

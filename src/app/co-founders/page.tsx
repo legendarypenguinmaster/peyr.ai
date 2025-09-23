@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import CoFoundersPageClient from "./CoFoundersPageClient";
 import ClientPageWrapper from "@/components/ui/ClientPageWrapper";
 
+export const dynamic = 'force-dynamic';
+
 export default async function CoFoundersPage() {
   // This will redirect to sign-in if not authenticated
   await requireAuth();

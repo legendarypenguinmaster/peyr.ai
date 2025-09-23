@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import DashboardHeader from "@/components/layout/DashboardHeader";
-import { ArrowLeft, Check, Search, Users, TrendingUp, DollarSign, MapPin, Calendar, Target, Zap, Star, ExternalLink, MessageCircle } from "lucide-react";
+import { ArrowLeft, Check, Search, Users, TrendingUp, DollarSign, Calendar, Target, Zap, Star, ExternalLink, MessageCircle } from "lucide-react";
 
 type Project = {
   id: string;
@@ -58,8 +58,8 @@ export default function InvestorMatchingPage() {
           .order("created_at", { ascending: false });
         if (error) throw error;
         setProjects((data || []) as unknown as Project[]);
-      } catch (e: any) {
-        setError(e.message || "Failed to load projects");
+       } catch (e: unknown) {
+         setError(e instanceof Error ? e.message : "Failed to load projects");
       } finally {
         setLoading(false);
       }
@@ -82,8 +82,8 @@ export default function InvestorMatchingPage() {
       const data = await res.json();
       setMatches(data.matches || []);
       setStep(4);
-    } catch (e: any) {
-      setError(e.message || "Failed to get matches");
+     } catch (e: unknown) {
+       setError(e instanceof Error ? e.message : "Failed to get matches");
     } finally {
       setLoading(false);
     }
@@ -421,9 +421,9 @@ export default function InvestorMatchingPage() {
                     <Users className="w-8 h-8 text-gray-400" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Matches Found</h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    We couldn't find investors that match your project criteria. Try adjusting your project details or check back later.
-                  </p>
+                   <p className="text-gray-600 dark:text-gray-400 mb-6">
+                     We couldn&apos;t find investors that match your project criteria. Try adjusting your project details or check back later.
+                   </p>
                   <button
                     onClick={() => setStep(1)}
                     className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -546,15 +546,6 @@ export default function InvestorMatchingPage() {
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function InfoItem({ label, value, small }: { label: string; value?: string; small?: boolean }) {
-  return (
-    <div>
-      <div className={`font-medium text-gray-900 dark:text-white ${small ? "text-xs" : "text-sm"}`}>{label}</div>
-      <div className={`text-gray-700 dark:text-gray-300 ${small ? "text-xs" : "text-sm"}`}>{value || "—"}</div>
     </div>
   );
 }

@@ -52,8 +52,33 @@ export async function GET(request: NextRequest) {
       query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,keywords.cs.{${search}}`);
     }
 
-    // Get total count for pagination
-    const { count, error: countError } = await query.select("*", { count: "exact", head: true });
+    // Get total count for pagination (apply same filters)
+    let countQuery = supabase
+      .from("projects")
+      .select("*", { count: "exact", head: true });
+
+    // Apply same filters to count query
+    if (industry && industry !== "all") {
+      countQuery = countQuery.eq("industry", industry);
+    }
+    
+    if (stage && stage !== "any") {
+      countQuery = countQuery.eq("stage", stage);
+    }
+    
+    if (commitment && commitment !== "any") {
+      countQuery = countQuery.eq("commitment", commitment);
+    }
+    
+    if (roleNeeded) {
+      countQuery = countQuery.ilike("role_needed", `%${roleNeeded}%`);
+    }
+
+    if (search) {
+      countQuery = countQuery.or(`title.ilike.%${search}%,description.ilike.%${search}%,keywords.cs.{${search}}`);
+    }
+
+    const { count, error: countError } = await countQuery;
     
     if (countError) {
       console.error("Projects API: Count error:", countError);

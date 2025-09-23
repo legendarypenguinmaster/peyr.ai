@@ -42,7 +42,7 @@ Description: ${project.description}
 Required Skills: ${(project.required_skills || []).join(', ')}
 
 Investors:
-${investors.map((inv: any, i: number) => `${i+1}. Name: ${inv.profiles?.name || 'Anonymous'}; Type: ${inv.investor_type || ''}; Industries: ${(inv.industries||[]).join(', ')}; Stage Focus: ${(inv.stage_focus||[]).join(', ')}; Check: ${inv.min_check ?? ''}-${inv.max_check ?? ''}`).join('\n')}
+${investors.map((inv: { profiles?: { name?: string }; investor_type?: string; industries?: string[]; stage_focus?: string[]; min_check?: number; max_check?: number }, i: number) => `${i+1}. Name: ${inv.profiles?.name || 'Anonymous'}; Type: ${inv.investor_type || ''}; Industries: ${(inv.industries||[]).join(', ')}; Stage Focus: ${(inv.stage_focus||[]).join(', ')}; Check: ${inv.min_check ?? ''}-${inv.max_check ?? ''}`).join('\n')}
 
 Return a pure JSON array (no code block) of objects with: index (number referencing investor position above), match_score (0-100 integer), explanation (short reason).`;
 
@@ -62,12 +62,12 @@ Return a pure JSON array (no code block) of objects with: index (number referenc
       text = text.replace(/^```json\s*/i, '').replace(/^```/, '').replace(/```$/, '').trim();
     }
     
-    let recs: any[] = [];
-    try { 
-      recs = JSON.parse(text); 
-    } catch (parseError) {
-      recs = [];
-    }
+     let recs: { index: number; match_score: number; explanation: string }[] = [];
+     try { 
+       recs = JSON.parse(text); 
+     } catch {
+       recs = [];
+     }
 
     const sorted = recs
       .filter((r) => typeof r.index === 'number')

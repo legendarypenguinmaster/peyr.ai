@@ -103,7 +103,7 @@ export default function ProjectDetailPage() {
     if (project) {
       fetchRelatedProjects();
     }
-  }, [projectId, project?.industry]);
+  }, [projectId, project]);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -125,15 +125,6 @@ export default function ProjectDetailPage() {
       other: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
     };
     return colors[industry as keyof typeof colors] || colors.other;
-  };
-
-  const getStageColor = (stage: string) => {
-    const colors = {
-      idea: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-      mvp: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-      growth: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-    };
-    return colors[stage as keyof typeof colors] || "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
   };
 
   const getStatusColor = (status: string) => {
@@ -170,7 +161,7 @@ export default function ProjectDetailPage() {
               Project Not Found
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              The project you're looking for doesn't exist or has been removed.
+              The project you&apos;re looking for doesn&apos;t exist or has been removed.
             </p>
             <button
               onClick={() => window.history.back()}

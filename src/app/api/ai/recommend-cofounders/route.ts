@@ -157,10 +157,10 @@ IMPORTANT: Return only the JSON array, no markdown code blocks, no additional te
 
     // Get the top 5 recommended co-founders
     const topRecommendations = recommendations
-      .sort((a: any, b: any) => b.match_score - a.match_score)
+      .sort((a: { match_score: number }, b: { match_score: number }) => b.match_score - a.match_score)
       .slice(0, 5);
 
-    const recommendedCoFounders = topRecommendations.map((rec: any) => {
+    const recommendedCoFounders = topRecommendations.map((rec: { founder_index: number; match_score: number; explanation: string }) => {
       const mentor = mentors[rec.founder_index];
       return {
         id: mentor.id,
@@ -175,7 +175,7 @@ IMPORTANT: Return only the JSON array, no markdown code blocks, no additional te
         experience_level: mentor.experience_level,
         commitment_level: mentor.commitment_level,
         match_score: Math.round(rec.match_score),
-        match_reason: rec.match_reason
+        match_reason: rec.explanation
       };
     });
 

@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DashboardHeader from "@/components/layout/DashboardHeader";
-import { ArrowLeft, User, MapPin, Briefcase, Star, Send, Check, X, Clock } from "lucide-react";
+import { ArrowLeft, User, MapPin, Briefcase, Send, Check, Clock } from "lucide-react";
+import Image from "next/image";
 
 interface Project {
   id: string;
@@ -159,7 +160,7 @@ export default function ProjectInvitePage() {
               Project Not Found
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              The project you're looking for doesn't exist.
+              The project you&apos;re looking for doesn&apos;t exist.
             </p>
             <button
               onClick={() => router.push('/projects')}
@@ -260,9 +261,11 @@ export default function ProjectInvitePage() {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center">
                   {coFounder.avatar_url ? (
-                    <img
+                    <Image
                       src={coFounder.avatar_url}
                       alt={coFounder.name}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
                       onError={(e) => {
                         // Fallback to initials if image fails to load
@@ -347,7 +350,7 @@ export default function ProjectInvitePage() {
 
               {/* Match Reason */}
               <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Why they're a good match</h4>
+                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Why they&apos;re a good match</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   {coFounder.match_reason}
                 </p>
@@ -398,7 +401,7 @@ export default function ProjectInvitePage() {
               No Mentors/Co-Founders Found
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We couldn't find any matching mentors/co-founders for your project at the moment.
+              We couldn&apos;t find any matching mentors/co-founders for your project at the moment.
             </p>
             <button
               onClick={() => router.push('/projects')}

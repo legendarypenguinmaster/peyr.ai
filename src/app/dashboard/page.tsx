@@ -8,6 +8,8 @@ import RecentMessages from "@/components/dashboard/RecentMessages";
 import ProfileCompletion from "@/components/dashboard/ProfileCompletion";
 import TrustScore from "@/components/dashboard/TrustScore";
 import QuickActions from "@/components/dashboard/QuickActions";
+
+export const dynamic = 'force-dynamic';
 import EscrowStatus from "@/components/dashboard/EscrowStatus";
 import ClientPageWrapper from "@/components/ui/ClientPageWrapper";
 

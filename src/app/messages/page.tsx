@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import MessagesPageClient from "./MessagesPageClient";
 import ClientPageWrapper from "@/components/ui/ClientPageWrapper";
 
+export const dynamic = 'force-dynamic';
+
 export default async function MessagesPage() {
   const supabase = await createClient();
 
