@@ -7,7 +7,6 @@ import Link from "next/link";
 import Image from "next/image";
 import ThemeSwitch from "@/components/ui/ThemeSwitch";
 import {
-  Shield,
   Search,
   Grid3X3,
   Layout,
