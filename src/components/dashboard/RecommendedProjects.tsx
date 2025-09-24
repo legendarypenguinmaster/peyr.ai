@@ -35,7 +35,7 @@ export default function RecommendedProjects() {
       setLoading(true);
       setError(null);
       try {
-        const { data: auth } = await supabase.auth.getUser();
+        await supabase.auth.getUser();
 
         // Call AI endpoint to get top 3 matches (uses cache if available)
         const res = await fetch("/api/ai-tools/recommended-projects", { cache: "no-store" });
