@@ -1,6 +1,9 @@
+"use client";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function HeroSection() {
+  const [showVideo, setShowVideo] = useState(false);
   return (
     <section className="bg-white dark:bg-gray-900 py-20 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,8 +42,8 @@ export default function HeroSection() {
               >
                 Get Started
               </a>
-              <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 cursor-pointer">
-                Learn More
+              <button onClick={() => setShowVideo(true)} className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-lg font-semibold text-lg border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 cursor-pointer">
+                Watch Video
               </button>
             </div>
           </div>
@@ -58,6 +61,26 @@ export default function HeroSection() {
           </div>
         </div>
       </div>
+
+      {showVideo && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Meet Peyr.ai</h3>
+              <button onClick={() => setShowVideo(false)} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 py-1 rounded-md">✕</button>
+            </div>
+            <div className="relative w-full aspect-video bg-black">
+              <video controls autoPlay className="w-full h-full">
+                <source src="https://shurwnbqzoakrqbapkba.supabase.co/storage/v1/object/public/resources/Meet_Peyr_ai_the_V2.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div className="flex justify-end px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+              <button onClick={() => setShowVideo(false)} className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

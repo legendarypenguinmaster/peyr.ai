@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function Footer() {
   return (
     <footer className="bg-gray-900 py-12">
@@ -6,13 +8,7 @@ export default function Footer() {
           {/* Logo and tagline */}
           <div className="md:col-span-2">
             <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                <span className="text-white font-bold text-lg">P</span>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-white">Peyr.ai</div>
-                <div className="text-gray-400">Dream. Pair. Do.</div>
-              </div>
+              <Image src="/logo.png" alt="Peyr.ai" width={150} height={40} className="mr-3 rounded-lg dark:invert dark:brightness-125 transition" />
             </div>
             <p className="text-gray-400 max-w-md leading-relaxed">
               The AI-powered platform that helps entrepreneurs find their
