@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function Header() {
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
@@ -5,13 +7,7 @@ export default function Header() {
         <div className="flex justify-between items-center py-2">
           <div className="flex items-center">
             <div className="flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                <span className="text-white font-bold text-lg">P</span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Peyr.ai</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Dream. Pair. Do.</p>
-              </div>
+              <Image src="/logo.png" alt="Peyr.ai" width={100} height={40} className="mr-3 rounded-lg dark:invert dark:brightness-125 transition" />
             </div>
           </div>
           <div className="flex items-center space-x-4">

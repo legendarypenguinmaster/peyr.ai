@@ -2,6 +2,7 @@ import { requireAuth, requireProfile } from "@/lib/auth";
 import DashboardHeader from "@/components/layout/DashboardHeader";
 import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
 import RecommendedCoFounders from "@/components/dashboard/RecommendedCoFounders";
+import RecommendedProjects from "@/components/dashboard/RecommendedProjects";
 import AIInsights from "@/components/dashboard/AIInsights";
 import ActiveCollaborations from "@/components/dashboard/ActiveCollaborations";
 import RecentMessages from "@/components/dashboard/RecentMessages";
@@ -18,7 +19,7 @@ export default async function Dashboard() {
   await requireAuth();
 
   // This will redirect to role selection if no profile
-  await requireProfile();
+  const profile = await requireProfile();
 
   return (
     <ClientPageWrapper loadingText="Loading your dashboard...">
@@ -141,9 +142,9 @@ export default async function Dashboard() {
           <div className="flex flex-col xl:flex-row gap-8">
             {/* Main Content Area */}
             <div className="flex-1 min-w-0">
-              {/* Top Row - Recommended Co-Founders Full Width */}
+              {/* Top Row - Recommended Section Full Width */}
               <div className="mb-8">
-                <RecommendedCoFounders />
+                {profile.role === "mentor" ? <RecommendedProjects /> : <RecommendedCoFounders />}
               </div>
 
               {/* Middle Row - AI Insights */}
