@@ -106,7 +106,7 @@ export default function WorkspaceHubPage() {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, [searchQuery, activeFilter]);
+  }, [searchQuery, activeFilter, showError]);
 
   const handleCreateWorkspaceSubmit = async () => {
     if (!workspaceName.trim()) {
