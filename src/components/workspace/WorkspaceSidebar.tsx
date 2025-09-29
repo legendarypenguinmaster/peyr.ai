@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { 
   Home, 
@@ -16,49 +17,50 @@ import {
   User,
   Settings,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  ArrowLeft
 } from "lucide-react";
 
-const navigationItems = [
+const getNavigationItems = (workspaceId?: string) => [
   {
     name: "Home",
-    href: "/workspace-hub",
+    href: workspaceId ? `/workspace-hub/${workspaceId}` : "/workspace-hub",
     icon: Home,
     description: "Main dashboard view"
   },
   {
     name: "Projects",
-    href: "/workspace-hub/projects",
+    href: workspaceId ? `/workspace-hub/${workspaceId}/projects` : "/workspace-hub/projects",
     icon: FolderOpen,
     description: "Personal + shared projects"
   },
   {
     name: "Documents",
-    href: "/workspace-hub/documents",
+    href: workspaceId ? `/workspace-hub/${workspaceId}/documents` : "/workspace-hub/documents",
     icon: FileText,
     description: "Files, notes, AI drafts, contracts"
   },
   {
     name: "AI Insights",
-    href: "/workspace-hub/ai-insights",
+    href: workspaceId ? `/workspace-hub/${workspaceId}/ai-insights` : "/workspace-hub/ai-insights",
     icon: Brain,
     description: "AI roadmaps, recommendations, snapshots"
   },
   {
     name: "Trust Ledger",
-    href: "/workspace-hub/trust-ledger",
+    href: workspaceId ? `/workspace-hub/${workspaceId}/trust-ledger` : "/workspace-hub/trust-ledger",
     icon: Shield,
     description: "Credibility log & contributions"
   },
   {
     name: "Investors",
-    href: "/workspace-hub/investors",
+    href: workspaceId ? `/workspace-hub/${workspaceId}/investors` : "/workspace-hub/investors",
     icon: Users,
     description: "Discovery & connection with founders"
   },
   {
     name: "Marketplace",
-    href: "/workspace-hub/marketplace",
+    href: workspaceId ? `/workspace-hub/${workspaceId}/marketplace` : "/workspace-hub/marketplace",
     icon: Store,
     description: "Add-ons, hiring, integrations",
     comingSoon: true
@@ -70,13 +72,19 @@ interface WorkspaceSidebarProps {
     name: string | null;
     email: string | null;
     first_name?: string | null;
+    role?: string | null;
+    avatar_url?: string | null;
   };
+  workspaceName?: string;
+  workspaceId?: string;
 }
 
-export default function WorkspaceSidebar({ profile }: WorkspaceSidebarProps) {
+export default function WorkspaceSidebar({ profile, workspaceName, workspaceId }: WorkspaceSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const pathname = usePathname();
+  
+  const navigationItems = getNavigationItems(workspaceId);
 
   return (
     <>
@@ -96,7 +104,7 @@ export default function WorkspaceSidebar({ profile }: WorkspaceSidebarProps) {
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             {!isCollapsed && (
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Navigation
+                {workspaceName || "Navigation"}
               </h2>
             )}
             <button
@@ -172,26 +180,52 @@ export default function WorkspaceSidebar({ profile }: WorkspaceSidebarProps) {
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="w-full flex items-center space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                className="w-full flex flex-col items-center space-y-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                 aria-label="User menu"
               >
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-medium text-white">
-                    {(profile.name || profile.first_name || 'U').charAt(0).toUpperCase()}
-                  </span>
+                {/* Large Profile Image */}
+                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {profile.avatar_url ? (
+                    <Image
+                      src={profile.avatar_url}
+                      alt="Profile"
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <span className="text-xl font-medium text-white">
+                      {(profile.name || profile.first_name || 'U').charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
+                
                 {!isCollapsed && (
-                  <>
-                    <div className="flex-1 text-left">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {profile.name || profile.first_name || 'User'}
+                  <div className="flex-1 text-center space-y-2">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {profile.name || profile.first_name || 'User'}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {profile.email || 'No email'}
+                    </p>
+                    {profile.role && (
+                      <p className="text-xs font-medium text-blue-600 dark:text-blue-400 capitalize">
+                        {profile.role}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {profile.email || 'No email'}
-                      </p>
-                    </div>
-                    <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  </>
+                    )}
+                    
+                    {/* Back to Dashboard Button */}
+                    <Link
+                      href="/workspace-hub"
+                      className="inline-flex items-center space-x-2 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <ArrowLeft className="w-3 h-3" />
+                      <span>Back to List</span>
+                    </Link>
+                    
+                    <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 mx-auto mt-1" />
+                  </div>
                 )}
               </button>
 
