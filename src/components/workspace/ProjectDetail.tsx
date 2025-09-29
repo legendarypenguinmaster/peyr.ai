@@ -112,6 +112,7 @@ export default function ProjectDetail({ workspaceId, projectId, project, tasks, 
           overdueCount={overdueCount}
           progressPct={progressPct}
           totalTasks={totalTasks}
+          projectId={projectId}
         />
       )}
 

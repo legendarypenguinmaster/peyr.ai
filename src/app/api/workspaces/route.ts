@@ -241,7 +241,52 @@ export async function GET() {
       return NextResponse.json({ error: 'Failed to fetch workspaces' }, { status: 500 });
     }
 
-    return NextResponse.json({ workspaces });
+    // Get member counts and project counts for each workspace
+    const workspaceIds = workspaces?.map(w => w.workspace_id) || [];
+    
+    // Get member counts
+    const { data: memberCounts } = await supabase
+      .from('workspace_members')
+      .select('workspace_id')
+      .in('workspace_id', workspaceIds)
+      .eq('status', 'active');
+
+    // Get project counts
+    const { data: projectCounts } = await supabase
+      .from('workspace_projects')
+      .select('workspace_id')
+      .in('workspace_id', workspaceIds);
+
+    // Count members and projects per workspace
+    const memberCountMap: Record<string, number> = {};
+    const projectCountMap: Record<string, number> = {};
+
+    memberCounts?.forEach(member => {
+      memberCountMap[member.workspace_id] = (memberCountMap[member.workspace_id] || 0) + 1;
+    });
+
+    projectCounts?.forEach(project => {
+      projectCountMap[project.workspace_id] = (projectCountMap[project.workspace_id] || 0) + 1;
+    });
+
+    // Transform the data to include counts
+    const workspacesWithCounts = workspaces?.map(workspace => {
+      const workspaceData = Array.isArray(workspace.workspaces) ? workspace.workspaces[0] : workspace.workspaces;
+      return {
+        id: workspaceData?.id,
+        name: workspaceData?.name,
+        description: workspaceData?.description,
+        purpose: workspaceData?.purpose,
+        role: workspace.role,
+        member_count: memberCountMap[workspace.workspace_id] || 0,
+        project_count: projectCountMap[workspace.workspace_id] || 0,
+        ai_features: workspaceData?.ai_features,
+        created_at: workspaceData?.created_at,
+        status: workspaceData?.status
+      };
+    }).filter(ws => ws.id) || [];
+
+    return NextResponse.json({ workspaces: workspacesWithCounts });
 
   } catch (error) {
     console.error('Error fetching workspaces:', error);
