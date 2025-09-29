@@ -8,26 +8,28 @@ import CoFounderCard from "./CoFounderCard";
 interface Recommendation {
   id: string;
   founder_id: string;
-  recommended_mentor_id: string;
+  recommended_cofounder_id: string;
   match_score: number;
   match_percentage: number;
   match_reasoning: string;
   created_at: string;
   updated_at: string;
-  recommended_mentor: {
+  recommended_cofounder: {
     name: string;
     avatar_url: string | null;
   };
-  mentor_details: {
+  cofounder_details: {
     bio: string | null;
-    expertise_domains: string[];
+    location: string | null;
+    timezone: string | null;
+    skills: string[];
     industries: string[];
-    years_experience: number | null;
-    past_roles: string[];
+    cofounder_preference: string | null;
+    commitment_level: string | null;
     availability_hours: number | null;
-    communication_channel: string | null;
-    mentorship_style: string | null;
-    is_paid: boolean;
+    communication_style: string | null;
+    linkedin_url: string | null;
+    github_url: string | null;
   };
 }
 
@@ -70,29 +72,30 @@ export default function RecommendedCoFounders() {
   };
 
   const formatCoFounderData = (rec: Recommendation) => {
-    const mentor = rec.mentor_details;
-    const profile = rec.recommended_mentor;
+    const cofounder = rec.cofounder_details;
+    const profile = rec.recommended_cofounder;
     const matchPercentage = rec.match_percentage || Math.round(rec.match_score * 100);
     
     return {
       name: profile.name,
-      role: mentor.past_roles?.join(", ") || "Experienced Professional",
-      lookingFor: "Co-founder/Advisor",
-      location: "Remote", // We don't have location data for mentors
-      description: mentor.bio || "Experienced professional looking to help startups grow.",
-      skills: mentor.expertise_domains?.slice(0, 4) || [],
+      role: cofounder.commitment_level || "Co-founder",
+      lookingFor: cofounder.cofounder_preference || "Co-founder",
+      location: cofounder.location || "Remote",
+      description: cofounder.bio || "Looking for co-founder opportunities.",
+      skills: cofounder.skills?.slice(0, 4) || [],
       rating: `${matchPercentage}% Match`,
       isOnline: true,
       avatar: profile.avatar_url || undefined,
       matchReasoning: rec.match_reasoning,
       matchScore: rec.match_score,
       matchPercentage: matchPercentage,
-      yearsExperience: mentor.years_experience,
-      isPaid: mentor.is_paid,
-      industries: mentor.industries,
-      communicationChannel: mentor.communication_channel,
-      mentorshipStyle: mentor.mentorship_style,
-      mentorId: rec.recommended_mentor_id,
+      timezone: cofounder.timezone,
+      industries: cofounder.industries,
+      communicationStyle: cofounder.communication_style,
+      availabilityHours: cofounder.availability_hours,
+      linkedinUrl: cofounder.linkedin_url,
+      githubUrl: cofounder.github_url,
+      cofounderId: rec.recommended_cofounder_id,
     };
   };
 

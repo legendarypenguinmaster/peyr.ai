@@ -14,6 +14,7 @@ import {
 } from "@/store/authSlice";
 import { RootState } from "@/store/store";
 import { Check, ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const SKILLS_OPTIONS = [
   "JavaScript",
@@ -356,14 +357,14 @@ export default function FounderOnboarding() {
   const renderProgressBar = () => (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-gray-700">
+        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Step {currentStep} of {totalSteps}
         </span>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-500 dark:text-gray-400">
           {Math.round((currentStep / totalSteps) * 100)}% Complete
         </span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
         <div
           className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
           style={{ width: `${(currentStep / totalSteps) * 100}%` }}
@@ -387,7 +388,7 @@ export default function FounderOnboarding() {
       <div>
         <label
           htmlFor="bio"
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           Bio <span className="text-red-500">*</span>
         </label>
@@ -399,7 +400,7 @@ export default function FounderOnboarding() {
           required
           value={step1Data.bio}
           onChange={handleStep1Change}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         />
       </div>
 
@@ -428,7 +429,7 @@ export default function FounderOnboarding() {
   const renderStep2 = () => (
     <div className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Skills & Technologies <span className="text-red-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2 mb-3">
@@ -439,7 +440,7 @@ export default function FounderOnboarding() {
               key={skill}
               type="button"
               onClick={() => addSkill(skill)}
-              className="px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              className="px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               {skill}
             </button>
@@ -454,7 +455,7 @@ export default function FounderOnboarding() {
             onKeyPress={(e) =>
               e.key === "Enter" && (e.preventDefault(), addCustomSkill())
             }
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
           <button
             type="button"
@@ -486,7 +487,7 @@ export default function FounderOnboarding() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Industries of Interest <span className="text-red-500">*</span>
         </label>
         <div className="flex flex-wrap gap-2 mb-3">
@@ -497,7 +498,7 @@ export default function FounderOnboarding() {
               key={industry}
               type="button"
               onClick={() => addIndustry(industry)}
-              className="px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              className="px-3 py-1 rounded-full text-sm border transition-colors cursor-pointer bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               {industry}
             </button>
@@ -512,7 +513,7 @@ export default function FounderOnboarding() {
             onKeyPress={(e) =>
               e.key === "Enter" && (e.preventDefault(), addCustomIndustry())
             }
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
           <button
             type="button"
@@ -550,7 +551,7 @@ export default function FounderOnboarding() {
       <div>
         <label
           htmlFor="cofounder_preference"
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           Co-founder Preference <span className="text-red-500">*</span>
         </label>
@@ -562,14 +563,14 @@ export default function FounderOnboarding() {
           required
           value={step3Data.cofounder_preference}
           onChange={handleStep3Change}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         />
       </div>
 
       <div>
         <label
           htmlFor="commitment_level"
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           Commitment Level <span className="text-red-500">*</span>
         </label>
@@ -579,7 +580,7 @@ export default function FounderOnboarding() {
           required
           value={step3Data.commitment_level}
           onChange={handleStep3Change}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         >
           <option value="">Select your commitment level</option>
           {COMMITMENT_LEVELS.map((level) => (
@@ -597,7 +598,7 @@ export default function FounderOnboarding() {
       <div>
         <label
           htmlFor="availability_hours"
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           Hours per Week <span className="text-red-500">*</span>
         </label>
@@ -611,9 +612,9 @@ export default function FounderOnboarding() {
           required
           value={step4Data.availability_hours}
           onChange={handleStep4Change}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         />
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           How many hours per week can you dedicate to your startup?
         </p>
       </div>
@@ -621,7 +622,7 @@ export default function FounderOnboarding() {
       <div>
         <label
           htmlFor="communication_style"
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           Communication Style <span className="text-red-500">*</span>
         </label>
@@ -631,7 +632,7 @@ export default function FounderOnboarding() {
           required
           value={step4Data.communication_style}
           onChange={handleStep4Change}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         >
           <option value="">Select your preferred communication style</option>
           {COMMUNICATION_STYLES.map((style) => (
@@ -664,10 +665,10 @@ export default function FounderOnboarding() {
         onChange={handleStep5Change}
       />
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <div className="flex items-center">
-          <Check className="w-5 h-5 text-blue-600 mr-2" />
-          <p className="text-sm text-blue-800">
+          <Check className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+          <p className="text-sm text-blue-800 dark:text-blue-300">
             These links help build trust and credibility with potential
             co-founders.
           </p>
@@ -728,21 +729,23 @@ export default function FounderOnboarding() {
   };
 
   return (
-    <AuthLayout
-      title={getStepTitle()}
-      subtitle={getStepSubtitle()}
-      footerText=""
-      footerLink=""
-      footerLinkText=""
-      imageSrc="/images/collaborate-safely.jpg"
-      imageAlt="Founder onboarding"
-      layout="form-right"
-    >
-      <div className="w-full max-w-2xl mx-auto">
+    <>
+      <ThemeToggle />
+      <AuthLayout
+        title={getStepTitle()}
+        subtitle={getStepSubtitle()}
+        footerText=""
+        footerLink=""
+        footerLinkText=""
+        imageSrc="/images/collaborate-safely.jpg"
+        imageAlt="Founder onboarding"
+        layout="form-right"
+      >
+        <div className="w-full max-w-2xl mx-auto">
         {renderProgressBar()}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-6">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
@@ -754,7 +757,7 @@ export default function FounderOnboarding() {
             type="button"
             onClick={handlePrevious}
             disabled={currentStep === 1}
-            className="flex items-center px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
             Previous
@@ -784,5 +787,6 @@ export default function FounderOnboarding() {
         </div>
       </div>
     </AuthLayout>
+    </>
   );
 }

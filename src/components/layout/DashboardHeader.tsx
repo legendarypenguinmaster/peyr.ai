@@ -169,7 +169,7 @@ export default function DashboardHeader() {
               <span>Browse Projects</span>
             </Link>
             <Link
-              href="/workspace"
+              href="/workspace-hub"
               className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 whitespace-nowrap"
             >
               <Layout className="w-5 h-5" />

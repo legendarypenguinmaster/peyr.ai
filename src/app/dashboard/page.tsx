@@ -144,7 +144,7 @@ export default async function Dashboard() {
             <div className="flex-1 min-w-0">
               {/* Top Row - Recommended Section Full Width */}
               <div className="mb-8">
-                {profile.role === "mentor" ? <RecommendedProjects /> : <RecommendedCoFounders />}
+                {profile.role === "founder" ? <RecommendedCoFounders /> : <RecommendedProjects />}
               </div>
 
               {/* Middle Row - AI Insights */}
