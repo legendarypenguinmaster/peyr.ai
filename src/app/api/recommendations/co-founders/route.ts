@@ -24,22 +24,24 @@ interface FounderData {
   bio: string | null;
 }
 
-interface MentorData {
+interface CoFounderData {
   id: string;
   name: string | null;
   bio: string | null;
-  expertise_domains: string[] | null;
+  location: string | null;
+  timezone: string | null;
+  skills: string[] | null;
   industries: string[] | null;
-  years_experience: number | null;
-  past_roles: string[] | null;
+  cofounder_preference: string | null;
+  commitment_level: string | null;
   availability_hours: number | null;
-  communication_channel: string | null;
-  mentorship_style: string | null;
-  is_paid: boolean | null;
+  communication_style: string | null;
+  linkedin_url: string | null;
+  github_url: string | null;
 }
 
 interface Recommendation {
-  mentor_id: string;
+  cofounder_id: string;
   match_score: number;
   match_percentage: number;
   reasoning: string;
@@ -48,7 +50,7 @@ interface Recommendation {
 interface DatabaseRecommendation {
   id: string;
   founder_id: string;
-  recommended_mentor_id: string;
+  recommended_cofounder_id: string;
   match_score: number;
   match_percentage: number;
   match_reasoning: string;
@@ -62,17 +64,19 @@ interface ProfileData {
   avatar_url: string | null;
 }
 
-interface MentorDetails {
+interface CoFounderDetails {
   id: string;
   bio: string | null;
-  expertise_domains: string[] | null;
+  location: string | null;
+  timezone: string | null;
+  skills: string[] | null;
   industries: string[] | null;
-  years_experience: number | null;
-  past_roles: string[] | null;
+  cofounder_preference: string | null;
+  commitment_level: string | null;
   availability_hours: number | null;
-  communication_channel: string | null;
-  mentorship_style: string | null;
-  is_paid: boolean | null;
+  communication_style: string | null;
+  linkedin_url: string | null;
+  github_url: string | null;
 }
 
 export async function GET(request: NextRequest) {
@@ -108,8 +112,8 @@ export async function GET(request: NextRequest) {
 
     // If we have recent recommendations and it's not a refresh request, return them
     if (existingRecommendations && existingRecommendations.length > 0 && !refresh) {
-      // Enrich cached recommendations with complete mentor data
-      const enrichedCachedRecommendations = await enrichRecommendationsWithMentorData(existingRecommendations.slice(0, 2), supabase);
+      // Enrich cached recommendations with complete co-founder data
+      const enrichedCachedRecommendations = await enrichRecommendationsWithCoFounderData(existingRecommendations.slice(0, 2), supabase);
       
       return NextResponse.json({
         recommendations: enrichedCachedRecommendations,
@@ -153,31 +157,31 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    // Get all mentors data
-    const { data: mentorsData, error: mentorsError } = await supabase
-      .from('mentors')
+    // Get all founders data (excluding current user)
+    const { data: foundersData, error: foundersError } = await supabase
+      .from('founders')
       .select('*')
       .neq('id', user.id); // Exclude the current user
 
-    if (mentorsError) {
-      console.error('Error fetching mentors:', mentorsError);
-      return NextResponse.json({ error: 'Failed to fetch mentors' }, { status: 500 });
+    if (foundersError) {
+      console.error('Error fetching founders:', foundersError);
+      return NextResponse.json({ error: 'Failed to fetch founders' }, { status: 500 });
     }
 
-    if (!mentorsData || mentorsData.length === 0) {
+    if (!foundersData || foundersData.length === 0) {
       return NextResponse.json({ 
         recommendations: [],
         cached: false,
-        message: 'No mentors available for matching'
+        message: 'No other founders available for matching'
       });
     }
 
-    // Get mentor profile names
-    const mentorIds = mentorsData.map(mentor => mentor.id);
-    const { data: mentorProfiles } = await supabase
+    // Get founder profile names
+    const founderIds = foundersData.map(founder => founder.id);
+    const { data: founderProfiles } = await supabase
       .from('profiles')
       .select('id, name, avatar_url')
-      .in('id', mentorIds);
+      .in('id', founderIds);
 
     // Prepare data for GPT-4o
     const founderProfileData: FounderData = {
@@ -194,25 +198,31 @@ export async function GET(request: NextRequest) {
       bio: founderData.bio,
     };
 
-    const mentorsProfiles: MentorData[] = mentorsData.map(mentor => {
-      const profile = mentorProfiles?.find(p => p.id === mentor.id);
+    const cofoundersProfiles: CoFounderData[] = foundersData.map(founder => {
+      const profile = founderProfiles?.find(p => p.id === founder.id);
       return {
-        id: mentor.id,
+        id: founder.id,
         name: profile?.name || null,
-        bio: mentor.bio,
-        expertise_domains: mentor.expertise_domains,
-        industries: mentor.industries,
-        years_experience: mentor.years_experience,
-        past_roles: mentor.past_roles,
-        availability_hours: mentor.availability_hours,
-        communication_channel: mentor.communication_channel,
-        mentorship_style: mentor.mentorship_style,
-        is_paid: mentor.is_paid,
+        bio: founder.bio,
+        location: founder.location,
+        timezone: founder.timezone,
+        skills: founder.skills,
+        industries: founder.industries,
+        cofounder_preference: founder.cofounder_preference,
+        commitment_level: founder.commitment_level,
+        availability_hours: founder.availability_hours,
+        communication_style: founder.communication_style,
+        linkedin_url: founder.linkedin_url,
+        github_url: founder.github_url,
       };
     });
 
     // Call GPT-4o for recommendations
-    const recommendations = await getGPTRecommendations(founderProfileData, mentorsProfiles);
+    console.log('Founder profile data:', JSON.stringify(founderProfileData, null, 2));
+    console.log('Available co-founders count:', cofoundersProfiles.length);
+    console.log('Sample co-founder data:', JSON.stringify(cofoundersProfiles.slice(0, 2), null, 2));
+    
+    const recommendations = await getGPTRecommendations(founderProfileData, cofoundersProfiles);
     
     if (!recommendations || recommendations.length === 0) {
       return NextResponse.json({ 
@@ -225,7 +235,7 @@ export async function GET(request: NextRequest) {
     // Store recommendations in database
     const recommendationsToInsert = recommendations.map(rec => ({
       founder_id: user.id,
-      recommended_mentor_id: rec.mentor_id,
+      recommended_cofounder_id: rec.cofounder_id,
       match_score: rec.match_score,
       match_percentage: rec.match_percentage,
       match_reasoning: rec.reasoning,
@@ -245,7 +255,7 @@ export async function GET(request: NextRequest) {
       .from('co_founder_recommendations')
       .select('*')
       .eq('founder_id', user.id)
-      .in('recommended_mentor_id', recommendations.map(r => r.mentor_id))
+      .in('recommended_cofounder_id', recommendations.map(r => r.cofounder_id))
       .order('match_score', { ascending: false })
       .limit(2); // Limit to 2 recommendations as requested
 
@@ -253,8 +263,8 @@ export async function GET(request: NextRequest) {
       console.error('Error fetching stored recommendations:', fetchError);
     }
 
-    // Enrich recommendations with complete mentor data
-    const enrichedRecommendations = await enrichRecommendationsWithMentorData(storedRecommendations || [], supabase);
+    // Enrich recommendations with complete co-founder data
+    const enrichedRecommendations = await enrichRecommendationsWithCoFounderData(storedRecommendations || [], supabase);
 
     return NextResponse.json({
       recommendations: enrichedRecommendations,
@@ -272,10 +282,10 @@ export async function GET(request: NextRequest) {
 
 async function getGPTRecommendations(
   founder: FounderData,
-  mentors: MentorData[]
+  cofounders: CoFounderData[]
 ): Promise<Recommendation[]> {
   const prompt = `
-You are an AI assistant that matches startup founders with potential co-founders (mentors) based on compatibility.
+You are an AI assistant that matches startup founders with potential co-founders based on compatibility.
 
 FOUNDER PROFILE:
 - Name: ${founder.name || 'Not provided'}
@@ -289,48 +299,84 @@ FOUNDER PROFILE:
 - Communication Style: ${founder.communication_style || 'Not provided'}
 - Bio: ${founder.bio || 'Not provided'}
 
-AVAILABLE MENTORS:
-${mentors.map((mentor, index) => `
-${index + 1}. ID: ${mentor.id}
-   Name: ${mentor.name || 'Not provided'}
-   Bio: ${mentor.bio || 'Not provided'}
-   Expertise Domains: ${mentor.expertise_domains?.join(', ') || 'Not provided'}
-   Industries: ${mentor.industries?.join(', ') || 'Not provided'}
-   Years Experience: ${mentor.years_experience || 'Not provided'}
-   Past Roles: ${mentor.past_roles?.join(', ') || 'Not provided'}
-   Availability Hours (monthly): ${mentor.availability_hours || 'Not provided'}
-   Communication Channel: ${mentor.communication_channel || 'Not provided'}
-   Mentorship Style: ${mentor.mentorship_style || 'Not provided'}
-   Is Paid: ${mentor.is_paid ? 'Yes' : 'No'}
+AVAILABLE CO-FOUNDERS (${cofounders.length} total):
+${cofounders.map((cofounder, index) => `
+${index + 1}. ID: ${cofounder.id}
+   Name: ${cofounder.name || 'Not provided'}
+   Bio: ${cofounder.bio || 'Not provided'}
+   Location: ${cofounder.location || 'Not provided'}
+   Timezone: ${cofounder.timezone || 'Not provided'}
+   Skills: ${cofounder.skills?.join(', ') || 'Not provided'}
+   Industries: ${cofounder.industries?.join(', ') || 'Not provided'}
+   Co-founder Preference: ${cofounder.cofounder_preference || 'Not provided'}
+   Commitment Level: ${cofounder.commitment_level || 'Not provided'}
+   Availability Hours: ${cofounder.availability_hours || 'Not provided'}
+   Communication Style: ${cofounder.communication_style || 'Not provided'}
+   LinkedIn: ${cofounder.linkedin_url || 'Not provided'}
+   GitHub: ${cofounder.github_url || 'Not provided'}
 `).join('\n')}
 
 TASK:
-Analyze the founder's profile and match them with the top 5 most compatible mentors. Consider:
-1. Skill complementarity (founder's skills vs mentor's expertise)
+Analyze the founder's profile and match them with the top 2 most compatible co-founders from the list above. Consider:
+1. Skill complementarity (founder's skills vs co-founder's skills)
 2. Industry alignment
 3. Communication style compatibility
 4. Availability alignment
-5. Experience level appropriateness
+5. Commitment level alignment
 6. Geographic/timezone compatibility
-7. Commitment level alignment
+7. Co-founder preference alignment
+8. Complementary expertise areas
 
-Return your response as a JSON array with this exact format (NO markdown code blocks, just pure JSON):
+You MUST return exactly 2 recommendations in the following JSON format. Do not return an empty array. If there are fewer than 2 co-founders available, still return the available ones with appropriate match scores.
+
+Return your response as a JSON array with this exact format (NO markdown code blocks, no additional text, just pure JSON):
 [
   {
-    "mentor_id": "mentor-uuid-here",
+    "cofounder_id": "actual-cofounder-id-from-list-above",
     "match_score": 0.95,
     "match_percentage": 95,
+    "reasoning": "Detailed explanation of why this is a good match, including specific skills, experience, and compatibility factors."
+  },
+  {
+    "cofounder_id": "actual-cofounder-id-from-list-above",
+    "match_score": 0.85,
+    "match_percentage": 85,
     "reasoning": "Detailed explanation of why this is a good match, including specific skills, experience, and compatibility factors."
   }
 ]
 
-IMPORTANT: Return ONLY the JSON array, no markdown formatting, no code blocks, no additional text. Only return the top 2 matches, ordered by match score (highest first). Match scores should be between 0.0 and 1.0.
+CRITICAL: 
+- Return ONLY the JSON array above
+- Use actual cofounder_id values from the list above
+- Match scores should be between 0.0 and 1.0
+- Match percentages should be between 0 and 100
+- Do NOT return an empty array []
+- Do NOT include any markdown formatting or code blocks
 `;
 
   try {
     if (!process.env.OPENAI_API_KEY) {
       console.error('OpenAI API key is not configured');
       return [];
+    }
+
+    if (!cofounders || cofounders.length === 0) {
+      console.log('No co-founders available for matching');
+      return [];
+    }
+
+    console.log(`Processing ${cofounders.length} co-founders for matching with founder ${founder.id}`);
+    
+    // Check if founder has enough data for meaningful matching
+    const hasMinimalData = founder.bio || (founder.skills && founder.skills.length > 0) || (founder.industries && founder.industries.length > 0);
+    if (!hasMinimalData) {
+      console.log('Founder has insufficient data for meaningful matching, using fallback');
+      return cofounders.slice(0, 2).map((cofounder, index) => ({
+        cofounder_id: cofounder.id,
+        match_score: 0.7 - (index * 0.1),
+        match_percentage: Math.round((0.7 - (index * 0.1)) * 100),
+        reasoning: `Basic recommendation - please complete your profile for better matching. This co-founder has skills in ${cofounder.skills?.join(', ') || 'various areas'}.`
+      }));
     }
 
     const completion = await openai.chat.completions.create({
@@ -355,6 +401,8 @@ IMPORTANT: Return ONLY the JSON array, no markdown formatting, no code blocks, n
     }
 
     console.log('GPT-4o raw response:', response);
+    console.log('Response length:', response.length);
+    console.log('Response type:', typeof response);
 
     // Extract JSON from markdown code blocks if present
     let jsonResponse = response.trim();
@@ -386,7 +434,7 @@ IMPORTANT: Return ONLY the JSON array, no markdown formatting, no code blocks, n
     // Validate each recommendation has required fields
     const validRecommendations = recommendations.filter(rec => {
       return rec && 
-             typeof rec.mentor_id === 'string' && 
+             typeof rec.cofounder_id === 'string' && 
              typeof rec.match_score === 'number' && 
              typeof rec.match_percentage === 'number' &&
              typeof rec.reasoning === 'string' &&
@@ -406,15 +454,16 @@ IMPORTANT: Return ONLY the JSON array, no markdown formatting, no code blocks, n
     
     // Fallback: return some basic recommendations if GPT fails
     // This ensures the user still gets some results even if GPT is down
-    if (mentors.length > 0) {
+    if (cofounders.length > 0) {
       console.log('Using fallback recommendations due to GPT error');
-      return mentors.slice(0, 2).map((mentor, index) => {
+      const fallbackCount = Math.min(2, cofounders.length);
+      return cofounders.slice(0, fallbackCount).map((cofounder, index) => {
         const matchScore = 0.8 - (index * 0.1); // Decreasing scores
         return {
-          mentor_id: mentor.id,
+          cofounder_id: cofounder.id,
           match_score: matchScore,
           match_percentage: Math.round(matchScore * 100),
-          reasoning: `Fallback recommendation based on availability and basic compatibility. This mentor has relevant experience in ${mentor.expertise_domains?.join(', ') || 'various domains'}.`
+          reasoning: `Fallback recommendation based on availability and basic compatibility. This co-founder has relevant skills in ${cofounder.skills?.join(', ') || 'various domains'} and is located in ${cofounder.location || 'unknown location'}.`
         };
       });
     }
@@ -423,51 +472,53 @@ IMPORTANT: Return ONLY the JSON array, no markdown formatting, no code blocks, n
   }
 }
 
-async function enrichRecommendationsWithMentorData(recommendations: DatabaseRecommendation[], supabase: Awaited<ReturnType<typeof createClient>>) {
+async function enrichRecommendationsWithCoFounderData(recommendations: DatabaseRecommendation[], supabase: Awaited<ReturnType<typeof createClient>>) {
   if (!recommendations || recommendations.length === 0) {
     return [];
   }
 
-  const mentorIds = recommendations.map(rec => rec.recommended_mentor_id);
+  const cofounderIds = recommendations.map(rec => rec.recommended_cofounder_id);
   
-  // Fetch mentor profiles
-  const { data: mentorProfiles, error: profileError } = await supabase
+  // Fetch co-founder profiles
+  const { data: cofounderProfiles, error: profileError } = await supabase
     .from('profiles')
     .select('id, name, avatar_url')
-    .in('id', mentorIds);
+    .in('id', cofounderIds);
 
-  // Fetch mentor details
-  const { data: mentorDetails, error: detailsError } = await supabase
-    .from('mentors')
+  // Fetch co-founder details
+  const { data: cofounderDetails, error: detailsError } = await supabase
+    .from('founders')
     .select('*')
-    .in('id', mentorIds);
+    .in('id', cofounderIds);
 
   if (profileError || detailsError) {
-    console.error('Error fetching mentor data:', { profileError, detailsError });
+    console.error('Error fetching co-founder data:', { profileError, detailsError });
     return recommendations; // Return original data if enrichment fails
   }
 
   // Enrich recommendations with complete data
   return recommendations.map((rec: DatabaseRecommendation) => {
-    const profile = mentorProfiles?.find((p: ProfileData) => p.id === rec.recommended_mentor_id);
-    const details = mentorDetails?.find((d: MentorDetails) => d.id === rec.recommended_mentor_id);
+    const profile = cofounderProfiles?.find((p: ProfileData) => p.id === rec.recommended_cofounder_id);
+    const details = cofounderDetails?.find((d: CoFounderDetails) => d.id === rec.recommended_cofounder_id);
     
     return {
       ...rec,
-      recommended_mentor: {
-        name: profile?.name || 'Anonymous Mentor',
+      recommended_cofounder: {
+        name: profile?.name || 'Anonymous Co-Founder',
         avatar_url: profile?.avatar_url || null
       },
-      mentor_details: {
+      cofounder_details: {
         bio: details?.bio || null,
-        expertise_domains: details?.expertise_domains || [],
+        location: details?.location || null,
+        timezone: details?.timezone || null,
+        skills: details?.skills || [],
         industries: details?.industries || [],
-        years_experience: details?.years_experience || null,
-        past_roles: details?.past_roles || [],
+        cofounder_preference: details?.cofounder_preference || null,
+        commitment_level: details?.commitment_level || null,
         availability_hours: details?.availability_hours || null,
-        communication_channel: details?.communication_channel || null,
-        mentorship_style: details?.mentorship_style || null,
-        is_paid: details?.is_paid || false
+        communication_style: details?.communication_style || null,
+        linkedin_url: details?.linkedin_url || null,
+        github_url: details?.github_url || null
       }
     };
   });

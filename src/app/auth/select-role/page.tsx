@@ -8,7 +8,7 @@ import { Check } from "lucide-react";
 
 export default function SelectRole() {
   const [selectedRole, setSelectedRole] = useState<
-    "founder" | "mentor" | "investor" | null
+    "founder" | "investor" | null
   >(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,8 +38,6 @@ export default function SelectRole() {
         // User already has a role - redirect to appropriate onboarding
         if (profile.role === "founder") {
           router.push("/onboarding/founder");
-        } else if (profile.role === "mentor") {
-          router.push("/onboarding/mentor");
         } else if (profile.role === "investor") {
           router.push("/dashboard");
         }
@@ -61,13 +59,6 @@ export default function SelectRole() {
       ],
     },
     {
-      id: "mentor" as const,
-      title: "Mentor",
-      emoji: "🧑‍🏫",
-      description: "Share your expertise with aspiring entrepreneurs",
-      features: ["Guide startups", "Share knowledge", "Build your network"],
-    },
-    {
       id: "investor" as const,
       title: "Investor",
       emoji: "💰",
@@ -81,7 +72,7 @@ export default function SelectRole() {
     },
   ];
 
-  const handleRoleSelect = (role: "founder" | "mentor" | "investor") => {
+  const handleRoleSelect = (role: "founder" | "investor") => {
     setSelectedRole(role);
   };
 
@@ -159,8 +150,6 @@ export default function SelectRole() {
       // Redirect to onboarding by role
       if (selectedRole === "founder") {
         router.push("/onboarding/founder");
-      } else if (selectedRole === "mentor") {
-        router.push("/onboarding/mentor");
       } else if (selectedRole === "investor") {
         router.push("/onboarding/investor");
       } else {

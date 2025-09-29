@@ -13,6 +13,7 @@ import {
   saveDraftInvestor,
 } from "@/store/authSlice";
 import { createClient } from "@/lib/supabase/client";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const INDUSTRIES = [
   "Technology","Healthcare","Fintech","E-commerce","Education","SaaS","AI/ML","Blockchain","Cybersecurity","Biotech","Marketplace"
@@ -87,17 +88,19 @@ export default function InvestorOnboarding() {
   };
 
   return (
-    <AuthLayout
-      title="Investor Onboarding"
-      subtitle={`Step ${currentStep} of ${totalSteps}`}
-      footerText=""
-      footerLink=""
-      footerLinkText=""
-      imageSrc="/images/ai-matched-co-founder.jpg"
-      imageAlt="Investor onboarding"
-      layout="form-right"
-    >
-      <div className="max-w-2xl mx-auto">
+    <>
+      <ThemeToggle />
+      <AuthLayout
+        title="Investor Onboarding"
+        subtitle={`Step ${currentStep} of ${totalSteps}`}
+        footerText=""
+        footerLink=""
+        footerLinkText=""
+        imageSrc="/images/ai-matched-co-founder.jpg"
+        imageAlt="Investor onboarding"
+        layout="form-right"
+      >
+        <div className="max-w-2xl mx-auto">
         {initializing && (
           <div className="text-center py-16 text-gray-600 dark:text-gray-400">Loading...</div>
         )}
@@ -144,7 +147,7 @@ export default function InvestorOnboarding() {
                   defaultValue={investor?.bio || ""}
                   onChange={(e) => dispatch(saveDraftInvestor({ bio: e.target.value }))}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg.gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   placeholder="Tell founders about your background"
                 />
               </div>
@@ -154,7 +157,7 @@ export default function InvestorOnboarding() {
 
         {currentStep === 2 && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text.white mb-4">Investment Preferences</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Investment Preferences</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <MultiSelect label="Industries" options={INDUSTRIES} value={investor?.industries} onChange={(v) => dispatch(saveDraftInvestor({ industries: v }))} />
               <MultiSelect label="Stage Focus" options={STAGES} value={investor?.stage_focus} onChange={(v) => dispatch(saveDraftInvestor({ stage_focus: v }))} />
@@ -165,7 +168,7 @@ export default function InvestorOnboarding() {
 
         {currentStep === 3 && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text.white mb-4">Check Size & Range</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Check Size & Range</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <NumberInput label="Min check ($)" value={investor?.min_check} onChange={(v) => dispatch(saveDraftInvestor({ min_check: v }))} />
               <NumberInput label="Max check ($)" value={investor?.max_check} onChange={(v) => dispatch(saveDraftInvestor({ max_check: v }))} />
@@ -176,7 +179,7 @@ export default function InvestorOnboarding() {
 
         {currentStep === 4 && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text.white mb-4">Verification</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Verification</h2>
             <div className="space-y-4">
               <TextInput label="LinkedIn URL" value={investor?.linkedin_url} onChange={(v) => dispatch(saveDraftInvestor({ linkedin_url: v }))} />
               <TextInput label="AngelList URL" value={investor?.angellist_url} onChange={(v) => dispatch(saveDraftInvestor({ angellist_url: v }))} />
@@ -187,7 +190,7 @@ export default function InvestorOnboarding() {
 
         {currentStep === 5 && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text.white mb-4">Visibility</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Visibility</h2>
             <div className="space-y-3">
               <Radio label="Public profile (visible to founders)" checked={(investor?.visibility || 'public') === 'public'} onChange={() => dispatch(saveDraftInvestor({ visibility: 'public' }))} />
               <Radio label="Private profile" checked={investor?.visibility === 'private'} onChange={() => dispatch(saveDraftInvestor({ visibility: 'private' }))} />
@@ -238,17 +241,18 @@ export default function InvestorOnboarding() {
 
         {/* Nav buttons */}
         <div className="flex items-center justify-between mt-6">
-          <button onClick={goBack} disabled={currentStep === 1} className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50">Back</button>
+          <button onClick={goBack} disabled={currentStep === 1} className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors">Back</button>
           {currentStep < totalSteps ? (
-            <button onClick={goNext} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Next</button>
+            <button onClick={goNext} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">Next</button>
           ) : (
-            <button onClick={finish} disabled={loading} className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50">{loading ? 'Saving...' : 'Finish'}</button>
+            <button onClick={finish} disabled={loading} className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors">{loading ? 'Saving...' : 'Finish'}</button>
           )}
         </div>
         </>
         )}
       </div>
     </AuthLayout>
+    </>
   );
 }
 
