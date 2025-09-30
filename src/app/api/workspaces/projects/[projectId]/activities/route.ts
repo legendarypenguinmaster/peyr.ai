@@ -64,10 +64,19 @@ export async function GET(
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
+    // Fetch recent notes created for this project
+    const { data: notesMeta } = await supabase
+      .from('workspace_project_notes')
+      .select('id, title, created_at, created_by')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
     // Hydrate actor names for both tasks and files
     const creatorIds = Array.from(new Set([
       ...((tasks || []).map(t => t.created_by).filter(Boolean) as string[]),
       ...((filesMeta || []).map(f => f.uploader_id).filter(Boolean) as string[]),
+      ...((notesMeta || []).map(n => n.created_by).filter(Boolean) as string[]),
     ]));
     const { data: creators } = creatorIds.length
       ? await supabase.from('profiles').select('id, name').in('id', creatorIds)
@@ -91,7 +100,15 @@ export async function GET(
       description: `File uploaded: ${f.path.split('/').pop()}`,
     }));
 
-    const activities = [...taskActivities, ...fileActivities]
+    const noteActivities = (notesMeta || []).map(n => ({
+      id: `note-${n.id}`,
+      type: 'note_created',
+      actor_name: n.created_by ? (nameById[n.created_by] || 'Someone') : 'Someone',
+      created_at: n.created_at,
+      description: `Note created: ${n.title}`,
+    }));
+
+    const activities = [...taskActivities, ...fileActivities, ...noteActivities]
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, limit);
 
@@ -101,7 +118,12 @@ export async function GET(
       .select('*', { count: 'exact', head: true })
       .like('path', `${pathPrefix}%`);
 
-    const total = (tasksCount || 0) + (filesCount || 0);
+    const { count: notesCount } = await supabase
+      .from('workspace_project_notes')
+      .select('*', { count: 'exact', head: true })
+      .eq('project_id', projectId);
+
+    const total = (tasksCount || 0) + (filesCount || 0) + (notesCount || 0);
 
     return NextResponse.json({
       activities,
