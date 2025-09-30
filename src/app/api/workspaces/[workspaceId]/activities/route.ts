@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+export const runtime = 'nodejs';
+
 type ActivityType = "project_created" | "invitation_sent" | "invitation_accepted";
 
 export async function GET(

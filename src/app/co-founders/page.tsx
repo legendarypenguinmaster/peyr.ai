@@ -11,9 +11,9 @@ export default async function CoFoundersPage() {
 
   const supabase = await createClient();
 
-  // Get all mentors (co-founders) with their profiles
-  const { data: mentors, error } = await supabase
-    .from("mentors")
+  // Get all founders (co-founders) with their profiles
+  const { data: founders, error } = await supabase
+    .from("founders")
     .select(
       `
       *,
@@ -27,15 +27,15 @@ export default async function CoFoundersPage() {
       )
     `
     )
-    .eq("profiles.role", "mentor");
+    .eq("profiles.role", "founder");
 
   if (error) {
-    console.error("Error fetching mentors:", error);
+    console.error("Error fetching founders:", error);
   }
 
   return (
     <ClientPageWrapper loadingText="Loading co-founders...">
-      <CoFoundersPageClient mentors={mentors || []} />
+      <CoFoundersPageClient founders={founders || []} />
     </ClientPageWrapper>
   );
 }

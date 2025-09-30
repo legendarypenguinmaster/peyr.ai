@@ -8,20 +8,17 @@ import ConnectModal from "@/components/ConnectModal";
 import CoFoundersRecommendedSection from "@/components/CoFoundersRecommendedSection";
 import Image from "next/image";
 
-interface Mentor {
+interface Founder {
   id: string;
-  title?: string | null;
   bio?: string | null;
-  expertise_domains: string[];
-  industries: string[];
-  years_experience: number | null;
-  past_roles: string[];
-  availability_hours: number | null;
-  communication_channel: string | null;
-  mentorship_style: string | null;
-  is_paid: boolean | null;
   location?: string | null;
   timezone?: string | null;
+  skills: string[] | null;
+  industries: string[] | null;
+  cofounder_preference?: string | null;
+  commitment_level?: string | null;
+  availability_hours: number | null;
+  communication_style?: string | null;
   linkedin_url?: string | null;
   github_url?: string | null;
   created_at: string;
@@ -37,18 +34,18 @@ interface Mentor {
 }
 
 interface CoFoundersPageClientProps {
-  mentors: Mentor[];
+  founders: Founder[];
 }
 
 export default function CoFoundersPageClient({
-  mentors,
+  founders,
 }: CoFoundersPageClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
-  const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
+  const [selectedFounder, setSelectedFounder] = useState<Founder | null>(null);
   const [networkStats, setNetworkStats] = useState({
     sentRequests: 0,
     connections: 0,
@@ -127,28 +124,28 @@ export default function CoFoundersPageClient({
         return;
       }
 
-      // Get all mentor IDs
-      const mentorIds = mentors.map(mentor => mentor.id);
+      // Get all founder IDs
+      const founderIds = founders.map(founder => founder.id);
       
-      if (mentorIds.length === 0) return;
+      if (founderIds.length === 0) return;
 
-      // Fetch all connections where current user is involved with any of these mentors
+      // Fetch all connections where current user is involved with any of these founders
       const { data: connections, error: connectionsError } = await supabase
         .from('connections')
         .select('*')
-        .or(`and(requester_id.eq.${user.id},addressee_id.in.(${mentorIds.join(',')})),and(addressee_id.eq.${user.id},requester_id.in.(${mentorIds.join(',')}))`);
+        .or(`and(requester_id.eq.${user.id},addressee_id.in.(${founderIds.join(',')})),and(addressee_id.eq.${user.id},requester_id.in.(${founderIds.join(',')}))`);
 
       if (connectionsError) {
         console.error('Error fetching connection statuses:', connectionsError);
         return;
       }
 
-      // Create a map of mentor ID to connection status
+      // Create a map of founder ID to connection status
       const statusMap = new Map<string, string>();
       
       connections?.forEach(connection => {
-        const mentorId = connection.requester_id === user.id ? connection.addressee_id : connection.requester_id;
-        statusMap.set(mentorId, connection.status);
+        const founderId = connection.requester_id === user.id ? connection.addressee_id : connection.requester_id;
+        statusMap.set(founderId, connection.status);
       });
 
       setConnectionStatuses(statusMap);
@@ -156,46 +153,45 @@ export default function CoFoundersPageClient({
     } catch (error) {
       console.error('Error fetching connection statuses:', error);
     }
-  }, [mentors]);
+  }, [founders]);
 
   // Fetch network statistics and connection statuses
   useEffect(() => {
     fetchNetworkStats();
     fetchConnectionStatuses();
-  }, [mentors, fetchNetworkStats, fetchConnectionStatuses]);
+  }, [founders, fetchNetworkStats, fetchConnectionStatuses]);
 
   // Get all unique skills and industries for filter options
   const allSkills = useMemo(() => {
     const skills = new Set<string>();
-    mentors.forEach((mentor) => {
-      mentor.expertise_domains?.forEach((skill) => skills.add(skill));
+    founders.forEach((founder) => {
+      founder.skills?.forEach((skill) => skills.add(skill));
     });
     return Array.from(skills).sort();
-  }, [mentors]);
+  }, [founders]);
 
   const allIndustries = useMemo(() => {
     const industries = new Set<string>();
-    mentors.forEach((mentor) => {
-      mentor.industries?.forEach((industry) => industries.add(industry));
+    founders.forEach((founder) => {
+      founder.industries?.forEach((industry) => industries.add(industry));
     });
     return Array.from(industries).sort();
-  }, [mentors]);
+  }, [founders]);
 
-  // Filter mentors based on search and filters
-  const filteredMentors = useMemo(() => {
-    return mentors.filter((mentor) => {
+  // Filter founders based on search and filters
+  const filteredFounders = useMemo(() => {
+    return founders.filter((founder) => {
       // Search filter
       const matchesSearch =
         !searchQuery ||
-        mentor.profiles.name
+        founder.profiles.name
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        mentor.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        mentor.bio?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        mentor.expertise_domains?.some((skill) =>
+        founder.bio?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        founder.skills?.some((skill) =>
           skill.toLowerCase().includes(searchQuery.toLowerCase())
         ) ||
-        mentor.industries?.some((industry) =>
+        founder.industries?.some((industry) =>
           industry.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
@@ -203,19 +199,19 @@ export default function CoFoundersPageClient({
       const matchesSkills =
         selectedSkills.length === 0 ||
         selectedSkills.every((skill) =>
-          mentor.expertise_domains?.includes(skill)
+          founder.skills?.includes(skill)
         );
 
       // Industries filter
       const matchesIndustries =
         selectedIndustries.length === 0 ||
         selectedIndustries.every((industry) =>
-          mentor.industries?.includes(industry)
+          founder.industries?.includes(industry)
         );
 
       return matchesSearch && matchesSkills && matchesIndustries;
     });
-  }, [mentors, searchQuery, selectedSkills, selectedIndustries]);
+  }, [founders, searchQuery, selectedSkills, selectedIndustries]);
 
   const toggleSkill = (skill: string) => {
     setSelectedSkills((prev) =>
@@ -237,29 +233,29 @@ export default function CoFoundersPageClient({
     setSearchQuery("");
   };
 
-  const handleCardClick = (mentorId: string) => {
-    window.open(`/profile/${mentorId}`, "_blank");
+  const handleCardClick = (founderId: string) => {
+    window.open(`/profile/${founderId}`, "_blank");
   };
 
-  const handleConnect = (mentor: Mentor) => {
-    setSelectedMentor(mentor);
+  const handleConnect = (founder: Founder) => {
+    setSelectedFounder(founder);
     setIsConnectModalOpen(true);
   };
 
   const handleConnectSuccess = () => {
     setIsConnectModalOpen(false);
-    setSelectedMentor(null);
+    setSelectedFounder(null);
     // Refresh network stats and connection statuses after successful connection
     fetchNetworkStats();
     fetchConnectionStatuses();
   };
 
-  const getConnectionStatus = (mentorId: string) => {
-    return connectionStatuses.get(mentorId) || 'none';
+  const getConnectionStatus = (founderId: string) => {
+    return connectionStatuses.get(founderId) || 'none';
   };
 
-  const getConnectionButton = (mentor: Mentor) => {
-    const status = getConnectionStatus(mentor.id);
+  const getConnectionButton = (founder: Founder) => {
+    const status = getConnectionStatus(founder.id);
     
     switch (status) {
       case 'pending':
@@ -285,7 +281,7 @@ export default function CoFoundersPageClient({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              handleConnect(mentor);
+              handleConnect(founder);
             }}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
@@ -306,7 +302,7 @@ export default function CoFoundersPageClient({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              handleConnect(mentor);
+              handleConnect(founder);
             }}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
@@ -485,25 +481,25 @@ export default function CoFoundersPageClient({
                   All Co-founders
                 </h2>
                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {filteredMentors.length} co-founders found
+                  {filteredFounders.length} co-founders found
                 </span>
               </div>
 
-              {/* All Mentors Grid */}
+              {/* All Founders Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredMentors.map((mentor) => (
+                {filteredFounders.map((founder) => (
                   <div
-                    key={mentor.id}
-                    onClick={() => handleCardClick(mentor.id)}
+                    key={founder.id}
+                    onClick={() => handleCardClick(founder.id)}
                     className="bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 p-6 hover:shadow-md transition-shadow cursor-pointer flex flex-col h-full"
                   >
                     {/* Avatar */}
                     <div className="flex justify-center mb-4">
                       <div className="relative">
-                        {mentor.profiles.avatar_url ? (
+                        {founder.profiles.avatar_url ? (
                           <Image
-                            src={mentor.profiles.avatar_url}
-                            alt={mentor.profiles.name || "Mentor"}
+                            src={founder.profiles.avatar_url}
+                            alt={founder.profiles.name || "Founder"}
                             width={80}
                             height={80}
                             className="w-20 h-20 rounded-full object-cover"
@@ -513,7 +509,7 @@ export default function CoFoundersPageClient({
                             <Users className="w-10 h-10 text-white" />
                           </div>
                         )}
-                        {mentor.profiles.id_verification && (
+                        {founder.profiles.id_verification && (
                           <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                             <CheckCircle className="w-4 h-4 text-white" />
                           </div>
@@ -524,34 +520,34 @@ export default function CoFoundersPageClient({
                     {/* Name */}
                     <div className="text-center mb-2">
                       <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
-                        {mentor.profiles.name || "Anonymous"}
+                        {founder.profiles.name || "Anonymous"}
                       </h3>
                     </div>
 
-                    {/* Title */}
+                    {/* Location */}
                     <div className="text-center mb-4">
                       <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                        {mentor.title || "Professional"}
+                        {founder.location || "Location not specified"}
                       </p>
                     </div>
 
                     {/* Bio */}
                     <div className="mb-4 text-center">
                       <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">
-                        {mentor.bio || "No bio available yet."}
+                        {founder.bio || "No bio available yet."}
                       </p>
                     </div>
 
                     {/* Connect Button */}
                     <div className="pt-4 border-t border-gray-100 dark:border-gray-600 mt-auto">
-                        {getConnectionButton(mentor)}
+                        {getConnectionButton(founder)}
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* No Results */}
-              {filteredMentors.length === 0 && (
+              {filteredFounders.length === 0 && (
                 <div className="text-center py-12">
                   <Users className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -578,9 +574,9 @@ export default function CoFoundersPageClient({
         isOpen={isConnectModalOpen}
         onClose={() => setIsConnectModalOpen(false)}
         mentor={{
-          id: selectedMentor?.profiles.id || "",
-          name: selectedMentor?.profiles.name || "",
-          avatar_url: selectedMentor?.profiles.avatar_url || null,
+          id: selectedFounder?.profiles.id || "",
+          name: selectedFounder?.profiles.name || "",
+          avatar_url: selectedFounder?.profiles.avatar_url || null,
         }}
         onSuccess={handleConnectSuccess}
       />

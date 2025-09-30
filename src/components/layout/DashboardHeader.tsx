@@ -51,22 +51,34 @@ export default function DashboardHeader() {
 
   useEffect(() => {
     const loadUserData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const {
+          data: { user },
+          error: authError
+        } = await supabase.auth.getUser();
+        
+        if (authError) {
+          console.error("Authentication error:", authError);
+          return;
+        }
+        
+        if (!user) return;
 
-      setUserId(user.id);
+        setUserId(user.id);
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("avatar_url")
-        .eq("id", user.id)
-        .single();
-      if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("avatar_url")
+          .eq("id", user.id)
+          .single();
+        if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
 
-      // Load unread message count
-      loadUnreadMessageCount(user.id);
+        // Load unread message count
+        loadUnreadMessageCount(user.id);
+      } catch (error) {
+        console.error("Error loading user data:", error);
+        // Don't throw the error, just log it and continue
+      }
     };
     loadUserData();
   }, [supabase, loadUnreadMessageCount]);

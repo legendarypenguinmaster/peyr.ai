@@ -9,26 +9,28 @@ import Image from "next/image";
 interface Recommendation {
   id: string;
   founder_id: string;
-  recommended_mentor_id: string;
+  recommended_cofounder_id: string;
   match_score: number;
   match_percentage: number;
   match_reasoning: string;
   created_at: string;
   updated_at: string;
-  recommended_mentor: {
+  recommended_cofounder: {
     name: string;
     avatar_url: string | null;
   };
-  mentor_details: {
+  cofounder_details: {
     bio: string | null;
-    expertise_domains: string[];
+    location: string | null;
+    timezone: string | null;
+    skills: string[];
     industries: string[];
-    years_experience: number | null;
-    past_roles: string[];
+    cofounder_preference: string | null;
+    commitment_level: string | null;
     availability_hours: number | null;
-    communication_channel: string | null;
-    mentorship_style: string | null;
-    is_paid: boolean;
+    communication_style: string | null;
+    linkedin_url: string | null;
+    github_url: string | null;
   };
 }
 
@@ -88,10 +90,10 @@ export default function CoFoundersRecommendedSection() {
   };
 
   const handleShowReasoning = (recommendation: Recommendation) => {
-    const mentorData = formatMentorData(recommendation);
+    const founderData = formatFounderData(recommendation);
     setSelectedReasoning({
-      name: mentorData.name,
-      reasoning: mentorData.match_reasoning
+      name: founderData.name,
+      reasoning: founderData.match_reasoning
     });
     setIsReasoningModalOpen(true);
   };
@@ -112,28 +114,28 @@ export default function CoFoundersRecommendedSection() {
         return;
       }
 
-      // Get all mentor IDs from recommendations
-      const mentorIds = recommendations.map(rec => rec.recommended_mentor_id);
+      // Get all founder IDs from recommendations
+      const founderIds = recommendations.map(rec => rec.recommended_cofounder_id);
       
-      if (mentorIds.length === 0) return;
+      if (founderIds.length === 0) return;
 
-      // Fetch all connections where current user is involved with any of these mentors
+      // Fetch all connections where current user is involved with any of these founders
       const { data: connections, error: connectionsError } = await supabase
         .from('connections')
         .select('*')
-        .or(`and(requester_id.eq.${user.id},addressee_id.in.(${mentorIds.join(',')})),and(addressee_id.eq.${user.id},requester_id.in.(${mentorIds.join(',')}))`);
+        .or(`and(requester_id.eq.${user.id},addressee_id.in.(${founderIds.join(',')})),and(addressee_id.eq.${user.id},requester_id.in.(${founderIds.join(',')}))`);
 
       if (connectionsError) {
         console.error('Error fetching connection statuses:', connectionsError);
         return;
       }
 
-      // Create a map of mentor ID to connection status
+      // Create a map of founder ID to connection status
       const statusMap = new Map<string, string>();
       
       connections?.forEach(connection => {
-        const mentorId = connection.requester_id === user.id ? connection.addressee_id : connection.requester_id;
-        statusMap.set(mentorId, connection.status);
+        const founderId = connection.requester_id === user.id ? connection.addressee_id : connection.requester_id;
+        statusMap.set(founderId, connection.status);
       });
 
       setConnectionStatuses(statusMap);
@@ -149,12 +151,12 @@ export default function CoFoundersRecommendedSection() {
     }
   }, [recommendations, fetchConnectionStatuses]);
 
-  const getConnectionStatus = (mentorId: string) => {
-    return connectionStatuses.get(mentorId) || 'none';
+  const getConnectionStatus = (founderId: string) => {
+    return connectionStatuses.get(founderId) || 'none';
   };
 
   const getConnectionButton = (recommendation: Recommendation) => {
-    const status = getConnectionStatus(recommendation.recommended_mentor_id);
+    const status = getConnectionStatus(recommendation.recommended_cofounder_id);
     
     switch (status) {
       case 'pending':
@@ -205,21 +207,21 @@ export default function CoFoundersRecommendedSection() {
     }
   };
 
-  const formatMentorData = (rec: Recommendation) => {
-    const mentor = rec.mentor_details;
-    const profile = rec.recommended_mentor;
+  const formatFounderData = (rec: Recommendation) => {
+    const founder = rec.cofounder_details;
+    const profile = rec.recommended_cofounder;
     const matchPercentage = rec.match_percentage || Math.round(rec.match_score * 100);
     
     return {
-      id: rec.recommended_mentor_id,
+      id: rec.recommended_cofounder_id,
       name: profile.name,
       avatar_url: profile.avatar_url,
-      title: mentor.past_roles?.join(", ") || "Experienced Professional",
-      bio: mentor.bio || "Experienced professional looking to help startups grow.",
-      expertise_domains: mentor.expertise_domains || [],
-      industries: mentor.industries || [],
-      years_experience: mentor.years_experience,
-      is_paid: mentor.is_paid,
+      location: founder.location || "Location not specified",
+      bio: founder.bio || "Experienced founder looking to collaborate.",
+      skills: founder.skills || [],
+      industries: founder.industries || [],
+      commitment_level: founder.commitment_level,
+      availability_hours: founder.availability_hours,
       match_percentage: matchPercentage,
       match_reasoning: rec.match_reasoning,
     };
@@ -331,10 +333,10 @@ export default function CoFoundersRecommendedSection() {
         </div>
       </div>
 
-      {/* Recommended Mentors Grid */}
+      {/* Recommended Founders Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {recommendations.map((recommendation) => {
-          const mentorData = formatMentorData(recommendation);
+          const founderData = formatFounderData(recommendation);
           
           return (
             <div
@@ -344,11 +346,11 @@ export default function CoFoundersRecommendedSection() {
               {/* Match Percentage Badge */}
               <div className="flex justify-between items-start mb-4">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-700">
-                  {mentorData.match_percentage}% Match
+                  {founderData.match_percentage}% Match
                 </span>
-                {mentorData.years_experience && (
+                {founderData.availability_hours && (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
-                    {mentorData.years_experience}+ years exp
+                    {founderData.availability_hours}h/week
                   </span>
                 )}
               </div>
@@ -356,10 +358,10 @@ export default function CoFoundersRecommendedSection() {
               {/* Avatar */}
               <div className="flex justify-center mb-4">
                 <div className="relative">
-                  {mentorData.avatar_url ? (
+                  {founderData.avatar_url ? (
                     <Image
-                      src={mentorData.avatar_url}
-                      alt={mentorData.name}
+                      src={founderData.avatar_url}
+                      alt={founderData.name}
                       width={80}
                       height={80}
                       className="w-20 h-20 rounded-full object-cover"
@@ -377,27 +379,27 @@ export default function CoFoundersRecommendedSection() {
               {/* Name */}
               <div className="text-center mb-2">
                 <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
-                  {mentorData.name}
+                  {founderData.name}
                 </h3>
               </div>
 
-              {/* Title */}
+              {/* Location */}
               <div className="text-center mb-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  {mentorData.title}
+                  {founderData.location}
                 </p>
               </div>
 
               {/* Bio */}
               <div className="mb-4 text-center flex-1">
                 <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">
-                  {mentorData.bio}
+                  {founderData.bio}
                 </p>
               </div>
 
               {/* Skills */}
               <div className="flex flex-wrap gap-2 mb-4 justify-center">
-                {mentorData.expertise_domains.slice(0, 3).map((skill, index) => (
+                {founderData.skills.slice(0, 3).map((skill, index) => (
                   <span
                     key={index}
                     className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
@@ -433,9 +435,9 @@ export default function CoFoundersRecommendedSection() {
         isOpen={isConnectModalOpen}
         onClose={() => setIsConnectModalOpen(false)}
         mentor={{
-          id: selectedMentor?.recommended_mentor_id || "",
-          name: selectedMentor?.recommended_mentor.name || "",
-          avatar_url: selectedMentor?.recommended_mentor.avatar_url || null,
+          id: selectedMentor?.recommended_cofounder_id || "",
+          name: selectedMentor?.recommended_cofounder.name || "",
+          avatar_url: selectedMentor?.recommended_cofounder.avatar_url || null,
         }}
         onSuccess={handleConnectSuccess}
       />

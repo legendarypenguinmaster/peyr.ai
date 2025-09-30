@@ -60,6 +60,7 @@ export default function ProjectDetailPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [relatedProjects, setRelatedProjects] = useState<Project[]>([]);
 
+  // Fetch project details
   useEffect(() => {
     const fetchProject = async () => {
       try {
@@ -84,9 +85,18 @@ export default function ProjectDetailPage() {
       }
     };
 
+    if (projectId) {
+      fetchProject();
+    }
+  }, [projectId]);
+
+  // Fetch related projects when project is loaded
+  useEffect(() => {
     const fetchRelatedProjects = async () => {
+      if (!project?.industry) return;
+      
       try {
-        const response = await fetch(`/api/projects?industry=${project?.industry}&limit=3`);
+        const response = await fetch(`/api/projects?industry=${project.industry}&limit=3`);
         if (response.ok) {
           const data = await response.json();
           setRelatedProjects(data.projects?.filter((p: Project) => p.id !== projectId) || []);
@@ -96,14 +106,8 @@ export default function ProjectDetailPage() {
       }
     };
 
-    if (projectId) {
-      fetchProject();
-    }
-    
-    if (project) {
-      fetchRelatedProjects();
-    }
-  }, [projectId, project]);
+    fetchRelatedProjects();
+  }, [project?.industry, projectId]);
 
   const handleLike = () => {
     setIsLiked(!isLiked);

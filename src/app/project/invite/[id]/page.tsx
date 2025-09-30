@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import DashboardHeader from "@/components/layout/DashboardHeader";
+import PublicHeader from "@/components/layout/PublicHeader";
 import { ArrowLeft, User, MapPin, Briefcase, Send, Check, Clock } from "lucide-react";
 import Image from "next/image";
 
@@ -39,8 +39,8 @@ interface CoFounder {
   role?: string;
   skills?: string[];
   industries?: string[];
-  experience_level?: string;
   commitment_level?: string;
+  availability_hours?: number;
   match_score: number;
   match_reason: string;
 }
@@ -138,7 +138,7 @@ export default function ProjectInvitePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <DashboardHeader />
+        <PublicHeader />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
@@ -153,7 +153,7 @@ export default function ProjectInvitePage() {
   if (!project) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <DashboardHeader />
+        <PublicHeader />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
@@ -176,7 +176,7 @@ export default function ProjectInvitePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <DashboardHeader />
+      <PublicHeader />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -312,10 +312,10 @@ export default function ProjectInvitePage() {
                     {coFounder.location}
                   </div>
                 )}
-                {coFounder.experience_level && (
+                {coFounder.availability_hours && (
                   <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm">
                     <Briefcase className="w-4 h-4 mr-2" />
-                    {coFounder.experience_level} Experience
+                    {coFounder.availability_hours}h/week Available
                   </div>
                 )}
                 {coFounder.commitment_level && (

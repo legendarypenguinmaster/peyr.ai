@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+export const runtime = 'nodejs';
+
 export async function DELETE() {
   try {
     const supabase = await createClient();
