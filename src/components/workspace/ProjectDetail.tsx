@@ -132,7 +132,7 @@ export default function ProjectDetail({ workspaceId, projectId, project, tasks, 
       )}
 
       {activeTab === 'notes' && (
-        <NotesTab noteDraft={noteDraft} setNoteDraft={setNoteDraft} />
+        <NotesTab noteDraft={noteDraft} setNoteDraft={setNoteDraft} workspaceId={workspaceId} projectId={projectId} />
       )}
 
       {activeTab === 'ai' && (
