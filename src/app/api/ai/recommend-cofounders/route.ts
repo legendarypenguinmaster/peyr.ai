@@ -33,29 +33,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get all mentors from the database
-    const { data: mentors, error: mentorsError } = await supabase
-      .from("mentors")
+    // Get all founders from the database (excluding the project owner)
+    const { data: founders, error: foundersError } = await supabase
+      .from("founders")
       .select(`
         *,
-        profiles!mentors_id_fkey (
+        profiles!founders_id_fkey (
           id,
           name,
           email,
           avatar_url,
           role
         )
-      `);
+      `)
+      .neq('id', project.author_id); // Exclude the project owner
 
-    if (mentorsError) {
-      console.error("Error fetching mentors:", mentorsError);
+    if (foundersError) {
+      console.error("Error fetching founders:", foundersError);
       return NextResponse.json(
-        { error: "Failed to fetch mentors" },
+        { error: "Failed to fetch founders" },
         { status: 500 }
       );
     }
 
-    if (!mentors || mentors.length === 0) {
+    if (!founders || founders.length === 0) {
       return NextResponse.json({
         coFounders: []
       });
@@ -74,14 +75,15 @@ Project Details:
 - Full Description: ${project.full_description}
 
 Available Co-Founders:
-${mentors.map((mentor, index) => `
-${index + 1}. Name: ${mentor.profiles?.name || 'Anonymous'}
-   Bio: ${mentor.bio || 'No bio available'}
-   Skills: ${mentor.skills?.join(', ') || 'No skills listed'}
-   Industries: ${mentor.industries?.join(', ') || 'No industries listed'}
-   Experience Level: ${mentor.experience_level || 'Not specified'}
-   Commitment Level: ${mentor.commitment_level || 'Not specified'}
-   Location: ${mentor.location || 'Not specified'}
+${founders.map((founder, index) => `
+${index + 1}. Name: ${founder.profiles?.name || 'Anonymous'}
+   Bio: ${founder.bio || 'No bio available'}
+   Skills: ${founder.skills?.join(', ') || 'No skills listed'}
+   Industries: ${founder.industries?.join(', ') || 'No industries listed'}
+   Commitment Level: ${founder.commitment_level || 'Not specified'}
+   Availability Hours: ${founder.availability_hours || 'Not specified'}
+   Location: ${founder.location || 'Not specified'}
+   Communication Style: ${founder.communication_style || 'Not specified'}
 `).join('\n')}
 
 Please analyze each co-founder and recommend the top 5 best matches for this project. For each recommendation, provide:
@@ -147,8 +149,8 @@ IMPORTANT: Return only the JSON array, no markdown code blocks, no additional te
     } catch (parseError) {
       console.error("Error parsing AI response:", parseError);
       console.error("Raw response:", recommendationsText);
-      // Fallback: return first 5 mentors with basic scoring
-      recommendations = mentors.slice(0, 5).map((mentor, index) => ({
+      // Fallback: return first 5 founders with basic scoring
+      recommendations = founders.slice(0, 5).map((founder, index) => ({
         founder_index: index,
         match_score: 75 + Math.random() * 20,
         match_reason: "Potential match based on available information"
@@ -160,22 +162,22 @@ IMPORTANT: Return only the JSON array, no markdown code blocks, no additional te
       .sort((a: { match_score: number }, b: { match_score: number }) => b.match_score - a.match_score)
       .slice(0, 5);
 
-    const recommendedCoFounders = topRecommendations.map((rec: { founder_index: number; match_score: number; explanation: string }) => {
-      const mentor = mentors[rec.founder_index];
+    const recommendedCoFounders = topRecommendations.map((rec: { founder_index: number; match_score: number; match_reason: string }) => {
+      const founder = founders[rec.founder_index];
       return {
-        id: mentor.id,
-        name: mentor.profiles?.name || 'Anonymous',
-        email: mentor.profiles?.email || '',
-        avatar_url: mentor.profiles?.avatar_url,
-        bio: mentor.bio,
-        location: mentor.location,
-        role: mentor.profiles?.role,
-        skills: mentor.skills || [],
-        industries: mentor.industries || [],
-        experience_level: mentor.experience_level,
-        commitment_level: mentor.commitment_level,
+        id: founder.id,
+        name: founder.profiles?.name || 'Anonymous',
+        email: founder.profiles?.email || '',
+        avatar_url: founder.profiles?.avatar_url,
+        bio: founder.bio,
+        location: founder.location,
+        role: founder.profiles?.role,
+        skills: founder.skills || [],
+        industries: founder.industries || [],
+        commitment_level: founder.commitment_level,
+        availability_hours: founder.availability_hours,
         match_score: Math.round(rec.match_score),
-        match_reason: rec.explanation
+        match_reason: rec.match_reason
       };
     });
 

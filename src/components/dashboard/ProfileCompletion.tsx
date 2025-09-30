@@ -25,7 +25,7 @@ export default function ProfileCompletion() {
       const { data: profile } = await supabase
         .from("profiles")
         .select(
-          "name, role, professional_title, location, bio, interests, skills, experience, portfolio_url, linkedin_url, github_url"
+          "name, role, location, bio, skills, linkedin_url, github_url"
         )
         .eq("id", user.id)
         .single();
@@ -33,18 +33,13 @@ export default function ProfileCompletion() {
       if (profile) {
         const basic = Boolean(profile.name && profile.role);
         const skills = Boolean(
-          profile.professional_title &&
-            profile.location &&
+          profile.location &&
             profile.bio &&
-            Array.isArray(profile.interests) &&
-            profile.interests.length > 0 &&
             Array.isArray(profile.skills) &&
             profile.skills.length > 0
         );
         const portfolio = Boolean(
-          profile.experience &&
-            profile.portfolio_url &&
-            profile.linkedin_url &&
+          profile.linkedin_url &&
             profile.github_url
         );
 

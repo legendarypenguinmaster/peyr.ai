@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+export const runtime = 'nodejs';
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ projectId: string }> }
@@ -42,9 +44,9 @@ export async function GET(
     }
 
     // Fetch recent task creations for this project
-    const { data: tasks, error: tasksError } = await supabase
+    const { data: tasks, error: tasksError, count: tasksCount } = await supabase
       .from('workspace_tasks')
-      .select('id, title, created_at, created_by')
+      .select('id, title, created_at, created_by', { count: 'exact' })
       .eq('project_id', projectId)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -53,15 +55,27 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch activities' }, { status: 500 });
     }
 
-    // Hydrate creator names
-    const creatorIds = Array.from(new Set((tasks || []).map(t => t.created_by).filter(Boolean))) as string[];
+    // Fetch recent file uploads for this project from meta table
+    const pathPrefix = `${project.workspace_id}/${projectId}/`;
+    const { data: filesMeta } = await supabase
+      .from('project_files_meta')
+      .select('path, uploader_id, created_at')
+      .like('path', `${pathPrefix}%`)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    // Hydrate actor names for both tasks and files
+    const creatorIds = Array.from(new Set([
+      ...((tasks || []).map(t => t.created_by).filter(Boolean) as string[]),
+      ...((filesMeta || []).map(f => f.uploader_id).filter(Boolean) as string[]),
+    ]));
     const { data: creators } = creatorIds.length
       ? await supabase.from('profiles').select('id, name').in('id', creatorIds)
       : { data: [] as { id: string; name: string | null }[] } as const;
     const nameById: Record<string, string | null> = {};
     for (const c of (creators || [])) nameById[c.id] = c.name;
 
-    const activities = (tasks || []).map(t => ({
+    const taskActivities = (tasks || []).map(t => ({
       id: `task-${t.id}`,
       type: 'task_created',
       actor_name: t.created_by ? (nameById[t.created_by] || 'Someone') : 'Someone',
@@ -69,18 +83,32 @@ export async function GET(
       description: `Task created: ${t.title}`,
     }));
 
+    const fileActivities = (filesMeta || []).map(f => ({
+      id: `file-${f.path}`,
+      type: 'file_uploaded',
+      actor_name: f.uploader_id ? (nameById[f.uploader_id] || 'Someone') : 'Someone',
+      created_at: f.created_at,
+      description: `File uploaded: ${f.path.split('/').pop()}`,
+    }));
+
+    const activities = [...taskActivities, ...fileActivities]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, limit);
+
     // Get total count for pagination
-    const { count } = await supabase
-      .from('workspace_tasks')
+    const { count: filesCount } = await supabase
+      .from('project_files_meta')
       .select('*', { count: 'exact', head: true })
-      .eq('project_id', projectId);
+      .like('path', `${pathPrefix}%`);
+
+    const total = (tasksCount || 0) + (filesCount || 0);
 
     return NextResponse.json({
       activities,
-      total: count || 0,
+      total,
       page,
       limit,
-      totalPages: Math.ceil(((count || 0)) / limit)
+      totalPages: Math.ceil((total) / limit)
     });
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

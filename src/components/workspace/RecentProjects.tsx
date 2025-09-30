@@ -106,7 +106,7 @@ export default function RecentProjects({ workspaceId }: { workspaceId: string })
             return (
               <Link
                 key={project.id}
-                href={`/workspace-hub/${workspaceId}/projects/${project.id}`}
+                href={`/workspace-hub/${workspaceId}/projects/${project.id}#overview`}
                 className="block border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <div className="flex items-center justify-between mb-2">
