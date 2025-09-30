@@ -136,7 +136,7 @@ export default function ProjectDetail({ workspaceId, projectId, project, tasks, 
       )}
 
       {activeTab === 'ai' && (
-        <AiInsightsTab progressPct={progressPct} overdueCount={overdueCount} />
+        <AiInsightsTab progressPct={progressPct} overdueCount={overdueCount} workspaceId={workspaceId} projectId={projectId} />
       )}
 
       {activeTab === 'trust' && (
