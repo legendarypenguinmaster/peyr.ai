@@ -15,23 +15,23 @@ export async function POST(request: Request) {
   const safePriority = (priority && ['low','medium','high','urgent'].includes(priority)) ? priority : 'medium';
 
   try {
+    const baseSlug = String(title || 'task').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const payload = [{
+      workspace_id: workspaceId,
+      project_id: projectId || null,
+      title,
+      description: description || null,
+      status: safeStatus,
+      priority: safePriority,
+      assigned_to: assignedTo || null,
+      created_by: user.id,
+      due_date: dueDate || null,
+      task_id: baseSlug,
+    }];
+
     const { data: task, error } = await supabase
       .from('workspace_tasks')
-      .insert(() => {
-        const baseSlug = String(title || 'task').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        return [{
-          workspace_id: workspaceId,
-          project_id: projectId || null,
-          title,
-          description: description || null,
-          status: safeStatus,
-          priority: safePriority,
-          assigned_to: assignedTo || null,
-          created_by: user.id,
-          due_date: dueDate || null,
-          task_id: baseSlug
-        }];
-      })
+      .insert(payload)
       .select('*')
       .single();
 

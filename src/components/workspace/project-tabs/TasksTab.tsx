@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
@@ -97,7 +98,15 @@ function Column({
                 {renderAssigneeAvatar(item.assigned_to, members, assigneeMap)}
                 {getAssigneeDisplayName(item.assigned_to, members, assigneeMap)}
               </span>
-              <span className="text-[11px] text-gray-500 dark:text-gray-400">Due: {formatDateYMD(item.due_date)}</span>
+              {(() => {
+                const overdue = !!(item.due_date && new Date(item.due_date) < new Date() && item.status !== 'completed');
+                return (
+                  <span className={`inline-flex items-center gap-1 text-[11px] ${overdue ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                    {overdue && <AlertTriangle className="w-3.5 h-3.5" />}
+                    <span>Due: {formatDateYMD(item.due_date)}</span>
+                  </span>
+                );
+              })()}
             </div>
           </button>
         ))}
@@ -126,6 +135,47 @@ export default function TasksTab({ columns, /* projectName unused */ projectName
   const [showCreate, setShowCreate] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium', status: 'todo', assigned_to: '', due_date: '' });
   const [assigneeMap, setAssigneeMap] = useState<Record<string, { name: string | null; email: string | null; avatar_url: string | null }>>({});
+  const [owner, setOwner] = useState<{ id: string; name: string | null; email: string | null } | null>(null);
+
+  // Fetch project owner and include in assignee options
+  useEffect(() => {
+    if (!projectId) return;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data: proj, error: pErr } = await supabase
+          .from('workspace_projects')
+          .select('created_by')
+          .eq('id', projectId)
+          .single();
+        if (pErr || !proj?.created_by) return;
+        const ownerId = proj.created_by as string;
+        if (members.some(m => m.id === ownerId)) {
+          const existing = members.find(m => m.id === ownerId) || null;
+          setOwner(existing);
+          return;
+        }
+        const { data: profile, error: profErr } = await supabase
+          .from('profiles')
+          .select('id, name, email')
+          .eq('id', ownerId)
+          .single();
+        if (!profErr && profile) {
+          setOwner({ id: profile.id as string, name: profile.name, email: profile.email });
+        }
+      } catch {
+        // ignore
+      }
+    })();
+  }, [projectId, members]);
+
+  const augmentedMembers = useMemo(() => {
+    const list = [...members];
+    if (owner && !list.some(m => m.id === owner.id)) {
+      list.unshift(owner);
+    }
+    return list;
+  }, [members, owner]);
 
   useEffect(() => {
     setLocalCols(columns);
@@ -140,7 +190,7 @@ export default function TasksTab({ columns, /* projectName unused */ projectName
       ...localCols.completed,
     ];
     const ids = Array.from(new Set(allItems.map(t => t.assigned_to).filter(Boolean) as string[]));
-    const knownIds = new Set([...(members || []).map(m => m.id), ...Object.keys(assigneeMap)]);
+    const knownIds = new Set([...(augmentedMembers || []).map(m => m.id), ...Object.keys(assigneeMap)]);
     const missing = ids.filter(id => !knownIds.has(id));
     
     console.log('TasksTab: Missing assignee IDs:', missing);
@@ -167,7 +217,7 @@ export default function TasksTab({ columns, /* projectName unused */ projectName
         console.error('TasksTab: Exception fetching assignee profiles:', err);
       }
     })();
-  }, [localCols, members, assigneeMap]);
+  }, [localCols, members, assigneeMap, augmentedMembers]);
 
   const onOpen = (task: Task) => { setActiveTask(task); setOpen(true); };
   const onClose = () => { setOpen(false); setActiveTask(null); };
@@ -268,7 +318,7 @@ export default function TasksTab({ columns, /* projectName unused */ projectName
           onOpen={onOpen}
           onDropTask={moveTask}
           bgClass="bg-gray-50 dark:bg-gray-900/30"
-          members={members}
+          members={augmentedMembers}
           isDragging={isDragging}
           assigneeMap={assigneeMap}
         />
@@ -278,7 +328,7 @@ export default function TasksTab({ columns, /* projectName unused */ projectName
           onOpen={onOpen}
           onDropTask={moveTask}
           bgClass="bg-blue-50 dark:bg-blue-900/20"
-          members={members}
+          members={augmentedMembers}
           isDragging={isDragging}
           assigneeMap={assigneeMap}
         />
@@ -288,7 +338,7 @@ export default function TasksTab({ columns, /* projectName unused */ projectName
           onOpen={onOpen}
           onDropTask={moveTask}
           bgClass="bg-purple-50 dark:bg-purple-900/20"
-          members={members}
+          members={augmentedMembers}
           isDragging={isDragging}
           assigneeMap={assigneeMap}
         />
@@ -298,7 +348,7 @@ export default function TasksTab({ columns, /* projectName unused */ projectName
           onOpen={onOpen}
           onDropTask={moveTask}
           bgClass="bg-green-50 dark:bg-green-900/20"
-          members={members}
+          members={augmentedMembers}
           isDragging={isDragging}
           assigneeMap={assigneeMap}
         />
@@ -307,7 +357,7 @@ export default function TasksTab({ columns, /* projectName unused */ projectName
         {activeTask && (
           <TaskEditor
             task={activeTask}
-            members={members}
+            members={augmentedMembers}
             assigneeMap={assigneeMap}
             onClose={onClose}
             onTaskUpdate={onTaskUpdate}
@@ -354,7 +404,7 @@ export default function TasksTab({ columns, /* projectName unused */ projectName
                 <label className="block text-gray-600 dark:text-gray-400 mb-1">Assignee</label>
                 <select value={newTask.assigned_to} onChange={e => setNewTask({ ...newTask, assigned_to: e.target.value })} className="w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white">
                   <option value="">Unassigned</option>
-                  {members.map(m => (
+                  {augmentedMembers.map(m => (
                     <option key={m.id} value={m.id}>{m.name || m.email}</option>
                   ))}
                 </select>
@@ -561,11 +611,11 @@ function TaskEditor({ task, members, assigneeMap = {}, onClose, onTaskUpdate, on
             <div className="relative">
               <select value={form.assigned_to} onChange={e => setForm({ ...form, assigned_to: e.target.value })} className="w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white">
                 <option value="">Unassigned</option>
-                {members.map(m => (
+                {(members as { id: string; name: string | null; email: string | null }[]).map((m) => (
                   <option key={m.id} value={m.id}>{m.name || m.email}</option>
                 ))}
                 {/* Ensure current assignee appears even if not in members */}
-                {form.assigned_to && !members.find(m => m.id === form.assigned_to) && (
+                {form.assigned_to && !(members as { id: string }[]).find((m) => m.id === form.assigned_to) && (
                   <option value={form.assigned_to}>
                     {assigneeMap[form.assigned_to]?.name || assigneeMap[form.assigned_to]?.email || form.assigned_to.slice(0,8)}
                   </option>

@@ -28,7 +28,7 @@ interface ProjectDetailProps {
 type TabKey = "overview" | "tasks" | "files" | "notes" | "ai" | "trust";
 
 export default function ProjectDetail({ workspaceId, projectId, project, tasks, members }: ProjectDetailProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>("overview");
+  const [activeTab, setActiveTab] = useState<TabKey>();
   const [noteDraft, setNoteDraft] = useState("");
   // Sync tab with URL hash (#overview, #tasks, ...)
   useEffect(() => {
@@ -128,7 +128,7 @@ export default function ProjectDetail({ workspaceId, projectId, project, tasks, 
       )}
 
       {activeTab === 'files' && (
-        <FilesTab />
+        <FilesTab workspaceId={workspaceId} projectId={projectId} />
       )}
 
       {activeTab === 'notes' && (
