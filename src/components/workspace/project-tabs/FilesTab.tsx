@@ -53,37 +53,92 @@ export default function FilesTab({ workspaceId, projectId }: FilesTabProps) {
   const listFiles = useCallback(async () => {
     try {
       setError(null);
-      const { data, error: err } = await supabase.storage.from("project_files").list(prefix, { search: "", limit: 100, offset: 0 });
-      if (err) throw err;
+      // const allFiles: StoredFileItem[] = []; // Unused variable
 
-      const entries = (data || []).filter(Boolean);
-      const fullPaths = entries.map((it) => `${prefix}/${it.name}`);
+      // 1. Fetch from project_files bucket and project_files_meta
+      const { data: projectFilesData, error: projectFilesErr } = await supabase.storage.from("project_files").list(prefix, { search: "", limit: 100, offset: 0 });
+      if (projectFilesErr) throw projectFilesErr;
 
-      // Try to enrich with our metadata table (if present)
+      const projectEntries = (projectFilesData || []).filter(Boolean);
+      const projectFullPaths = projectEntries.map((it) => `${prefix}/${it.name}`);
+
+      // Get metadata for project files
       type MetaRow = { path: string; uploader_id: string | null; size_bytes: number | null; created_at: string };
-      let metaRows: MetaRow[] | null = null;
+      let projectMetaRows: MetaRow[] | null = null;
       try {
         const { data: rows } = await supabase
           .from('project_files_meta')
           .select('path, uploader_id, size_bytes, created_at')
-          .in('path', fullPaths);
-        metaRows = rows || null;
+          .in('path', projectFullPaths);
+        projectMetaRows = rows || null;
       } catch {}
 
-      // Resolve uploader names via profiles
-      const profilesMap: Record<string, { name: string | null; email: string | null; avatar_url: string | null }> = {};
+      // 2. Fetch from workspace_documents table (for document-like files)
+      let workspaceDocs: Array<{
+        id: string;
+        title: string;
+        file_url: string;
+        created_by: string;
+        created_at: string;
+        updated_at: string;
+        project_id: string | null;
+        type: string;
+        size_bytes: number | null;
+      }> = [];
       try {
-        const ownerIds = Array.from(new Set((metaRows || []).map(r => r.uploader_id).filter(Boolean)) as unknown as string[]);
-        if (ownerIds.length > 0) {
-          const { data: profs } = await supabase.from('profiles').select('id, name, email, avatar_url').in('id', ownerIds);
-          (profs || []).forEach((p: { id: string; name: string | null; email: string | null; avatar_url: string | null }) => { profilesMap[p.id] = { name: p.name, email: p.email, avatar_url: p.avatar_url }; });
+        const { data: docs } = await supabase
+          .from('workspace_documents')
+          .select('id, title, file_url, created_by, created_at, updated_at, project_id, type, size_bytes')
+          .eq('workspace_id', workspaceId)
+          .eq('project_id', projectId);
+        workspaceDocs = docs || [];
+      } catch {}
+
+      // 3. Get metadata for workspace documents
+      let workspaceMetaRows: MetaRow[] | null = null;
+      try {
+        const docPaths = workspaceDocs.map(doc => {
+          // Extract path from file_url or construct it
+          if (doc.file_url) {
+            const urlParts = doc.file_url.split('/');
+            const fileName = urlParts[urlParts.length - 1];
+            return `${workspaceId}/documents/${fileName}`;
+          }
+          return null;
+        }).filter(Boolean);
+        
+        if (docPaths.length > 0) {
+          const { data: rows } = await supabase
+            .from('workspace_documents')
+            .select('path, uploader_id, size_bytes, created_at')
+            .in('path', docPaths);
+          workspaceMetaRows = rows || null;
         }
       } catch {}
 
-      const items: StoredFileItem[] = entries.map((it) => {
+      // 4. Resolve uploader names via profiles
+      const profilesMap: Record<string, { name: string | null; email: string | null; avatar_url: string | null }> = {};
+      try {
+        const allUploaderIds = [
+          ...(projectMetaRows || []).map(r => r.uploader_id),
+          ...(workspaceDocs || []).map(d => d.created_by),
+          ...(workspaceMetaRows || []).map(r => r.uploader_id)
+        ].filter(Boolean);
+        
+        const uniqueUploaderIds = Array.from(new Set(allUploaderIds)) as string[];
+        if (uniqueUploaderIds.length > 0) {
+          const { data: profs } = await supabase.from('profiles').select('id, name, email, avatar_url').in('id', uniqueUploaderIds);
+          (profs || []).forEach((p: { id: string; name: string | null; email: string | null; avatar_url: string | null }) => { 
+            profilesMap[p.id] = { name: p.name, email: p.email, avatar_url: p.avatar_url }; 
+          });
+        }
+      } catch {}
+
+      // 5. Process project files
+      const projectItems: StoredFileItem[] = projectEntries.map((it) => {
         const fullPath = `${prefix}/${it.name}`;
         const { data: pub } = supabase.storage.from("project_files").getPublicUrl(fullPath);
-        const meta = (metaRows || []).find(r => r.path === fullPath);
+        const meta = (projectMetaRows || []).find(r => r.path === fullPath);
         const dispName = meta?.uploader_id ? (profilesMap[meta.uploader_id]?.name || profilesMap[meta.uploader_id]?.email || null) : (uploaderMap[fullPath] ?? null);
         const avatar = meta?.uploader_id ? (profilesMap[meta.uploader_id]?.avatar_url || null) : null;
         return {
@@ -98,13 +153,43 @@ export default function FilesTab({ workspaceId, projectId }: FilesTabProps) {
           uploaderId: meta?.uploader_id || null,
         };
       });
-      setFiles(items);
 
-      // Populate sizes if missing via signed URL HEAD
-      for (const f of items) {
-        if (f.sizeBytes == null) {
+      // 6. Process workspace documents
+      const workspaceItems: StoredFileItem[] = workspaceDocs.map((doc) => {
+        const fileName = doc.title;
+        const fullPath = `${workspaceId}/documents/${fileName}`;
+        const meta = (workspaceMetaRows || []).find(r => r.path === fullPath);
+        const dispName = profilesMap[doc.created_by]?.name || profilesMap[doc.created_by]?.email || null;
+        const avatar = profilesMap[doc.created_by]?.avatar_url || null;
+        return {
+          name: fileName,
+          path: fullPath,
+          type: doc.type || guessMimeFromName(fileName),
+          url: doc.file_url,
+          uploadedAt: doc.updated_at || doc.created_at,
+          sizeBytes: doc.size_bytes || meta?.size_bytes || null,
+          uploaderName: dispName,
+          uploaderAvatarUrl: avatar,
+          uploaderId: doc.created_by,
+        };
+      });
+
+      // 7. Combine and sort by updated_at
+      const combinedItems = [...projectItems, ...workspaceItems];
+      combinedItems.sort((a, b) => {
+        const dateA = new Date(a.uploadedAt || 0).getTime();
+        const dateB = new Date(b.uploadedAt || 0).getTime();
+        return dateB - dateA; // Most recent first
+      });
+
+      setFiles(combinedItems);
+
+      // 8. Populate sizes if missing via signed URL HEAD
+      for (const f of combinedItems) {
+        if (f.sizeBytes == null && f.url) {
           try {
-            const { data: signed } = await supabase.storage.from('project_files').createSignedUrl(f.path, 60);
+            const bucket = f.path.includes('/documents/') ? 'workspace_documents' : 'project_files';
+            const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(f.path, 60);
             const headUrl = signed?.signedUrl;
             if (headUrl) {
               const resp = await fetch(headUrl, { method: 'HEAD' });
@@ -119,13 +204,21 @@ export default function FilesTab({ workspaceId, projectId }: FilesTabProps) {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to list files");
     }
-  }, [supabase, prefix, uploaderMap]);
+  }, [supabase, prefix, uploaderMap, workspaceId, projectId]);
 
   useEffect(() => {
     listFiles();
   }, [listFiles]);
 
   const onUploadClick = () => inputRef.current?.click();
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -136,8 +229,11 @@ export default function FilesTab({ workspaceId, projectId }: FilesTabProps) {
       // Keep original filename (sanitize). If exists, append timestamp once.
       const originalName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
       let fileName = originalName;
-      let path = `${prefix}/${fileName}`;
-      let res = await supabase.storage.from("project_files").upload(path, file, {
+      const guessedType = guessMimeFromName(fileName);
+      const isDocumentLike = !['image','video','audio','code','archive'].includes(guessedType);
+      const bucket = isDocumentLike ? 'workspace_documents' : 'project_files';
+      let path = isDocumentLike ? `${(workspaceId || 'unknown')}/documents/${fileName}` : `${prefix}/${fileName}`;
+      let res = await supabase.storage.from(bucket).upload(path, file, {
         cacheControl: "3600",
         upsert: false,
         contentType: file.type || undefined,
@@ -148,8 +244,8 @@ export default function FilesTab({ workspaceId, projectId }: FilesTabProps) {
         const ext = parts.length > 1 ? `.${parts.pop()}` : '';
         const base = parts.join('.');
         fileName = `${base}-${ts}${ext}`;
-        path = `${prefix}/${fileName}`;
-        res = await supabase.storage.from("project_files").upload(path, file, {
+        path = isDocumentLike ? `${(workspaceId || 'unknown')}/documents/${fileName}` : `${prefix}/${fileName}`;
+        res = await supabase.storage.from(bucket).upload(path, file, {
           cacheControl: "3600",
           upsert: false,
           contentType: file.type || undefined,
@@ -164,14 +260,40 @@ export default function FilesTab({ workspaceId, projectId }: FilesTabProps) {
           const { data: prof } = await supabase.from('profiles').select('name, email').eq('id', userId).single();
           const uName = prof?.name || prof?.email || 'You';
           setUploaderMap(prev => ({ ...prev, [path]: uName }));
-          // upsert meta row
+          // upsert meta row and create workspace_documents row for document-like files
           try {
-            await supabase.from('project_files_meta').upsert({
-              path,
-              uploader_id: userId,
-              size_bytes: file.size,
-              created_at: new Date().toISOString(),
-            }, { onConflict: 'path' });
+            if (isDocumentLike) {
+              await supabase.from('workspace_documents_meta').upsert({
+                path,
+                uploader_id: userId,
+                size_bytes: file.size,
+                created_at: new Date().toISOString(),
+                file_type: guessedType,
+                workspace_id: workspaceId || null,
+                project_id: projectId || null,
+              }, { onConflict: 'path' });
+              const { data: pub } = supabase.storage.from('workspace_documents').getPublicUrl(path);
+              await supabase.from('workspace_documents').insert({
+                workspace_id: workspaceId,
+                title: fileName,
+                content: null,
+                type: 'document',
+                project_id: projectId || null,
+                file_url: pub?.publicUrl || null,
+                created_by: userId,
+                status: 'draft',
+              });
+            } else {
+              await supabase.from('project_files_meta').upsert({
+                path,
+                uploader_id: userId,
+                size_bytes: file.size,
+                created_at: new Date().toISOString(),
+                file_type: guessedType,
+                workspace_id: workspaceId || null,
+                project_id: projectId || null,
+              } as unknown as Record<string, unknown>, { onConflict: 'path' });
+            }
           } catch {}
         }
       } catch {}
@@ -208,6 +330,7 @@ export default function FilesTab({ workspaceId, projectId }: FilesTabProps) {
                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Name</th>
                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Type</th>
                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Size</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Created At</th>
                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Uploader</th>
                 <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700 dark:text-gray-300">Actions</th>
               </tr>
@@ -228,6 +351,7 @@ export default function FilesTab({ workspaceId, projectId }: FilesTabProps) {
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{f.type}</td>
                   <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{f.sizeBytes != null ? humanFileSize(f.sizeBytes) : '—'}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{f.uploadedAt ? formatDate(f.uploadedAt) : '—'}</td>
                   <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                     <div className="flex items-center gap-2">
                       {f.uploaderAvatarUrl ? (
@@ -278,8 +402,18 @@ export default function FilesTab({ workspaceId, projectId }: FilesTabProps) {
               <button disabled={deleting} onClick={async () => {
                 try {
                   setDeleting(true);
-                  const { error: delErr } = await supabase.storage.from('project_files').remove([targetFile.path]);
+                  const delBucket = (!['image','video','audio','code','archive'].includes(targetFile.type)) ? 'workspace_documents' : 'project_files';
+                  const { error: delErr } = await supabase.storage.from(delBucket).remove([targetFile.path]);
                   if (delErr) throw delErr;
+                  try {
+                    if ((!['image','video','audio','code','archive'].includes(targetFile.type))) {
+                      if (targetFile.url) {
+                        await supabase.from('workspace_documents').delete().eq('file_url', targetFile.url);
+                      }
+                    } else {
+                      await supabase.from('project_files_meta').delete().eq('path', targetFile.path);
+                    }
+                  } catch {}
                   setConfirmOpen(false);
                   setTargetFile(null);
                   await listFiles();
@@ -324,6 +458,13 @@ function renderIconForType(t: string) {
     case "archive": return <FileArchive className="w-5 h-5" />;
     case "code": return <FileCode className="w-5 h-5" />;
     case "text": return <FileText className="w-5 h-5" />;
+    // Document types from workspace_documents table
+    case "document": return <FileText className="w-5 h-5" />;
+    case "contract": return <FileText className="w-5 h-5" />;
+    case "legal": return <FileText className="w-5 h-5" />;
+    case "proposal": return <FileText className="w-5 h-5" />;
+    case "note": return <FileText className="w-5 h-5" />;
+    case "ai": return <FileText className="w-5 h-5" />;
     default: return <File className="w-5 h-5" />;
   }
 }
