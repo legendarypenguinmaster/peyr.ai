@@ -74,6 +74,7 @@ export default function TrustTab({ projectId }: TrustTabProps) {
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const activitiesPerPage = 10;
+  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
     if (!projectId) {
@@ -110,6 +111,29 @@ export default function TrustTab({ projectId }: TrustTabProps) {
 
     fetchTrustLedgerData();
   }, [projectId]);
+
+  const handleAnalyze = async () => {
+    if (!projectId) return;
+    try {
+      setAnalyzing(true);
+      setError(null);
+      const response = await fetch(
+        `/api/workspaces/projects/${projectId}/trust-ledger?force=1`
+      );
+      if (!response.ok) {
+        throw new Error(`Analyze failed: ${response.statusText}`);
+      }
+      const result = await response.json();
+      setData(result);
+      setShowAllActivities(false);
+      setCurrentPage(1);
+    } catch (err) {
+      console.error("Error analyzing trust ledger:", err);
+      setError(err instanceof Error ? err.message : "Analyze failed");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   // Calculate overall trust score (average of all users or use first user's score)
   const overallTrustScore = useMemo(() => {
@@ -301,6 +325,18 @@ export default function TrustTab({ projectId }: TrustTabProps) {
             </button>
             <button className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm">
               <Share2 className="w-4 h-4" /> Share Investor View
+            </button>
+            <button
+              onClick={handleAnalyze}
+              disabled={analyzing}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 disabled:opacity-60 text-white text-sm"
+            >
+              {analyzing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <ShieldCheck className="w-4 h-4" />
+              )}
+              {analyzing ? "Analyzing..." : "Analyze"}
             </button>
           </div>
         </div>
