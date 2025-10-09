@@ -5,9 +5,12 @@ import { requireAuth } from "@/lib/auth";
 // Types for trust ledger domain
 interface TrustEntry {
   id: string;
+  workspace_id: string;
+  project_id?: string | null;
   user_id: string;
   action: string;
   description?: string | null;
+  action_date?: string | null;
   created_at: string;
   trust_points?: number | null;
   metadata?: Record<string, unknown> | null;
@@ -103,20 +106,92 @@ export async function GET(
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    // Get trust ledger entries for this workspace
-    const { data: trustEntries, error: trustError } = await supabase
+    // Check if trust ledger entries already exist for this project
+    const force = request.nextUrl.searchParams.get("force") === "1";
+    const { data: existingEntries, error: existingError } = await supabase
       .from("trust_ledger_entries")
       .select("*")
-      .eq("workspace_id", project.workspace_id)
+      .eq("project_id", projectId)
+      .order("action_date", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false })
       .limit(50);
 
-    if (trustError) {
-      console.error("Error fetching trust ledger entries:", trustError);
+    if (existingError) {
+      console.error(
+        "Error checking existing trust ledger entries:",
+        existingError
+      );
       return NextResponse.json(
-        { error: "Failed to fetch trust ledger" },
+        { error: "Failed to check trust ledger" },
         { status: 500 }
       );
+    }
+
+    let trustEntries = existingEntries;
+
+    // If no entries exist for this project, generate them from workspace activities
+    if (force || !trustEntries || trustEntries.length === 0) {
+      if (force && trustEntries && trustEntries.length > 0) {
+        // Clear existing entries before regenerating
+        const { error: delError } = await supabase
+          .from("trust_ledger_entries")
+          .delete()
+          .eq("project_id", projectId);
+        if (delError) {
+          console.error(
+            "Error clearing existing trust ledger entries:",
+            delError
+          );
+          return NextResponse.json(
+            { error: "Failed to reset trust ledger" },
+            { status: 500 }
+          );
+        }
+      }
+      console.log(
+        "No existing trust ledger entries found, generating new ones..."
+      );
+
+      // Get workspace activities to generate trust ledger entries
+      const { data: workspaceTasks } = await supabase
+        .from("workspace_tasks")
+        .select("*")
+        .eq("workspace_id", project.workspace_id)
+        .order("updated_at", { ascending: false })
+        .limit(100);
+
+      const { data: workspaceDocuments } = await supabase
+        .from("workspace_documents")
+        .select("*")
+        .eq("workspace_id", project.workspace_id)
+        .order("updated_at", { ascending: false })
+        .limit(100);
+
+      // Generate trust ledger entries from activities
+      const newEntries = await generateTrustLedgerEntries({
+        projectId,
+        workspaceId: project.workspace_id,
+        tasks: workspaceTasks || [],
+        documents: workspaceDocuments || [],
+      });
+
+      if (newEntries.length > 0) {
+        // Store generated entries in database
+        const { data: storedEntries, error: storeError } = await supabase
+          .from("trust_ledger_entries")
+          .insert(newEntries)
+          .select();
+
+        if (storeError) {
+          console.error("Error storing trust ledger entries:", storeError);
+          return NextResponse.json(
+            { error: "Failed to store trust ledger entries" },
+            { status: 500 }
+          );
+        }
+
+        trustEntries = storedEntries;
+      }
     }
 
     // Get recent tasks for this project
@@ -191,17 +266,68 @@ export async function GET(
       });
     }
 
-    // Generate AI-powered activity descriptions
-    const activities = await generateActivityLog({
-      trustEntries: trustEntries || [],
-      tasks: tasks || [],
-      documents: documents || [],
-      memberMap,
-      projectName: project.name,
-    });
+    let activities;
+    let trustScores;
 
-    // Calculate trust scores
-    const trustScores = calculateTrustScores(trustEntries || [], memberMap);
+    // If we have existing trust ledger entries, use them directly without AI generation
+    if (trustEntries && trustEntries.length > 0) {
+      console.log(
+        "Using existing trust ledger entries, skipping AI generation"
+      );
+
+      // Convert trust entries to activity format
+      activities = trustEntries.map((entry) => {
+        const meta = (entry.metadata || {}) as {
+          type?: string;
+          task_title?: string;
+          document_title?: string;
+          document_type?: string;
+          status?: string;
+        };
+        const mappedType =
+          meta?.type === "task"
+            ? ("task" as const)
+            : meta?.type === "document"
+            ? ("document" as const)
+            : ("trust_entry" as const);
+        const readableAction = getReadableAction(
+          entry.action,
+          mappedType,
+          meta
+        );
+        const readableDescription = getReadableDescription(
+          entry.description,
+          mappedType,
+          meta
+        );
+        return {
+          id: `trust_${entry.id}`,
+          type: mappedType,
+          actor: memberMap.get(entry.user_id) || "Unknown",
+          action: readableAction,
+          description: readableDescription,
+          timestamp: entry.action_date || entry.created_at,
+          verified: true,
+          trustPoints: entry.trust_points || 0,
+          metadata: entry.metadata || {},
+        };
+      });
+
+      // Calculate trust scores from existing entries
+      trustScores = calculateTrustScores(trustEntries, memberMap);
+    } else {
+      // Generate AI-powered activity descriptions for new entries
+      activities = await generateActivityLog({
+        trustEntries: trustEntries || [],
+        tasks: tasks || [],
+        documents: documents || [],
+        memberMap,
+        projectName: project.name,
+      });
+
+      // Calculate trust scores
+      trustScores = calculateTrustScores(trustEntries || [], memberMap);
+    }
 
     return NextResponse.json({
       activities,
@@ -484,15 +610,37 @@ function calculateTrustScores(
 
   userEntries.forEach((entries, userId) => {
     const userName = memberMap.get(userId) || "Unknown";
-    const totalPoints = entries.reduce(
-      (sum, entry) => sum + (entry.trust_points || 0),
-      0
-    );
+    // Cumulative totals: from start to today, and from start to yesterday
+    const now = new Date();
+    const endOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999
+    ).getTime();
+    const endOfYesterday = new Date(endOfToday - 24 * 60 * 60 * 1000).getTime();
 
-    // Simple scoring: base score + points earned
-    const baseScore = 50;
-    const currentScore = Math.min(100, baseScore + totalPoints);
-    const previousScore = Math.max(0, currentScore - 5); // Mock previous score
+    const currentTotal = entries.reduce((sum, entry) => {
+      const ts = new Date(entry.action_date || entry.created_at).getTime();
+      if (ts <= endOfToday) {
+        return sum + (entry.trust_points || 0);
+      }
+      return sum;
+    }, 0);
+
+    const previousTotal = entries.reduce((sum, entry) => {
+      const ts = new Date(entry.action_date || entry.created_at).getTime();
+      if (ts <= endOfYesterday) {
+        return sum + (entry.trust_points || 0);
+      }
+      return sum;
+    }, 0);
+
+    const currentScore = currentTotal;
+    const previousScore = previousTotal;
 
     scores[userName] = {
       score: currentScore,
@@ -507,4 +655,179 @@ function calculateTrustScores(
   });
 
   return scores;
+}
+
+async function generateTrustLedgerEntries({
+  projectId,
+  workspaceId,
+  tasks,
+  documents,
+}: {
+  projectId: string;
+  workspaceId: string;
+  tasks: TaskEntry[];
+  documents: DocumentEntry[];
+}): Promise<Omit<TrustEntry, "id" | "created_at">[]> {
+  const entries: Omit<TrustEntry, "id" | "created_at">[] = [];
+
+  // Generate entries from tasks
+  for (const task of tasks) {
+    const userId = task.assigned_to || task.created_by;
+    if (!userId) continue;
+
+    const trustPoints = getTaskTrustPoints(task.status);
+    const action = getTaskAction(task.status);
+
+    entries.push({
+      workspace_id: workspaceId,
+      project_id: projectId,
+      user_id: userId,
+      action,
+      description: `Task: ${task.title}`,
+      trust_points: trustPoints,
+      action_date: task.updated_at || task.created_at,
+      metadata: {
+        type: "task",
+        task_id: task.id,
+        task_title: task.title,
+        status: task.status,
+        priority: task.priority,
+      },
+    });
+  }
+
+  // Generate entries from documents
+  for (const doc of documents) {
+    const trustPoints = getDocumentTrustPoints(doc.status);
+    const action = getDocumentAction(doc.status);
+
+    entries.push({
+      workspace_id: workspaceId,
+      project_id: projectId,
+      user_id: doc.created_by,
+      action,
+      description: `Document: ${doc.title}`,
+      trust_points: trustPoints,
+      action_date: doc.updated_at || doc.created_at,
+      metadata: {
+        type: "document",
+        document_id: doc.id,
+        document_type: doc.type,
+        document_title: doc.title,
+        status: doc.status,
+      },
+    });
+  }
+
+  return entries;
+}
+
+function getTaskTrustPoints(status: string): number {
+  switch (status) {
+    case "completed":
+      return 3;
+    case "in_progress":
+      return 1;
+    case "review":
+      return 2;
+    case "cancelled":
+      return -1;
+    default:
+      return 0;
+  }
+}
+
+function getTaskAction(status: string): string {
+  switch (status) {
+    case "completed":
+      return "completed_task";
+    case "in_progress":
+      return "started_task";
+    case "review":
+      return "submitted_task_for_review";
+    case "cancelled":
+      return "cancelled_task";
+    default:
+      return "updated_task";
+  }
+}
+
+function getDocumentTrustPoints(status?: string | null): number {
+  switch (status) {
+    case "approved":
+      return 2;
+    case "pending":
+      return 1;
+    case "rejected":
+      return -1;
+    default:
+      return 1;
+  }
+}
+
+function getDocumentAction(status?: string | null): string {
+  switch (status) {
+    case "approved":
+      return "document_approved";
+    case "pending":
+      return "document_uploaded";
+    case "rejected":
+      return "document_rejected";
+    default:
+      return "document_uploaded";
+  }
+}
+
+function getReadableAction(
+  action: string,
+  type: "task" | "document" | "milestone" | "general" | "trust_entry",
+  meta: { task_title?: string; document_title?: string; document_type?: string }
+): string {
+  if (type === "task") {
+    const title = meta.task_title ? `: ${meta.task_title}` : "";
+    switch (action) {
+      case "completed_task":
+        return `completed task${title}`;
+      case "started_task":
+        return `started task${title}`;
+      case "submitted_task_for_review":
+        return `submitted task for review${title}`;
+      case "cancelled_task":
+        return `cancelled task${title}`;
+      default:
+        return `updated task${title}`;
+    }
+  }
+  if (type === "document") {
+    const title = meta.document_title ? `: ${meta.document_title}` : "";
+    switch (action) {
+      case "document_approved":
+        return `approved document${title}`;
+      case "document_uploaded":
+        return `uploaded ${meta.document_type || "document"}${title}`;
+      case "document_rejected":
+        return `rejected document${title}`;
+      default:
+        return `updated document${title}`;
+    }
+  }
+  return action.replace(/_/g, " ");
+}
+
+function getReadableDescription(
+  original: string | null | undefined,
+  type: "task" | "document" | "milestone" | "general" | "trust_entry",
+  meta: { task_title?: string; document_title?: string; document_type?: string }
+): string {
+  if (original) return original;
+  if (type === "task") {
+    return meta.task_title ? `Task: ${meta.task_title}` : "Task activity";
+  }
+  if (type === "document") {
+    const kind = meta.document_type || "Document";
+    return meta.document_title
+      ? `${kind}: ${meta.document_title}`
+      : `${kind} activity`;
+  }
+  return "Trust activity";
 }

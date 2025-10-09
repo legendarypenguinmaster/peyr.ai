@@ -24,7 +24,7 @@ type Category = {
   score: number;
   maxScore: number;
   description: string;
-  icon: React.ReactNode;
+  icon: string;
   activities: number;
   trend: "up" | "down" | "stable";
 };
@@ -89,159 +89,115 @@ interface TrustLedgerPageClientProps {
 export default function TrustLedgerPageClient(
   props: TrustLedgerPageClientProps
 ) {
-  // Reference props to avoid unused-var warnings while UI is mock-driven
-  const _props = props;
-  const [trustScore] = useState(75);
-  const [previousScore] = useState(72);
-  const [trend] = useState<"up" | "down" | "stable">("up");
+  const { workspaceId } = props;
+  const [trustScore, setTrustScore] = useState(75);
+  const [previousScore, setPreviousScore] = useState(72);
+  const [trend, setTrend] = useState<"up" | "down" | "stable">("up");
   const [activities, setActivities] = useState<Activity[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Mock data for demonstration
+  // Load workspace trust data
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      // Mock activities
-      const mockActivities: Activity[] = [
-        {
-          id: "1",
-          type: "milestone",
-          title: "Prototype completed on time",
-          description: "Successfully delivered MVP prototype ahead of schedule",
-          points: 3,
-          date: "2024-01-15",
-          user: "Alice Johnson",
-          status: "completed",
-        },
-        {
-          id: "2",
-          type: "deadline",
-          title: "Marketing Plan delayed",
-          description: "Marketing strategy document was 3 days late",
-          points: -2,
-          date: "2024-01-12",
-          user: "Bob Smith",
-          status: "missed",
-        },
-        {
-          id: "3",
-          type: "document",
-          title: "Investor-ready deck uploaded",
-          description: "Comprehensive pitch deck shared with team",
-          points: 2,
-          date: "2024-01-10",
-          user: "Alice Johnson",
-          status: "completed",
-        },
-        {
-          id: "4",
-          type: "collaboration",
-          title: "Team collaboration milestone",
-          description: "Successfully coordinated cross-functional project",
-          points: 2,
-          date: "2024-01-08",
-          user: "Team",
-          status: "completed",
-        },
-        {
-          id: "5",
-          type: "investor",
-          title: "Investor meeting completed",
-          description: "Successful pitch presentation to potential investors",
-          points: 4,
-          date: "2024-01-05",
-          user: "Alice Johnson",
-          status: "completed",
-        },
-      ];
+    let cancelled = false;
+    const load = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(
+          `/api/workspaces/${workspaceId}/trust-ledger?page=${page}&pageSize=7`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          // Compute overall trust score from all users
+          const scores = data?.trustScores
+            ? (Object.values(data.trustScores) as Array<{
+                score: number;
+                previousScore: number;
+                trend: "up" | "down" | "stable";
+              }>)
+            : [];
+          if (!cancelled && scores.length > 0) {
+            // Calculate overall workspace trust score (average of all users)
+            const totalScore = scores.reduce((sum, s) => sum + s.score, 0);
+            const totalPreviousScore = scores.reduce(
+              (sum, s) => sum + s.previousScore,
+              0
+            );
+            const avgScore = Math.round(totalScore / scores.length);
+            const avgPreviousScore = Math.round(
+              totalPreviousScore / scores.length
+            );
 
-      // Mock categories
-      const mockCategories: Category[] = [
-        {
-          id: "execution",
-          name: "Execution",
-          score: 78,
-          maxScore: 100,
-          description:
-            "Task completion, deadline adherence, and delivery quality",
-          icon: <div className="w-5 h-5 bg-green-500 rounded"></div>,
-          activities: 12,
-          trend: "up" as const,
-        },
-        {
-          id: "collaboration",
-          name: "Collaboration",
-          score: 85,
-          maxScore: 100,
-          description:
-            "Team coordination, communication, and contribution balance",
-          icon: <div className="w-5 h-5 bg-blue-500 rounded"></div>,
-          activities: 8,
-          trend: "stable" as const,
-        },
-        {
-          id: "transparency",
-          name: "Transparency",
-          score: 72,
-          maxScore: 100,
-          description:
-            "Document sharing, updates, and information accessibility",
-          icon: <div className="w-5 h-5 bg-purple-500 rounded"></div>,
-          activities: 15,
-          trend: "up" as const,
-        },
-        {
-          id: "investor",
-          name: "Investor Confidence",
-          score: 68,
-          maxScore: 100,
-          description:
-            "Investor interactions, pitch quality, and business readiness",
-          icon: <div className="w-5 h-5 bg-orange-500 rounded"></div>,
-          activities: 5,
-          trend: "up" as const,
-        },
-      ];
+            // Determine overall trend
+            let overallTrend: "up" | "down" | "stable" = "stable";
+            if (avgScore > avgPreviousScore) overallTrend = "up";
+            else if (avgScore < avgPreviousScore) overallTrend = "down";
 
-      // Mock insights
-      const mockInsights: Insight[] = [
-        {
-          id: "1",
-          type: "positive",
-          title: "Strong Execution Track Record",
-          description:
-            "**Team has been consistent** in delivering product milestones, with 85% on-time completion rate. This demonstrates reliable execution capability.",
-          category: "Execution",
-          priority: "medium",
-        },
-        {
-          id: "2",
-          type: "warning",
-          title: "Marketing Outputs Lagging",
-          description:
-            "While product development is strong, *marketing deliverables* have been delayed twice this month. Consider allocating more resources to marketing tasks.",
-          category: "Execution",
-          priority: "high",
-        },
-        {
-          id: "3",
-          type: "suggestion",
-          title: "Collaboration Balance is Healthy",
-          description:
-            "Bob is leading development while Alice focuses on documentation and investor relations. This is a **healthy division of responsibilities** that plays to each founder's strengths.",
-          category: "Collaboration",
-          priority: "low",
-        },
-      ];
+            setTrustScore(avgScore);
+            setPreviousScore(avgPreviousScore);
+            setTrend(overallTrend);
+          }
+          // Map API activities to TrustTimeline format
+          if (!cancelled && Array.isArray(data?.activities)) {
+            const mapped: Activity[] = data.activities.map(
+              (a: {
+                id: string;
+                action: string;
+                description?: string;
+                trustPoints?: number;
+                type: string;
+                timestamp: string;
+                actor: string;
+              }) => {
+                const points: number =
+                  typeof a.trustPoints === "number" ? a.trustPoints : 0;
+                const status: Activity["status"] =
+                  points < 0 ? "missed" : points > 0 ? "completed" : "pending";
+                let type: Activity["type"] = "collaboration";
+                if (a.type === "document") type = "document";
+                else if (a.type === "task")
+                  type = status === "missed" ? "deadline" : "milestone";
+                else if (points < 0) type = "penalty" as Activity["type"];
+                return {
+                  id: a.id,
+                  type,
+                  title: a.action,
+                  description: a.description || "",
+                  points,
+                  date: new Date(a.timestamp).toISOString().split("T")[0],
+                  user: a.actor,
+                  status,
+                };
+              }
+            );
+            setActivities(mapped);
+            if (data?.pagination?.totalPages) {
+              setTotalPages(data.pagination.totalPages);
+            }
+            if (data?.insights) {
+              setInsights(data.insights);
+            }
+            if (data?.categories) {
+              setCategories(data.categories);
+            }
+          }
+        }
+      } catch (_e) {
+        // ignore for now; keep mock fallback below
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [workspaceId, page]);
 
-      setActivities(mockActivities);
-      setCategories(mockCategories);
-      setInsights(mockInsights);
-      setLoading(false);
-    }, 1000);
-  }, []);
+  // No more mock data - everything comes from API now
 
   const handleExport = (type: "private" | "investor") => {
     console.log(`Exporting ${type} view of trust ledger`);
@@ -279,6 +235,27 @@ export default function TrustLedgerPageClient(
         {/* Left Column - Timeline */}
         <div className="lg:col-span-2">
           <TrustTimeline activities={activities} />
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 py-2 text-sm rounded-md border border-gray-200 dark:border-gray-700 disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-3 py-2 text-sm rounded-md border border-gray-200 dark:border-gray-700 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right Column - AI Insights */}
